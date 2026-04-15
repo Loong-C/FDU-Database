@@ -72,7 +72,7 @@
 - 仅展示核心属性（主键/外键/业务关键字段），避免图面过密；
 - 图右下角加图例（PK、FK、UK 含义）。
 ---
-## 7. Mermaid 版 ER 图（可直接粘贴到 Markdown）
+## 7. Mermaid 版 ER 图
 ```mermaid
 erDiagram
     STORE ||--o{ SALE : has
