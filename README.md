@@ -1,5 +1,5 @@
 # 网上综合书店销售数据库项目 README
-
+https://github.com/Loong-C/FDU-Database.git
 ## 1. 项目概述
 
 本项目旨在设计并实现一个 **网上综合书店销售数据库系统**，用于支持连锁销售公司的日常经营与信息管理。系统需要覆盖以下核心对象与业务：
@@ -965,3 +965,86 @@ git commit -m "解决合并冲突"
 
 **祝你们小组项目顺利完成。**
 
+---
+
+## 19. 当前仓库后端实现说明
+
+当前仓库已按课程项目后端要求补充 Django/DRF 后端工程，并整理为以下结构：
+
+```text
+backend/
+  accounts/
+  analytics/
+  catalog/
+  common/
+  config/
+  customers/
+  sales/
+  stores/
+  .env.example
+  manage.py
+  requirements.txt
+sql/
+  create_database.sql
+  create_tables.sql
+  insert_sample_data.sql
+  views_or_reports.sql
+docs/
+  api/API接口文档.md
+  test/接口测试结果.md
+  database/...
+README.md
+```
+
+### 19.1 后端技术栈
+
+- Python 3.12
+- Django 5.2
+- Django REST Framework 3.17
+- MySQL 8.x
+- PyMySQL
+- 自实现 JWT 鉴权
+
+### 19.2 后端启动方式
+
+在仓库根目录执行：
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r backend\requirements.txt
+Copy-Item backend\.env.example backend\.env
+cd backend
+..\.venv\Scripts\python manage.py migrate
+..\.venv\Scripts\python manage.py bootstrap_business_db --seed --views
+..\.venv\Scripts\python manage.py seed_demo_users
+..\.venv\Scripts\python manage.py runserver
+```
+
+注意：
+- 实际命令中的 Python 路径应写成 `..\.venv\Scripts\python`
+- `backend/.env` 中需要填写真实 MySQL 连接信息
+
+### 19.3 已实现的后端模块
+
+- `accounts`：自定义用户、角色、JWT 登录/刷新/登出、用户管理
+- `stores`：门店管理接口
+- `catalog`：供应商、分类、出版社、作者、译者、商品、图书接口
+- `customers`：客户与会员接口
+- `sales`：销售主单与明细接口，含库存扣减/回滚
+- `analytics`：门店日报、商品排行、会员消费排行、分类汇总接口
+
+### 19.4 文档位置
+
+- API 文档：`docs/api/API接口文档.md`
+- 测试说明：`docs/test/接口测试结果.md`
+- 数据库设计文档：`docs/database/`
+
+### 19.5 演示账号
+
+执行 `python manage.py seed_demo_users` 后可用：
+
+| 用户名 | 密码 | 角色 |
+|---|---|---|
+| `admin` | `Admin123!` | 管理员 |
+| `operator` | `Operator123!` | 操作员 |
+| `viewer` | `Viewer123!` | 查询用户 |
