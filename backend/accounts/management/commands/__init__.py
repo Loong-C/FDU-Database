@@ -1,0 +1,1 @@
+"""Accounts command package."""
