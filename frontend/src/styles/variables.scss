@@ -1,0 +1,43 @@
+// Design tokens. These map to CSS custom properties so that theme switching is cheap.
+
+:root {
+  --app-bg: #f5f7fb;
+  --app-surface: #ffffff;
+  --app-surface-alt: #f9fafe;
+  --app-border: #e5e7eb;
+  --app-border-strong: #d1d5db;
+  --app-text: #111827;
+  --app-text-muted: #6b7280;
+  --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --app-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.15);
+  --app-shadow-lg: 0 16px 48px -16px rgba(15, 23, 42, 0.25);
+  --app-radius: 14px;
+  --app-radius-sm: 8px;
+  --brand: #4f46e5;
+  --brand-soft: rgba(79, 70, 229, 0.12);
+  --accent: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --el-color-primary: var(--brand);
+  --sidebar-width: 232px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 56px;
+}
+
+html.dark {
+  --app-bg: #0b1220;
+  --app-surface: #111a2e;
+  --app-surface-alt: #0f1729;
+  --app-border: rgba(148, 163, 184, 0.18);
+  --app-border-strong: rgba(148, 163, 184, 0.32);
+  --app-text: #e5e7eb;
+  --app-text-muted: #94a3b8;
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --app-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --app-shadow-lg: 0 16px 48px -16px rgba(0, 0, 0, 0.6);
+  --brand: #818cf8;
+  --brand-soft: rgba(129, 140, 248, 0.18);
+  --accent: #38bdf8;
+}
