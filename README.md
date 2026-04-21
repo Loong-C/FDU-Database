@@ -1014,8 +1014,8 @@ python -m venv .venv
 .\.venv\Scripts\python -m pip install -r backend\requirements.txt
 Copy-Item backend\.env.example backend\.env
 cd backend
-..\.venv\Scripts\python manage.py migrate
 ..\.venv\Scripts\python manage.py bootstrap_business_db --seed --views
+..\.venv\Scripts\python manage.py migrate
 ..\.venv\Scripts\python manage.py seed_demo_users
 ..\.venv\Scripts\python manage.py runserver
 ```
@@ -1023,6 +1023,7 @@ cd backend
 注意：
 - 实际命令中的 Python 路径应写成 `..\.venv\Scripts\python`
 - `backend/.env` 中需要填写真实 MySQL 连接信息
+- 首次初始化时需要先执行 `bootstrap_business_db` 创建业务数据库，再执行 `migrate`
 
 ### 19.3 已实现的后端模块
 

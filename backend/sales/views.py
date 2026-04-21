@@ -3,6 +3,7 @@ from rest_framework import status
 from common.permissions import CustomerSalesPermission
 from common.response import success_response
 from common.viewsets import StandardizedModelViewSet
+from common.datetime_filters import apply_local_date_range
 from sales.models import Sale
 from sales.serializers import SaleReadSerializer, SaleWriteSerializer
 from sales.services import create_sale, delete_sale, update_sale
@@ -25,10 +26,7 @@ class SaleViewSet(StandardizedModelViewSet):
             queryset = queryset.filter(customer_id=customer_id)
         if payment_method:
             queryset = queryset.filter(payment_method=payment_method)
-        if date_from:
-            queryset = queryset.filter(sale_time__date__gte=date_from)
-        if date_to:
-            queryset = queryset.filter(sale_time__date__lte=date_to)
+        queryset = apply_local_date_range(queryset, "sale_time", date_from, date_to)
         return queryset
 
     def get_serializer_class(self):
