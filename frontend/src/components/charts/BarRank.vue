@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<{
   color?: string
   loading?: boolean
   valueFormatter?: (v: number) => string
-}>(), { height: 320, color: '#4f46e5' })
+}>(), { height: 320, color: '#0969da' })
 
 const container = ref<HTMLElement | null>(null)
 
@@ -46,18 +46,8 @@ const option = computed<EChartsCoreOption | null>(() => {
         data: props.values,
         barMaxWidth: 18,
         itemStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 1,
-            y2: 0,
-            colorStops: [
-              { offset: 0, color: `${props.color}33` },
-              { offset: 1, color: props.color },
-            ],
-          },
-          borderRadius: [0, 6, 6, 0],
+          color: props.color,
+          borderRadius: [0, 4, 4, 0],
         },
       },
     ],

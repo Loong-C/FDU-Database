@@ -247,27 +247,36 @@ onMounted(() => {
         </header>
 
         <div v-if="!cart.length" class="pos-cart__empty">
-          <EmptyState icon="ShoppingCart" title="购物车空空如也" description="点击左侧商品加入" />
+          <el-icon :size="20"><ShoppingCart /></el-icon>
+          <span>购物车空空如也，点击左侧商品加入</span>
         </div>
 
         <ul v-else class="pos-cart__list">
           <li v-for="line in cart" :key="line.product_id" class="pos-cart__line">
-            <div class="pos-cart__line-top">
-              <span class="pos-cart__name">{{ line.product_name }}</span>
-              <el-button text type="danger" @click="removeLine(line.product_id)">
-                <el-icon><Delete /></el-icon>
-              </el-button>
-            </div>
-            <div class="pos-cart__line-mid">
+            <div class="pos-cart__line-row">
+              <span
+                class="pos-cart__name"
+                :title="`${line.product_name} · 单价 ${formatCurrency(line.unit_price)}`"
+              >
+                {{ line.product_name }}
+              </span>
               <el-input-number
                 v-model="line.quantity"
                 :min="1"
                 :max="line.stock_qty"
                 size="small"
                 controls-position="right"
+                class="pos-cart__qty"
               />
-              <span class="text-muted money">× {{ formatCurrency(line.unit_price) }}</span>
               <span class="money pos-cart__line-total">{{ formatCurrency(line.unit_price * line.quantity) }}</span>
+              <el-button
+                text
+                type="danger"
+                class="pos-cart__remove"
+                @click="removeLine(line.product_id)"
+              >
+                <el-icon><Delete /></el-icon>
+              </el-button>
             </div>
             <div v-if="lineErrors[line.product_id]" class="pos-cart__line-error">
               <el-icon><WarningFilled /></el-icon>
@@ -277,7 +286,7 @@ onMounted(() => {
         </ul>
 
         <div class="pos-cart__meta">
-          <el-form label-width="80px" size="default">
+          <el-form label-width="72px" size="small">
             <el-form-item label="门店" required>
               <el-select v-model="form.store_id" placeholder="请选择" style="width: 100%">
                 <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
@@ -306,7 +315,7 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item label="支付方式">
-              <el-radio-group v-model="form.payment_method">
+              <el-radio-group v-model="form.payment_method" size="small">
                 <el-radio-button value="cash">现金</el-radio-button>
                 <el-radio-button value="card">银行卡</el-radio-button>
                 <el-radio-button value="wechat">微信</el-radio-button>
@@ -341,7 +350,6 @@ onMounted(() => {
 
         <el-button
           type="primary"
-          size="large"
           style="width: 100%"
           :loading="submitting"
           :disabled="!cart.length || !form.store_id"
@@ -356,51 +364,65 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/*
+  POS 页面在视口内一屏展示：用 calc 锁死总高度（减去 MainLayout 顶栏 52px +
+  app-main padding 60px + PageHeader 约 80px + 栅格 gap 16px），两个 panel
+  各自独立内部滚动，不再触发 app-main 外层滚动。
+*/
 .pos-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr);
+  gap: 12px;
+  height: calc(100vh - 210px);
+  min-height: 420px;
 }
 
 .pos-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-height: 70vh;
+  gap: 12px;
+  height: 100%;
+  overflow: hidden;
+  padding: 12px;
 }
 
 .pos-products__head {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .pos-products__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  align-content: flex-start;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-right: 4px;
 }
 
 .product-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 4px;
   cursor: pointer;
   text-align: left;
-  padding: 14px;
+  padding: 10px 12px;
   border: 1px solid var(--app-border);
-  background: var(--app-surface);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  border-radius: var(--app-radius);
+  background: var(--app-surface-solid);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .product-card:hover:not(:disabled) {
   border-color: var(--brand);
-  transform: translateY(-1px);
+  background: var(--app-surface-alt);
 }
 
 .product-card:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -411,12 +433,17 @@ onMounted(() => {
 .product-card__top {
   display: flex;
   gap: 4px;
-  min-height: 22px;
+  min-height: 0;
+  align-items: center;
+}
+
+.product-card__top:empty {
+  display: none;
 }
 
 .product-card__name {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -425,64 +452,97 @@ onMounted(() => {
 }
 
 .product-card__meta {
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .product-card__price {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 14px;
   color: var(--brand);
+  margin-top: 2px;
 }
 
 .pos-cart__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.pos-cart__empty {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 12px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--app-radius);
+  color: var(--app-text-muted);
+  font-size: 13px;
+  background: var(--app-surface-alt);
 }
 
 .pos-cart__list {
   list-style: none;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-  overflow-y: auto;
-  max-height: 40vh;
-}
-
-.pos-cart__line {
-  border: 1px solid var(--app-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: var(--app-surface-alt);
+  padding: 0 4px 0 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
 }
 
-.pos-cart__line-top {
+/* 单行紧凑的购物车条目：名称(省略号) | 数量 | 小计 | 删除 */
+.pos-cart__line {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 4px 8px;
+  background: var(--app-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pos-cart__line-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+  min-width: 0;
 }
 
 .pos-cart__name {
-  font-weight: 600;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.pos-cart__line-mid {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+.pos-cart__qty {
+  flex-shrink: 0;
+  width: 90px;
 }
 
 .pos-cart__line-total {
-  font-weight: 700;
+  flex-shrink: 0;
+  font-weight: 600;
   color: var(--brand);
+  min-width: 72px;
+  text-align: right;
+  font-size: 13px;
+}
+
+.pos-cart__remove {
+  flex-shrink: 0;
+  padding: 2px 4px !important;
+  min-height: auto !important;
 }
 
 .pos-cart__line-error {
@@ -491,36 +551,93 @@ onMounted(() => {
   gap: 4px;
   font-size: 12px;
   color: var(--danger);
+  padding-left: 2px;
 }
 
 .pos-cart__totals {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 0;
+  gap: 4px;
+  padding-top: 8px;
   border-top: 1px dashed var(--app-border);
+  flex-shrink: 0;
 }
 
 .pos-cart__total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .pos-cart__total-row--final {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--brand);
-  margin-top: 4px;
+}
+
+.pos-cart__meta {
+  flex-shrink: 0;
 }
 
 .pos-cart__meta :deep(.el-form-item) {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
+.pos-cart__meta :deep(.el-form-item__label) {
+  padding-right: 8px;
+}
+
+.pos-cart__error {
+  flex-shrink: 0;
+}
+
+.pos-cart .el-button--large {
+  flex-shrink: 0;
+}
+
+/*
+  宽屏（>1100px）：两栏并排，整个页面锁死一屏，每个面板内部滚动。
+  窄屏 / 竖屏：改回单列瀑布布局，让页面自然滚动，各列表只做高度上限。
+*/
 @media (max-width: 1100px) {
   .pos-layout {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .pos-panel {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pos-products__grid {
+    max-height: 48vh;
+  }
+
+  .pos-cart__list {
+    max-height: 40vh;
+  }
+}
+
+/* 矮屏（例如 13 寸笔记本竖排 / 横屏但分辨率小）：放宽高度限制，优先让内容可见 */
+@media (max-height: 680px) {
+  .pos-layout {
+    height: auto;
+    min-height: 0;
+  }
+
+  .pos-panel {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pos-products__grid {
+    max-height: 44vh;
+  }
+
+  .pos-cart__list {
+    max-height: 36vh;
   }
 }
 </style>

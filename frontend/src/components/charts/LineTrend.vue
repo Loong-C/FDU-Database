@@ -42,7 +42,7 @@ const option = computed<EChartsCoreOption | null>(() => {
       areaStyle: index === 0 ? { opacity: 0.12 } : undefined,
       emphasis: { focus: 'series' },
     })),
-    color: ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b'],
+    color: ['#0969da', '#1a7f37', '#8250df', '#bf8700', '#cf222e', '#176f64'],
   }
 })
 

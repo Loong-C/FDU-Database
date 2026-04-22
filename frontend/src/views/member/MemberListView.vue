@@ -281,11 +281,11 @@ onMounted(fetchList)
   justify-content: center;
   color: #fff;
 }
-.member-stat-card__badge[data-level='bronze'] { background: linear-gradient(135deg, #b45309, #92400e); }
-.member-stat-card__badge[data-level='silver'] { background: linear-gradient(135deg, #94a3b8, #64748b); }
-.member-stat-card__badge[data-level='gold'] { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.member-stat-card__badge[data-level='platinum'] { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-.member-stat-card__badge[data-level='points'] { background: linear-gradient(135deg, var(--brand), var(--accent)); }
+.member-stat-card__badge[data-level='bronze'] { background: #953800; }
+.member-stat-card__badge[data-level='silver'] { background: #6e7781; }
+.member-stat-card__badge[data-level='gold'] { background: #bf8700; }
+.member-stat-card__badge[data-level='platinum'] { background: #1a7f37; }
+.member-stat-card__badge[data-level='points'] { background: var(--brand); }
 
 .member-stat-card__label {
   font-size: 13px;

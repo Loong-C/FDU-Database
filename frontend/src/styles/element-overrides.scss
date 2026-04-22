@@ -1,6 +1,6 @@
 @use 'element-plus/theme-chalk/dark/css-vars.css';
 
-// Bridge Element Plus tokens to our design tokens so themes stay consistent.
+// 让 Element Plus 的 CSS 变量向 GitHub/Primer 语义对齐。
 :root,
 html.dark {
   --el-color-primary: var(--brand);
@@ -9,48 +9,121 @@ html.dark {
   --el-color-primary-light-7: color-mix(in srgb, var(--brand) 35%, white);
   --el-color-primary-light-8: color-mix(in srgb, var(--brand) 20%, white);
   --el-color-primary-light-9: color-mix(in srgb, var(--brand) 12%, white);
-  --el-color-primary-dark-2: color-mix(in srgb, var(--brand) 85%, black);
-  --el-bg-color: var(--app-surface);
+  --el-color-primary-dark-2: var(--brand-hover);
+
+  --el-color-success: var(--success);
+  --el-color-warning: var(--warning);
+  --el-color-danger: var(--danger);
+
+  --el-bg-color: var(--app-surface-solid);
   --el-bg-color-page: var(--app-bg);
-  --el-bg-color-overlay: var(--app-surface);
+  --el-bg-color-overlay: var(--app-surface-solid);
   --el-text-color-primary: var(--app-text);
   --el-text-color-regular: var(--app-text);
   --el-text-color-secondary: var(--app-text-muted);
   --el-border-color: var(--app-border);
   --el-border-color-light: var(--app-border);
-  --el-border-color-lighter: var(--app-border);
-  --el-fill-color-blank: var(--app-surface);
+  --el-border-color-lighter: var(--app-border-muted);
+  --el-fill-color-blank: var(--app-surface-solid);
   --el-fill-color-light: var(--app-surface-alt);
   --el-fill-color-lighter: var(--app-surface-alt);
+
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: var(--app-text);
+  --el-menu-hover-bg-color: var(--menu-hover-bg);
+  --el-menu-hover-text-color: var(--menu-hover-text);
+  --el-menu-active-color: var(--brand);
 }
 
+// 卡片：无阴影、细边、6px 圆角，与 Primer 一致
 .el-card {
   --el-card-border-radius: var(--app-radius);
-  --el-card-padding: 20px;
-  border: 1px solid var(--app-border);
-  box-shadow: var(--app-shadow-sm) !important;
+  --el-card-padding: 16px;
+  border: 1px solid var(--app-border) !important;
+  box-shadow: none !important;
+  background: var(--app-surface-solid);
 }
 
+// 按钮：中性边框 + 轻微的底色，默认按钮像 GitHub 二级按钮
 .el-button {
   font-weight: 500;
+  border-radius: var(--app-radius);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
+.el-button--default:not(.is-text):not(.is-link) {
+  background: var(--app-surface-solid);
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.el-button--default:not(.is-text):not(.is-link):hover {
+  background: var(--app-surface-alt);
+  border-color: var(--app-border-strong);
+  color: var(--app-text);
+}
+
+.el-button--primary {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.el-button--primary:hover,
+.el-button--primary:focus {
+  background: var(--brand-hover);
+  border-color: var(--brand-hover);
+}
+
+.el-button--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.el-button--success {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+// 表格：无圆角、极淡分割线，GitHub 风表格
 .el-table {
-  --el-table-border-color: var(--app-border);
+  --el-table-border-color: var(--app-border-muted);
   --el-table-header-bg-color: var(--app-surface-alt);
-  --el-table-row-hover-bg-color: color-mix(in srgb, var(--brand) 7%, var(--app-surface));
+  --el-table-header-text-color: var(--app-text-muted);
+  --el-table-row-hover-bg-color: var(--app-surface-alt);
+  --el-table-bg-color: var(--app-surface-solid);
+  border-radius: var(--app-radius);
+  overflow: hidden;
 }
 
+.el-table thead th {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+// Tag：方形偏小圆角
 .el-tag {
-  border-radius: 999px;
+  border-radius: 2em;
   font-weight: 500;
+  font-size: 12px;
 }
 
+// 弹窗 / 抽屉
 .el-dialog,
 .el-drawer {
-  --el-dialog-border-radius: var(--app-radius);
+  --el-dialog-border-radius: var(--app-radius-lg);
 }
 
+.el-drawer {
+  background: var(--app-surface-solid);
+}
+
+.el-overlay {
+  background-color: rgba(27, 31, 36, 0.5);
+}
+
+// 菜单：GitHub 侧栏风格，hover 只有淡灰，active 才上主色
 .el-menu {
   --el-menu-bg-color: transparent;
   border-right: none !important;
@@ -58,22 +131,68 @@ html.dark {
 
 .el-menu--vertical .el-menu-item,
 .el-menu--vertical .el-sub-menu__title {
-  border-radius: 10px;
-  margin: 2px 10px;
-  padding-left: 14px !important;
+  border-radius: var(--app-radius);
+  margin: 1px 8px;
+  padding-left: 12px !important;
+  height: 34px;
+  line-height: 34px;
+  font-size: 13.5px;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.el-menu--vertical .el-menu-item:hover,
+.el-menu--vertical .el-sub-menu__title:hover {
+  background: var(--menu-hover-bg) !important;
+  color: var(--menu-hover-text) !important;
+}
+
+.el-menu--vertical .el-menu-item:hover .el-icon,
+.el-menu--vertical .el-sub-menu__title:hover .el-icon {
+  color: var(--menu-hover-text) !important;
 }
 
 .el-menu--vertical .el-menu-item.is-active {
-  background: var(--brand-soft);
-  color: var(--brand);
+  background: var(--menu-active-bg) !important;
+  color: var(--menu-active-text) !important;
   font-weight: 600;
 }
 
+.el-menu--vertical .el-menu-item.is-active .el-icon {
+  color: var(--menu-active-text) !important;
+}
+
+.el-menu--collapse .el-menu-item {
+  padding-left: 0 !important;
+  justify-content: center;
+}
+
+// 输入框/下拉：细边 + 6px 圆角
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  border-radius: var(--app-radius) !important;
+}
+
 .el-skeleton {
-  --el-skeleton-color: color-mix(in srgb, var(--app-text) 6%, var(--app-surface));
-  --el-skeleton-to-color: color-mix(in srgb, var(--app-text) 12%, var(--app-surface));
+  --el-skeleton-color: var(--app-surface-alt);
+  --el-skeleton-to-color: var(--app-border-muted);
 }
 
 .el-statistic__content {
   font-variant-numeric: tabular-nums;
+}
+
+// 分页按钮与按钮组
+.el-pagination.is-background .btn-prev,
+.el-pagination.is-background .btn-next,
+.el-pagination.is-background .el-pager li {
+  background: var(--app-surface-solid) !important;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+}
+
+.el-pagination.is-background .el-pager li.is-active {
+  background: var(--brand) !important;
+  border-color: var(--brand);
+  color: #fff !important;
 }

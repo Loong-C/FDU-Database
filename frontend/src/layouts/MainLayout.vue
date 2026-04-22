@@ -72,14 +72,6 @@ const menuGroups = computed(() => {
 
 const activeMenu = computed(() => route.path)
 
-const breadcrumbs = computed(() => {
-  const segments = route.matched.filter((m) => m.meta?.title)
-  return segments.map((m) => ({
-    title: m.meta.title as string,
-    path: m.path,
-  }))
-})
-
 async function handleLogout() {
   try {
     await ElMessageBox.confirm('确定要退出登录吗？', '确认', {
@@ -131,7 +123,7 @@ const userInitial = computed(() => {
     <el-aside :width="sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)'" class="app-sidebar">
       <div class="brand" :class="{ 'brand--collapsed': sidebarCollapsed }">
         <div class="brand__mark">
-          <el-icon :size="22"><Reading /></el-icon>
+          <el-icon :size="18"><Reading /></el-icon>
         </div>
         <transition name="fade">
           <div v-if="!sidebarCollapsed" class="brand__text">
@@ -160,17 +152,12 @@ const userInitial = computed(() => {
       </nav>
     </el-aside>
 
-    <el-container>
+    <el-container class="app-main-container">
       <el-header class="app-header">
         <div class="app-header__left">
           <el-button text circle @click="ui.toggleSidebar()">
             <el-icon :size="18"><component :is="sidebarCollapsed ? 'Expand' : 'Fold'" /></el-icon>
           </el-button>
-          <el-breadcrumb separator="/">
-            <el-breadcrumb-item v-for="crumb in breadcrumbs" :key="crumb.path" :to="{ path: crumb.path }">
-              {{ crumb.title }}
-            </el-breadcrumb-item>
-          </el-breadcrumb>
         </div>
         <div class="app-header__right">
           <el-tooltip :content="isDark ? '切换浅色主题' : '切换深色主题'" placement="bottom">
@@ -227,50 +214,62 @@ const userInitial = computed(() => {
 </template>
 
 <style scoped>
+/* 整个 app 锁定视口高度，让 aside / main 各自独立滚动 */
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--app-bg);
 }
 
 .app-sidebar {
-  background: var(--app-surface);
-  border-right: 1px solid var(--app-border);
-  padding: 12px 0;
-  transition: width 0.2s ease;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
+  padding: 8px 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--app-border);
+  transition: width 0.15s ease;
   overflow: hidden;
+}
+
+.app-main-container {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 18px 8px;
+  padding: 6px 16px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--app-border-muted);
 }
 
 .brand--collapsed {
-  padding: 4px 12px 8px;
+  padding: 6px 12px 10px;
   justify-content: center;
 }
 
 .brand__mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  width: 28px;
+  height: 28px;
+  border-radius: var(--app-radius-sm);
+  background: var(--brand);
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--brand) 70%, transparent);
 }
 
 .brand__name {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .brand__sub {
@@ -280,15 +279,17 @@ const userInitial = computed(() => {
 
 .app-nav {
   flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  padding: 0 0 16px;
+  padding: 6px 0 16px;
+  scrollbar-gutter: stable;
 }
 
 .app-nav__group {
-  padding: 14px 20px 6px;
+  padding: 12px 20px 4px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--app-text-muted);
 }
@@ -298,45 +299,51 @@ const userInitial = computed(() => {
   justify-content: space-between;
   align-items: center;
   height: var(--header-height);
-  padding: 0 20px;
-  background: var(--app-surface);
+  padding: 0 16px;
+  background: var(--app-header-bg);
   border-bottom: 1px solid var(--app-border);
-  box-shadow: var(--app-shadow-sm);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .app-header__left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .app-header__right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .user-chip {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 10px 4px 4px;
-  border-radius: 999px;
+  gap: 8px;
+  padding: 3px 8px 3px 3px;
+  border-radius: var(--app-radius);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.1s ease;
+  border: 1px solid transparent;
 }
 
 .user-chip:hover {
   background: var(--app-surface-alt);
+  border-color: var(--app-border);
 }
 
 .user-chip__avatar {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  background: var(--brand);
   color: #fff;
   font-weight: 600;
+  font-size: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -350,7 +357,7 @@ const userInitial = computed(() => {
 
 .user-chip__name {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .user-chip__role {
@@ -359,6 +366,13 @@ const userInitial = computed(() => {
 }
 
 .app-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   padding: 20px 24px 40px;
+}
+
+@media (max-width: 768px) {
+  .user-chip__meta { display: none; }
 }
 </style>

@@ -56,240 +56,174 @@ function useDemoAccount(account: { name: string; password: string }) {
 
 <template>
   <div class="login">
-    <div class="login__bg"></div>
-    <div class="login__panel">
-      <aside class="login__brand">
-        <div class="brand-mark">
-          <el-icon :size="28"><Reading /></el-icon>
-        </div>
-        <h1>Bookstore 管理平台</h1>
-        <p>一站式覆盖门店、供应链、图书、会员与销售数据分析</p>
-        <ul class="brand-feats">
-          <li><el-icon><Check /></el-icon>角色权限精确到按钮</li>
-          <li><el-icon><Check /></el-icon>POS 风格销售开单</li>
-          <li><el-icon><Check /></el-icon>实时 KPI 与多维分析</li>
-        </ul>
-      </aside>
-
-      <section class="login__form">
-        <h2>欢迎回来</h2>
-        <p class="login__hint text-muted">请使用下方账号登录系统</p>
-
-        <el-form ref="formRef" :model="form" :rules="rules" size="large" @submit.prevent="onSubmit">
-          <el-form-item prop="username">
-            <el-input v-model="form.username" placeholder="用户名" :prefix-icon="'User'" autocomplete="username" />
-          </el-form-item>
-          <el-form-item prop="password">
-            <el-input
-              v-model="form.password"
-              placeholder="密码"
-              type="password"
-              show-password
-              :prefix-icon="'Lock'"
-              autocomplete="current-password"
-              @keyup.enter="onSubmit"
-            />
-          </el-form-item>
-          <el-button type="primary" :loading="loading" style="width: 100%" size="large" @click="onSubmit">
-            登录
-          </el-button>
-        </el-form>
-
-        <div class="login__demo">
-          <div class="login__demo-title text-muted">演示账号（点击填入）</div>
-          <div class="login__demo-grid">
-            <button
-              v-for="acc in demoAccounts"
-              :key="acc.name"
-              type="button"
-              class="demo-chip"
-              @click="useDemoAccount(acc)"
-            >
-              <div class="demo-chip__name">{{ acc.name }}</div>
-              <div class="demo-chip__desc">{{ acc.desc }}</div>
-            </button>
-          </div>
-        </div>
-      </section>
+    <div class="login__mark">
+      <el-icon :size="32"><Reading /></el-icon>
     </div>
+    <h1 class="login__title">登录 Bookstore</h1>
+
+    <section class="login__card">
+      <el-form ref="formRef" :model="form" :rules="rules" size="default" @submit.prevent="onSubmit">
+        <label class="login__label" for="login-username">用户名</label>
+        <el-form-item prop="username">
+          <el-input
+            id="login-username"
+            v-model="form.username"
+            placeholder="输入用户名"
+            autocomplete="username"
+          />
+        </el-form-item>
+
+        <label class="login__label" for="login-password">密码</label>
+        <el-form-item prop="password">
+          <el-input
+            id="login-password"
+            v-model="form.password"
+            placeholder="输入密码"
+            type="password"
+            show-password
+            autocomplete="current-password"
+            @keyup.enter="onSubmit"
+          />
+        </el-form-item>
+
+        <el-button
+          type="primary"
+          :loading="loading"
+          style="width: 100%"
+          @click="onSubmit"
+        >
+          登录
+        </el-button>
+      </el-form>
+    </section>
+
+    <section class="login__card login__demo">
+      <div class="login__demo-title">演示账号</div>
+      <ul class="login__demo-list">
+        <li v-for="acc in demoAccounts" :key="acc.name">
+          <button type="button" class="login__demo-btn" @click="useDemoAccount(acc)">
+            <span class="login__demo-name">{{ acc.name }}</span>
+            <span class="login__demo-desc">{{ acc.desc }}</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <p class="login__footer text-muted">
+      网上综合书店销售数据库项目 · 复旦大学课程作业
+    </p>
   </div>
 </template>
 
 <style scoped>
 .login {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 56px 20px 40px;
   background: var(--app-bg);
 }
 
-.login__bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(60% 80% at 20% 20%, color-mix(in srgb, var(--brand) 18%, transparent), transparent 70%),
-    radial-gradient(70% 80% at 80% 90%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 60%),
-    var(--app-bg);
-  z-index: 0;
-}
-
-.login__panel {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 960px;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  border-radius: 20px;
-  box-shadow: var(--app-shadow-lg);
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-}
-
-.login__brand {
-  padding: 48px 40px;
-  background: linear-gradient(160deg, #1e1b4b 0%, #312e81 45%, #0f172a 100%);
-  color: #e0e7ff;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  position: relative;
-  overflow: hidden;
-}
-
-.login__brand::after {
-  content: '';
-  position: absolute;
-  inset: -40% -40% auto auto;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.35), transparent 70%);
-  pointer-events: none;
-}
-
-.brand-mark {
+.login__mark {
   width: 48px;
   height: 48px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
 }
 
-.login__brand h1 {
-  font-size: 26px;
+.login__title {
   margin: 0;
+  font-size: 22px;
+  font-weight: 300;
   letter-spacing: -0.01em;
+  color: var(--app-text);
 }
 
-.login__brand p {
-  margin: 0;
-  color: #c7d2fe;
-  line-height: 1.6;
+.login__card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--app-surface-solid);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  padding: 16px;
 }
 
-.brand-feats {
-  list-style: none;
-  padding: 0;
-  margin: 18px 0 0;
-  display: grid;
-  gap: 8px;
-}
-
-.brand-feats li {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  color: #c7d2fe;
-  font-size: 14px;
-}
-
-.brand-feats li .el-icon {
-  color: #a5f3fc;
-}
-
-.login__form {
-  padding: 48px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  background: var(--app-surface);
-}
-
-.login__form h2 {
-  margin: 0;
-  font-size: 24px;
-  letter-spacing: -0.01em;
-}
-
-.login__hint {
-  margin: 0 0 12px;
+.login__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-text);
+  margin-bottom: 4px;
 }
 
 .login__demo {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .login__demo-title {
   font-size: 12px;
-  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  padding: 12px 16px 6px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.login__demo-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+.login__demo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.demo-chip {
+.login__demo-list li + li {
+  border-top: 1px solid var(--app-border-muted);
+}
+
+.login__demo-btn {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface-alt);
+  gap: 2px;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.15s ease;
   text-align: left;
+  transition: background 0.1s ease;
 }
 
-.demo-chip:hover {
-  border-color: var(--brand);
-  transform: translateY(-1px);
-  box-shadow: var(--app-shadow-sm);
+.login__demo-btn:hover {
+  background: var(--app-surface-alt);
 }
 
-.demo-chip__name {
+.login__demo-name {
   font-weight: 600;
-  color: var(--app-text);
+  color: var(--brand);
+  font-size: 13px;
 }
 
-.demo-chip__desc {
+.login__demo-desc {
   font-size: 12px;
   color: var(--app-text-muted);
 }
 
-@media (max-width: 820px) {
-  .login__panel {
-    grid-template-columns: 1fr;
-  }
-  .login__brand {
-    padding: 28px;
-  }
-  .login__form {
-    padding: 28px;
-  }
+.login__footer {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 12px;
 }
 </style>

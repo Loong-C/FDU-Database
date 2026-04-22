@@ -103,12 +103,17 @@ const storeTrend = computed(() => {
   const dates = new Set<string>()
   const series = new Map<string, Map<string, number>>() // store -> date -> value
   storeRows.value.forEach((row) => {
-    const key = dayjs(row.sale_date).format('YYYY-MM-DD')
+    // 防御性过滤：后端 TruncDate 理论上始终返回有效日期，但任何 null/解析失败都
+    // 会让 dayjs().format() 吐出 "Invalid Date"，进而污染 ECharts 的类目轴。
+    if (!row.sale_date) return
+    const parsed = dayjs(row.sale_date)
+    if (!parsed.isValid()) return
+    const key = parsed.format('YYYY-MM-DD')
     dates.add(key)
     if (!series.has(row.store_name)) series.set(row.store_name, new Map())
     series.get(row.store_name)!.set(key, Number(row.actual_amount_sum || 0))
   })
-  const sorted = Array.from(dates).sort()
+  const sorted = Array.from(dates).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf())
   return {
     categories: sorted,
     series: Array.from(series.entries()).map(([name, values]) => ({

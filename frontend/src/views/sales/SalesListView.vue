@@ -132,49 +132,49 @@ onMounted(() => {
       @page-change="(p) => { page = p; fetchList() }"
       @size-change="(s) => { pageSize = s; page = 1; fetchList() }"
     >
-      <el-table-column label="#" width="90">
+      <el-table-column label="#" width="70">
         <template #default="{ row }">
           <router-link :to="`/sales/${row.sale_id}`" class="sale-id">#{{ row.sale_id }}</router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="store_name" label="门店" min-width="140" />
-      <el-table-column label="客户" min-width="140">
+      <el-table-column prop="store_name" label="门店" min-width="85" />
+      <el-table-column label="客户" min-width="75">
         <template #default="{ row }">
           <span v-if="row.customer_name">{{ row.customer_name }}</span>
           <span v-else class="text-muted">游客</span>
         </template>
       </el-table-column>
-      <el-table-column label="支付方式" width="110">
+      <el-table-column label="支付" width="88">
         <template #default="{ row }">
           <el-tag size="small" effect="plain" round>{{ paymentLabel(row.payment_method) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="商品数" width="90" align="right">
+      <el-table-column label="数量" width="64" align="right">
         <template #default="{ row }">
           <span class="money">{{ row.items?.length ?? 0 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="原始金额" width="130" align="right">
+      <el-table-column label="原价" width="100" align="right">
         <template #default="{ row }">
           <span class="money text-muted">{{ formatCurrency(row.total_amount) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="优惠" width="120" align="right">
+      <el-table-column label="优惠" width="100" align="right">
         <template #default="{ row }">
           <span class="money" :style="{ color: Number(row.discount_amount) > 0 ? 'var(--warning)' : undefined }">
             -{{ formatCurrency(row.discount_amount) }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="实付" width="140" align="right">
+      <el-table-column label="实付" width="110" align="right">
         <template #default="{ row }">
           <strong class="money" style="color: var(--brand)">{{ formatCurrency(row.actual_amount) }}</strong>
         </template>
       </el-table-column>
-      <el-table-column label="时间" width="170">
+      <el-table-column label="时间" width="140">
         <template #default="{ row }">{{ formatDateTime(row.sale_time) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="160" fixed="right" align="right">
+      <el-table-column label="操作" width="150" fixed="right" align="right">
         <template #default="{ row }">
           <div class="table-actions">
             <el-button text type="primary" @click="router.push(`/sales/${row.sale_id}`)">查看</el-button>

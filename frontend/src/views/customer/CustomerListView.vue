@@ -220,8 +220,8 @@ onMounted(fetchList)
       @page-change="(p) => { page = p; fetchList() }"
       @size-change="(s) => { pageSize = s; page = 1; fetchList() }"
     >
-      <el-table-column prop="customer_id" label="#" width="70" />
-      <el-table-column label="姓名" min-width="160">
+      <el-table-column prop="customer_id" label="#" width="60" />
+      <el-table-column label="姓名" min-width="130">
         <template #default="{ row }">
           <div class="name-cell">
             <span>{{ row.customer_name }}</span>
@@ -229,24 +229,24 @@ onMounted(fetchList)
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="phone" label="电话" width="160" />
-      <el-table-column prop="email" label="邮箱" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="address" label="地址" min-width="200" show-overflow-tooltip />
-      <el-table-column label="状态" width="90">
+      <el-table-column prop="phone" label="电话" width="130" />
+      <el-table-column prop="email" label="邮箱" min-width="170" show-overflow-tooltip />
+      <el-table-column prop="address" label="地址" min-width="170" show-overflow-tooltip />
+      <el-table-column label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
             {{ row.status === 'active' ? '启用' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="注册时间" width="170">
+      <el-table-column label="注册时间" width="140">
         <template #default="{ row }">{{ formatDateTime(row.register_time) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="220" fixed="right" align="right">
+      <el-table-column label="操作" width="170" fixed="right" align="right">
         <template #default="{ row }">
           <div class="table-actions">
             <el-button v-if="canWrite() && !row.is_member" text type="warning" @click="openUpgrade(row)">
-              升级会员
+              升级
             </el-button>
             <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-if="canWrite()" text type="danger" @click="onDelete(row)">删除</el-button>
