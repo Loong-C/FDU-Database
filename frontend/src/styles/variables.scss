@@ -1,0 +1,83 @@
+// Design tokens - GitHub / Primer inspired.
+// 原则：只用中性灰 + 主色蓝，强调平色和细边框，阴影几乎隐形。
+
+:root {
+  // 表面与背景
+  --app-bg: #f6f8fa;
+  --app-surface: #ffffff;
+  --app-surface-solid: #ffffff;
+  --app-surface-alt: #f6f8fa;
+  --sidebar-bg: #ffffff;
+  --app-header-bg: #ffffff;
+
+  // 边框与文字（对应 Primer --borderColor-default / --fgColor-*）
+  --app-border: #d1d9e0;
+  --app-border-strong: #8c959f;
+  --app-border-muted: #e6e8eb;
+  --app-text: #1f2328;
+  --app-text-muted: #59636e;
+
+  // 阴影：尽量平，GitHub 大多数卡片其实没有阴影
+  --app-shadow-sm: 0 1px 0 rgba(27, 31, 36, 0.04);
+  --app-shadow: 0 3px 6px rgba(140, 149, 159, 0.15);
+  --app-shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
+
+  // 圆角收紧到 6px，跟 GitHub 一致
+  --app-radius: 6px;
+  --app-radius-sm: 4px;
+  --app-radius-lg: 8px;
+
+  // 主色与语义色（Primer 配色）
+  --brand: #0969da;
+  --brand-hover: #0550ae;
+  --brand-soft: rgba(9, 105, 218, 0.12);
+  --brand-on: #ffffff;
+  --accent: #8250df;
+  --success: #1a7f37;
+  --warning: #9a6700;
+  --danger: #cf222e;
+
+  // 菜单 hover / active
+  --menu-hover-bg: rgba(208, 215, 222, 0.32);
+  --menu-hover-text: var(--app-text);
+  --menu-active-bg: rgba(9, 105, 218, 0.12);
+  --menu-active-text: var(--brand);
+
+  --el-color-primary: var(--brand);
+  --sidebar-width: 236px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 52px;
+}
+
+html.dark {
+  // Primer dark surface/tokens
+  --app-bg: #0d1117;
+  --app-surface: #0d1117;
+  --app-surface-solid: #161b22;
+  --app-surface-alt: #161b22;
+  --sidebar-bg: #0d1117;
+  --app-header-bg: #0d1117;
+
+  --app-border: #30363d;
+  --app-border-strong: #6e7681;
+  --app-border-muted: #21262d;
+  --app-text: #e6edf3;
+  --app-text-muted: #8b949e;
+
+  --app-shadow-sm: 0 0 transparent;
+  --app-shadow: 0 3px 6px rgba(1, 4, 9, 0.3);
+  --app-shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.4);
+
+  --brand: #2f81f7;
+  --brand-hover: #388bfd;
+  --brand-soft: rgba(47, 129, 247, 0.18);
+  --accent: #a371f7;
+  --success: #3fb950;
+  --warning: #d29922;
+  --danger: #f85149;
+
+  --menu-hover-bg: rgba(177, 186, 196, 0.12);
+  --menu-hover-text: var(--app-text);
+  --menu-active-bg: rgba(47, 129, 247, 0.15);
+  --menu-active-text: var(--brand);
+}

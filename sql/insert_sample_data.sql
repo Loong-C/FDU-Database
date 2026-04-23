@@ -18,7 +18,7 @@ INSERT INTO category (category_name, parent_category_id) VALUES
 INSERT INTO publisher (publisher_name, contact_name, phone, email, address, country, website) VALUES
 ('人民邮电出版社', '李编辑', '010-12340001', 'contact@ptpress.com.cn', '北京市丰台区A路1号', '中国', 'https://www.ptpress.com.cn'),
 ('机械工业出版社', '王编辑', '010-12340002', 'contact@cmpbook.com', '北京市西城区B路2号', '中国', 'https://www.cmpbook.com'),
-('译林出版社', '周编辑', '025-12340003', 'contact@yilin.com', '南京市鼓楼区C路3号', '中国', 'https://www.yilin.com');
+('译林出版社', '周编辑', '025-12340003', 'contact@yilinpress.com', '南京市鼓楼区C路3号', '中国', 'https://www.yilinpress.com');
 -- 商品（含图书与非图书）
 INSERT INTO product (product_name, category_id, unit, unit_price, cost_price, stock_qty, barcode, status) VALUES
 ('数据库系统概论（第6版）', 3, '本', 88.00, 55.00, 120, '9787111000001', 'onsale'), -- id=1
