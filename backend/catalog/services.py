@@ -24,6 +24,30 @@ def _validate_related_ids(model, ids, field_name):
     return existing
 
 
+def category_descendant_ids(category_id):
+    """返回该分类自身及全部后代分类的 id 集合。
+    用于"父分类筛选应包含其下子分类"的查询场景。category_id 不存在时返回 [category_id]
+    本身（仍交由上层的过滤拿到空结果），保持 API 行为可预期。
+    """
+    try:
+        root_id = int(category_id)
+    except (TypeError, ValueError):
+        return []
+    collected = {root_id}
+    pending = [root_id]
+    while pending:
+        next_level = list(
+            Category.objects.filter(parent_category_id__in=pending)
+            .values_list("category_id", flat=True)
+        )
+        new_ids = [cid for cid in next_level if cid not in collected]
+        if not new_ids:
+            break
+        collected.update(new_ids)
+        pending = new_ids
+    return list(collected)
+
+
 def replace_supplier_links(product, supplier_links):
     supplier_links = supplier_links or []
     supplier_ids = [item["supplier_id"] for item in supplier_links]

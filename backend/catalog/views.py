@@ -12,7 +12,13 @@ from catalog.serializers import (
     SupplierSerializer,
     TranslatorSerializer,
 )
-from catalog.services import create_book, create_product, update_book, update_product
+from catalog.services import (
+    category_descendant_ids,
+    create_book,
+    create_product,
+    update_book,
+    update_product,
+)
 from common.exceptions import ConflictError
 from common.permissions import CatalogPermission
 from common.response import success_response
@@ -113,7 +119,8 @@ class ProductViewSet(BaseCatalogViewSet):
         status_value = self.request.query_params.get("status")
         search = self.request.query_params.get("search")
         if category_id:
-            queryset = queryset.filter(category_id=category_id)
+            # 选父分类时一并匹配其下所有子分类，避免商品挂在叶子分类时父分类筛选返回空。
+            queryset = queryset.filter(category_id__in=category_descendant_ids(category_id))
         if status_value:
             queryset = queryset.filter(status=status_value)
         if search:
@@ -162,7 +169,7 @@ class BookViewSet(BaseCatalogViewSet):
         if publisher_id:
             queryset = queryset.filter(publisher_id=publisher_id)
         if category_id:
-            queryset = queryset.filter(product__category_id=category_id)
+            queryset = queryset.filter(product__category_id__in=category_descendant_ids(category_id))
         if search:
             queryset = queryset.filter(product__product_name__icontains=search)
         return queryset
