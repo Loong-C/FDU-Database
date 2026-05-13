@@ -15,6 +15,8 @@ from catalog.models import (
     Translator,
 )
 from common.validators import validate_phone, validate_publish_date
+from inventory.serializers import InventoryReadSerializer
+from inventory.services import product_stock_total
 
 
 class SupplierSerializer(serializers.ModelSerializer):
@@ -114,6 +116,8 @@ class ProductReadSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.category_name", read_only=True)
     supplier_links = serializers.SerializerMethodField()
     is_book = serializers.SerializerMethodField()
+    stock_qty = serializers.SerializerMethodField()
+    inventory = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -126,6 +130,7 @@ class ProductReadSerializer(serializers.ModelSerializer):
             "unit_price",
             "cost_price",
             "stock_qty",
+            "inventory",
             "barcode",
             "status",
             "created_at",
@@ -140,6 +145,13 @@ class ProductReadSerializer(serializers.ModelSerializer):
     def get_is_book(self, instance):
         return hasattr(instance, "book")
 
+    def get_stock_qty(self, instance):
+        return product_stock_total(instance)
+
+    def get_inventory(self, instance):
+        rows = instance.inventories.select_related("store").all()
+        return InventoryReadSerializer(rows, many=True).data
+
 
 class ProductWriteSerializer(serializers.Serializer):
     product_name = serializers.CharField(max_length=200)
@@ -153,7 +165,9 @@ class ProductWriteSerializer(serializers.Serializer):
         required=False,
         default=Decimal("0.00"),
     )
-    stock_qty = serializers.IntegerField(min_value=0, required=False, default=0)
+    stock_qty = serializers.IntegerField(min_value=0, required=False)
+    store_id = serializers.IntegerField(required=False)
+    safety_stock_qty = serializers.IntegerField(min_value=0, required=False)
     barcode = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
     status = serializers.ChoiceField(choices=Product.STATUS_CHOICES)
     supplier_links = SupplierLinkInputSerializer(many=True, required=False, default=list)
@@ -176,7 +190,8 @@ class BookReadSerializer(serializers.ModelSerializer):
     unit = serializers.CharField(source="product.unit", read_only=True)
     unit_price = serializers.DecimalField(source="product.unit_price", max_digits=10, decimal_places=2, read_only=True)
     cost_price = serializers.DecimalField(source="product.cost_price", max_digits=10, decimal_places=2, read_only=True)
-    stock_qty = serializers.IntegerField(source="product.stock_qty", read_only=True)
+    stock_qty = serializers.SerializerMethodField()
+    inventory = serializers.SerializerMethodField()
     barcode = serializers.CharField(source="product.barcode", read_only=True)
     status = serializers.CharField(source="product.status", read_only=True)
     created_at = serializers.DateTimeField(source="product.created_at", read_only=True)
@@ -197,6 +212,7 @@ class BookReadSerializer(serializers.ModelSerializer):
             "unit_price",
             "cost_price",
             "stock_qty",
+            "inventory",
             "barcode",
             "status",
             "created_at",
@@ -215,6 +231,13 @@ class BookReadSerializer(serializers.ModelSerializer):
     def get_supplier_links(self, instance):
         links = instance.product.supplier_links.all()
         return SupplierLinkReadSerializer(links, many=True).data
+
+    def get_stock_qty(self, instance):
+        return product_stock_total(instance.product)
+
+    def get_inventory(self, instance):
+        rows = instance.product.inventories.select_related("store").all()
+        return InventoryReadSerializer(rows, many=True).data
 
     def get_authors(self, instance):
         links = instance.author_links.all()

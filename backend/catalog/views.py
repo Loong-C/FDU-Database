@@ -111,7 +111,12 @@ class TranslatorViewSet(BaseCatalogViewSet):
 
 
 class ProductViewSet(BaseCatalogViewSet):
-    queryset = Product.objects.select_related("category").prefetch_related("supplier_links__supplier").all().order_by("product_id")
+    queryset = (
+        Product.objects.select_related("category")
+        .prefetch_related("supplier_links__supplier", "inventories__store")
+        .all()
+        .order_by("product_id")
+    )
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -157,6 +162,7 @@ class ProductViewSet(BaseCatalogViewSet):
 class BookViewSet(BaseCatalogViewSet):
     queryset = Book.objects.select_related("product__category", "publisher").prefetch_related(
         "product__supplier_links__supplier",
+        "product__inventories__store",
         "author_links__author",
         "translator_links__translator",
     ).all().order_by("product_id")

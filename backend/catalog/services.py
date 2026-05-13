@@ -14,6 +14,7 @@ from catalog.models import (
     Translator,
 )
 from common.exceptions import ConflictError
+from inventory.services import set_initial_inventory
 
 
 def _validate_related_ids(model, ids, field_name):
@@ -74,12 +75,16 @@ def replace_supplier_links(product, supplier_links):
 def create_product(validated_data):
     supplier_links = validated_data.pop("supplier_links", [])
     category_id = validated_data.pop("category_id")
+    stock_qty = validated_data.pop("stock_qty", None)
+    store_id = validated_data.pop("store_id", None)
+    safety_stock_qty = validated_data.pop("safety_stock_qty", 0)
     category = Category.objects.filter(pk=category_id).first()
     if not category:
         raise serializers.ValidationError({"category_id": "商品分类不存在。"})
 
     with transaction.atomic():
         product = Product.objects.create(category=category, **validated_data)
+        set_initial_inventory(product, stock_qty, safety_stock_qty, store_id)
         replace_supplier_links(product, supplier_links)
         return product
 
@@ -90,6 +95,9 @@ def update_product(instance, validated_data):
 
     supplier_links = validated_data.pop("supplier_links", None)
     category_id = validated_data.pop("category_id", None)
+    stock_qty = validated_data.pop("stock_qty", None)
+    store_id = validated_data.pop("store_id", None)
+    safety_stock_qty = validated_data.pop("safety_stock_qty", 0)
     if category_id is not None:
         category = Category.objects.filter(pk=category_id).first()
         if not category:
@@ -101,6 +109,8 @@ def update_product(instance, validated_data):
 
     with transaction.atomic():
         instance.save()
+        if stock_qty is not None:
+            set_initial_inventory(instance, stock_qty, safety_stock_qty, store_id)
         if supplier_links is not None:
             replace_supplier_links(instance, supplier_links)
         return instance
@@ -153,13 +163,16 @@ def create_book(validated_data):
         "unit": validated_data.pop("unit"),
         "unit_price": validated_data.pop("unit_price"),
         "cost_price": validated_data.pop("cost_price", 0),
-        "stock_qty": validated_data.pop("stock_qty", 0),
         "barcode": validated_data.pop("barcode", None),
         "status": validated_data.pop("status"),
     }
+    stock_qty = validated_data.pop("stock_qty", None)
+    store_id = validated_data.pop("store_id", None)
+    safety_stock_qty = validated_data.pop("safety_stock_qty", 0)
 
     with transaction.atomic():
         product = Product.objects.create(category=category, **product_fields)
+        set_initial_inventory(product, stock_qty, safety_stock_qty, store_id)
         book = Book.objects.create(product=product, publisher=publisher, **validated_data)
         replace_supplier_links(product, supplier_links)
         _replace_book_authors(book, author_ids)
@@ -192,10 +205,12 @@ def update_book(instance, validated_data):
         "unit",
         "unit_price",
         "cost_price",
-        "stock_qty",
         "barcode",
         "status",
     ]
+    stock_qty = validated_data.pop("stock_qty", None)
+    store_id = validated_data.pop("store_id", None)
+    safety_stock_qty = validated_data.pop("safety_stock_qty", 0)
     book_fields = [
         "isbn",
         "publish_date",
@@ -212,6 +227,8 @@ def update_book(instance, validated_data):
 
     with transaction.atomic():
         product.save()
+        if stock_qty is not None:
+            set_initial_inventory(product, stock_qty, safety_stock_qty, store_id)
         instance.save()
         if supplier_links is not None:
             replace_supplier_links(product, supplier_links)

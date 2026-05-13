@@ -3,6 +3,16 @@ from django.conf import settings
 
 SQL_DIR = settings.REPO_ROOT / "sql"
 BUSINESS_TABLES = [
+    "stock_in_item",
+    "stock_in",
+    "purchase_order_item",
+    "purchase_order",
+    "role_permission",
+    "user_role",
+    "permission",
+    "role",
+    "system_user",
+    "inventory",
     "sale_item",
     "sale",
     "member",
@@ -24,6 +34,8 @@ BUSINESS_VIEWS = [
     "v_product_sales_rank",
     "v_member_spending_rank",
     "v_category_sales_summary",
+    "v_inventory_warning",
+    "v_store_inventory_summary",
 ]
 
 
