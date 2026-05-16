@@ -10,6 +10,7 @@ from analytics.serializers import (
     ProductRankQuerySerializer,
     StoreDailyQuerySerializer,
 )
+from catalog.services import category_descendant_ids
 from common.datetime_filters import apply_local_date_range, build_local_date_bounds
 from common.permissions import AnalyticsPermission
 from common.response import success_response
@@ -61,7 +62,9 @@ class ProductRankAnalyticsView(APIView):
         if params.get("store_id"):
             queryset = queryset.filter(sale__store_id=params["store_id"])
         if params.get("category_id"):
-            queryset = queryset.filter(product__category_id=params["category_id"])
+            queryset = queryset.filter(
+                product__category_id__in=category_descendant_ids(params["category_id"])
+            )
         queryset = apply_local_date_range(
             queryset,
             "sale__sale_time",

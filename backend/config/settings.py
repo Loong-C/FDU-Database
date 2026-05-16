@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "stores",
     "catalog",
     "customers",
+    "inventory",
+    "procurement",
     "sales",
     "analytics",
 ]

@@ -7,8 +7,8 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITransactionTestCase
 
-from catalog.models import Product
 from common.testing import bootstrap_business_schema
+from inventory.models import Inventory
 
 User = get_user_model()
 
@@ -241,8 +241,8 @@ class BookstoreAPITests(APITransactionTestCase):
 
     def test_sale_inventory_lifecycle(self):
         operator_client, _ = self.login_client("operator", "Operator123!")
-        product4_before = Product.objects.get(pk=4).stock_qty
-        product5_before = Product.objects.get(pk=5).stock_qty
+        product4_before = Inventory.objects.get(store_id=1, product_id=4).stock_qty
+        product5_before = Inventory.objects.get(store_id=1, product_id=5).stock_qty
 
         create_sale_response = operator_client.post(
             "/api/v1/sales",
@@ -263,8 +263,8 @@ class BookstoreAPITests(APITransactionTestCase):
         sale_id = create_sale_response.data["data"]["sale_id"]
         self.assertEqual(Decimal(create_sale_response.data["data"]["total_amount"]), Decimal("82.00"))
         self.assertEqual(Decimal(create_sale_response.data["data"]["actual_amount"]), Decimal("77.00"))
-        self.assertEqual(Product.objects.get(pk=4).stock_qty, product4_before - 20)
-        self.assertEqual(Product.objects.get(pk=5).stock_qty, product5_before - 1)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=4).stock_qty, product4_before - 20)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=5).stock_qty, product5_before - 1)
 
         update_sale_response = operator_client.patch(
             f"/api/v1/sales/{sale_id}",
@@ -277,13 +277,60 @@ class BookstoreAPITests(APITransactionTestCase):
             format="json",
         )
         self.assertEqual(update_sale_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Product.objects.get(pk=4).stock_qty, product4_before - 10)
-        self.assertEqual(Product.objects.get(pk=5).stock_qty, product5_before)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=4).stock_qty, product4_before - 10)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=5).stock_qty, product5_before)
 
         delete_response = operator_client.delete(f"/api/v1/sales/{sale_id}")
         self.assertEqual(delete_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Product.objects.get(pk=4).stock_qty, product4_before)
-        self.assertEqual(Product.objects.get(pk=5).stock_qty, product5_before)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=4).stock_qty, product4_before)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=5).stock_qty, product5_before)
+
+    def test_procurement_stock_in_and_inventory_warning(self):
+        operator_client, _ = self.login_client("operator", "Operator123!")
+        product2_before = Inventory.objects.get(store_id=1, product_id=2).stock_qty
+
+        purchase_response = operator_client.post(
+            "/api/v1/purchase-orders",
+            {
+                "supplier_id": 2,
+                "store_id": 1,
+                "order_time": timezone.now().isoformat(),
+                "status": "approved",
+                "items": [
+                    {
+                        "product_id": 2,
+                        "quantity": 5,
+                        "purchase_price": "78.00",
+                    }
+                ],
+            },
+            format="json",
+        )
+        self.assertEqual(purchase_response.status_code, status.HTTP_201_CREATED)
+
+        stock_in_response = operator_client.post(
+            "/api/v1/stock-ins",
+            {
+                "purchase_order_id": purchase_response.data["data"]["purchase_order_id"],
+                "store_id": 1,
+                "inbound_time": timezone.now().isoformat(),
+                "status": "approved",
+                "items": [
+                    {
+                        "product_id": 2,
+                        "quantity": 5,
+                        "unit_cost": "78.00",
+                    }
+                ],
+            },
+            format="json",
+        )
+        self.assertEqual(stock_in_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Inventory.objects.get(store_id=1, product_id=2).stock_qty, product2_before + 5)
+
+        warning_response = operator_client.get("/api/v1/inventory/warnings")
+        self.assertEqual(warning_response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(warning_response.data["data"]), 1)
 
     def test_validation_conflict_and_analytics(self):
         admin_client, _ = self.login_client("admin", "Admin123!")

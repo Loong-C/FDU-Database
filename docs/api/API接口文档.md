@@ -183,7 +183,7 @@
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| `GET` | `/api/v1/products` | 商品列表，返回 `is_book` 字段 |
+| `GET` | `/api/v1/products` | 商品列表，返回 `is_book`、汇总 `stock_qty` 和门店库存 `inventory` |
 | `GET` | `/api/v1/products/{id}` | 商品详情 |
 | `POST` | `/api/v1/products` | 新增普通商品 |
 | `PATCH` | `/api/v1/products/{id}` | 修改普通商品 |
@@ -203,7 +203,9 @@
   "unit": "个",
   "unit_price": "9.90",
   "cost_price": "4.20",
+  "store_id": 1,
   "stock_qty": 120,
+  "safety_stock_qty": 10,
   "barcode": "690123450099",
   "status": "onsale",
   "supplier_links": [
@@ -216,6 +218,8 @@
   ]
 }
 ```
+
+说明：`product` 表不再保存库存；请求中的 `stock_qty` 会写入默认门店或指定 `store_id` 的 `inventory`。返回中的 `stock_qty` 是该商品所有门店库存汇总。
 
 ### 4.8 图书 `books`
 
@@ -241,7 +245,9 @@
   "unit": "本",
   "unit_price": "98.00",
   "cost_price": "66.00",
+  "store_id": 1,
   "stock_qty": 40,
+  "safety_stock_qty": 5,
   "barcode": "9787111000999",
   "status": "onsale",
   "supplier_links": [
@@ -344,6 +350,59 @@
 - `total_amount`
 - `actual_amount`
 
+库存规则：服务端按 `store_id + product_id` 扣减 `inventory.stock_qty`；修改销售单会先归还旧门店库存，再按新门店和新明细重新扣减；删除销售单会回滚对应门店库存。
+
+### 4.12 门店库存 `inventory`
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| `GET` | `/api/v1/inventory` | 库存列表 |
+| `GET` | `/api/v1/inventory/warnings` | 库存预警列表 |
+| `GET` | `/api/v1/inventory/{store_id}/{product_id}` | 单个门店商品库存 |
+| `PATCH` | `/api/v1/inventory/{store_id}/{product_id}` | 调整库存或安全库存 |
+
+可选查询参数：`store_id`、`product_id`、`warning=true`。
+
+### 4.13 采购单 `purchase-orders`
+
+| 方法 | 路径 |
+|---|---|
+| `GET` | `/api/v1/purchase-orders` |
+| `GET` | `/api/v1/purchase-orders/{id}` |
+| `POST` | `/api/v1/purchase-orders` |
+| `PATCH` | `/api/v1/purchase-orders/{id}` |
+| `DELETE` | `/api/v1/purchase-orders/{id}` |
+
+采购创建请求体：
+
+```json
+{
+  "supplier_id": 2,
+  "store_id": 1,
+  "order_time": "2026-04-21T09:00:00+08:00",
+  "status": "approved",
+  "items": [
+    {
+      "product_id": 2,
+      "quantity": 5,
+      "purchase_price": "78.00"
+    }
+  ]
+}
+```
+
+### 4.14 入库单 `stock-ins`
+
+| 方法 | 路径 |
+|---|---|
+| `GET` | `/api/v1/stock-ins` |
+| `GET` | `/api/v1/stock-ins/{id}` |
+| `POST` | `/api/v1/stock-ins` |
+| `PATCH` | `/api/v1/stock-ins/{id}` |
+| `DELETE` | `/api/v1/stock-ins/{id}` |
+
+当入库单状态为 `approved` 时，服务端会增加对应 `inventory.stock_qty`。
+
 ## 5. 统计分析接口
 
 ### `GET /api/v1/analytics/stores/daily`
@@ -367,8 +426,10 @@
 - 图书类商品必须使用 `books` 接口创建和维护，普通商品使用 `products`。
 - 会员只能基于已存在客户创建。
 - 删除门店、供应商、分类、出版社、作者、译者、商品、客户时，若存在关联业务数据会返回 `409`。
-- 删除销售单时会自动回滚对应商品库存。
-- 修改销售单时会先归还旧库存，再按新明细重新扣减库存。
+- 删除销售单时会自动回滚对应门店商品库存。
+- 修改销售单时会先归还旧库存，再按新明细重新扣减门店库存。
+- 入库单审核通过后会增加对应门店商品库存。
+- 数据库设计层保留 `system_user`、`role`、`permission` 等 RBAC 表；当前后端运行时继续使用 Django 自定义用户、JWT 和 `role` 字段实现权限控制。
 
 ## 7. 演示账号
 

@@ -1,4 +1,5 @@
 USE online_bookstore_db;
+
 -- 1) 门店日销售汇总
 CREATE OR REPLACE VIEW v_store_sales_daily AS
 SELECT
@@ -12,6 +13,7 @@ SELECT
 FROM sale s
 JOIN store st ON st.store_id = s.store_id
 GROUP BY s.store_id, st.store_name, DATE(s.sale_time);
+
 -- 2) 商品销量与销售额排行
 CREATE OR REPLACE VIEW v_product_sales_rank AS
 SELECT
@@ -24,6 +26,7 @@ FROM sale_item si
 JOIN product p ON p.product_id = si.product_id
 GROUP BY p.product_id, p.product_name, p.status
 ORDER BY total_sales_amount DESC, total_qty DESC;
+
 -- 3) 会员消费排行
 CREATE OR REPLACE VIEW v_member_spending_rank AS
 SELECT
@@ -38,6 +41,7 @@ JOIN customer c ON c.customer_id = m.customer_id
 LEFT JOIN sale s ON s.customer_id = c.customer_id
 GROUP BY c.customer_id, c.customer_name, m.member_no, m.level
 ORDER BY total_spending DESC, order_count DESC;
+
 -- 4) 分类销售汇总
 CREATE OR REPLACE VIEW v_category_sales_summary AS
 SELECT
@@ -50,3 +54,32 @@ JOIN product p ON p.product_id = si.product_id
 JOIN category c ON c.category_id = p.category_id
 GROUP BY c.category_id, c.category_name
 ORDER BY total_sales_amount DESC;
+
+-- 5) 门店库存预警
+CREATE OR REPLACE VIEW v_inventory_warning AS
+SELECT
+  i.store_id,
+  st.store_name,
+  i.product_id,
+  p.product_name,
+  i.stock_qty,
+  i.safety_stock_qty,
+  i.updated_at
+FROM inventory i
+JOIN store st ON st.store_id = i.store_id
+JOIN product p ON p.product_id = i.product_id
+WHERE i.stock_qty <= i.safety_stock_qty
+ORDER BY st.store_name, i.stock_qty ASC, p.product_name;
+
+-- 6) 门店库存汇总
+CREATE OR REPLACE VIEW v_store_inventory_summary AS
+SELECT
+  i.store_id,
+  st.store_name,
+  COUNT(*) AS product_count,
+  SUM(i.stock_qty) AS total_stock_qty,
+  SUM(CASE WHEN i.stock_qty <= i.safety_stock_qty THEN 1 ELSE 0 END) AS warning_count
+FROM inventory i
+JOIN store st ON st.store_id = i.store_id
+GROUP BY i.store_id, st.store_name
+ORDER BY st.store_name;
