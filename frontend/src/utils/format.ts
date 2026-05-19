@@ -96,6 +96,13 @@ const statusLabels: Record<string, string> = {
   discontinued: '停产',
   active: '启用',
   inactive: '停用',
+  draft: '草稿',
+  submitted: '已提交',
+  approved: '已审核',
+  received: '已收货',
+  cancelled: '已取消',
+  pending: '待审核',
+  rejected: '已驳回',
 }
 
 export function statusLabel(value: string | null | undefined): string {

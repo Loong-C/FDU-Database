@@ -56,6 +56,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '销售单详情', roles: ['admin', 'operator'], hidden: true },
       },
       {
+        path: 'purchase-orders',
+        name: 'PurchaseOrders',
+        component: () => import('@/views/procurement/PurchaseOrderListView.vue'),
+        meta: { title: '采购单', icon: 'Van', roles: ['admin', 'operator'], menuGroup: '交易', order: 12 },
+      },
+      {
+        path: 'stock-ins',
+        name: 'StockIns',
+        component: () => import('@/views/procurement/StockInListView.vue'),
+        meta: { title: '入库单', icon: 'Box', roles: ['admin', 'operator'], menuGroup: '交易', order: 13 },
+      },
+      {
         path: 'products',
         name: 'Products',
         component: () => import('@/views/product/ProductListView.vue'),
@@ -90,6 +102,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Translators',
         component: () => import('@/views/translator/TranslatorListView.vue'),
         meta: { title: '译者', icon: 'Avatar', roles: ['admin', 'operator'], menuGroup: '商品', order: 25 },
+      },
+      {
+        path: 'inventory',
+        name: 'Inventory',
+        component: () => import('@/views/inventory/InventoryListView.vue'),
+        meta: { title: '门店库存', icon: 'Box', roles: ['admin', 'operator'], menuGroup: '库存', order: 26 },
       },
       {
         path: 'customers',

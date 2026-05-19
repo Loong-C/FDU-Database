@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
@@ -56,6 +56,10 @@ const actualAmount = computed(() => Math.max(0, totalAmount.value - (Number(form
 const submitting = ref(false)
 
 async function onSearchProducts() {
+  if (!form.store_id) {
+    ElMessage.warning('请先选择销售门店')
+    return
+  }
   productLoading.value = true
   try {
     const data = await listProducts({
@@ -85,12 +89,29 @@ async function onSearchCustomers(query: string) {
   }
 }
 
+function productStoreStock(product: Product): number {
+  if (!form.store_id) return 0
+  const row = product.inventory?.find((item) => item.store_id === form.store_id)
+  return row?.stock_qty ?? 0
+}
+
+function isProductLowStock(product: Product): boolean {
+  if (!form.store_id) return false
+  const row = product.inventory?.find((item) => item.store_id === form.store_id)
+  return !!row && row.stock_qty > 0 && row.stock_qty <= row.safety_stock_qty
+}
+
 function addToCart(product: Product) {
+  if (!form.store_id) {
+    ElMessage.warning('请先选择销售门店')
+    return
+  }
   if (product.status !== 'onsale') {
     ElMessage.warning('该商品当前不在售')
     return
   }
-  if (product.stock_qty <= 0) {
+  const stockQty = productStoreStock(product)
+  if (stockQty <= 0) {
     ElMessage.warning('该商品暂无库存')
     return
   }
@@ -107,12 +128,22 @@ function addToCart(product: Product) {
       product_name: product.product_name,
       unit: product.unit,
       unit_price: Number(product.unit_price),
-      stock_qty: product.stock_qty,
+      stock_qty: stockQty,
       quantity: 1,
     })
   }
   lineErrors.value[product.product_id] = ''
 }
+
+watch(
+  () => form.store_id,
+  (next, prev) => {
+    if (prev && next !== prev && cart.value.length) {
+      clearCart()
+      ElMessage.info('已切换门店，购物车已清空')
+    }
+  },
+)
 
 function removeLine(productId: number) {
   cart.value = cart.value.filter((l) => l.product_id !== productId)
@@ -177,8 +208,8 @@ onMounted(() => {
     if (dicts.stores.length && !form.store_id) {
       form.store_id = dicts.stores[0].store_id
     }
+    onSearchProducts()
   })
-  onSearchProducts()
 })
 </script>
 
@@ -196,6 +227,9 @@ onMounted(() => {
       <!-- 左：商品搜索与卡片 -->
       <section class="pos-panel pos-panel--products app-card">
         <div class="pos-products__head">
+          <el-select v-model="form.store_id" placeholder="销售门店" size="large" style="width: 190px">
+            <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
+          </el-select>
           <el-input
             v-model="productSearch"
             placeholder="搜索商品名称 / 条码 / 作者"
@@ -214,17 +248,17 @@ onMounted(() => {
             :key="p.product_id"
             type="button"
             class="product-card app-card app-card--hover"
-            :class="{ 'product-card--out': p.stock_qty === 0 }"
-            :disabled="p.stock_qty === 0"
+            :class="{ 'product-card--out': productStoreStock(p) === 0 }"
+            :disabled="productStoreStock(p) === 0"
             @click="addToCart(p)"
           >
             <div class="product-card__top">
               <el-tag v-if="p.is_book" type="primary" effect="light" size="small" round>图书</el-tag>
-              <el-tag v-if="p.stock_qty === 0" type="danger" size="small">缺货</el-tag>
-              <el-tag v-else-if="p.stock_qty < 10" type="warning" size="small">低库存</el-tag>
+              <el-tag v-if="productStoreStock(p) === 0" type="danger" size="small">本店缺货</el-tag>
+              <el-tag v-else-if="isProductLowStock(p)" type="warning" size="small">低库存</el-tag>
             </div>
             <div class="product-card__name">{{ p.product_name }}</div>
-            <div class="product-card__meta text-muted">{{ p.category_name }} · 库存 {{ p.stock_qty }} {{ p.unit }}</div>
+            <div class="product-card__meta text-muted">{{ p.category_name }} · 本店库存 {{ productStoreStock(p) }} {{ p.unit }}</div>
             <div class="product-card__price money">{{ formatCurrency(p.unit_price) }}</div>
           </button>
           <EmptyState
@@ -287,11 +321,6 @@ onMounted(() => {
 
         <div class="pos-cart__meta">
           <el-form label-width="72px" size="small">
-            <el-form-item label="门店" required>
-              <el-select v-model="form.store_id" placeholder="请选择" style="width: 100%">
-                <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
-              </el-select>
-            </el-form-item>
             <el-form-item label="客户">
               <el-select
                 v-model="form.customer_id"

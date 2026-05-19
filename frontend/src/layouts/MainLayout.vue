@@ -59,7 +59,7 @@ const menuGroups = computed(() => {
     if (!grouped.has(item.group)) grouped.set(item.group, [])
     grouped.get(item.group)!.push(item)
   })
-  const orderedGroups = ['概览', '交易', '商品', '客户', '组织', '系统']
+  const orderedGroups = ['概览', '交易', '商品', '库存', '客户', '组织', '系统']
   const result: Array<{ name: string; items: MenuItem[] }> = []
   orderedGroups.forEach((g) => {
     if (grouped.has(g)) result.push({ name: g, items: grouped.get(g)! })
