@@ -1,0 +1,49 @@
+store_id,product_id,product_barcode,product_name,stock_qty,safety_stock_qty
+1,6,9780072283631,Database system concepts,18,5
+2,6,9780072283631,Database system concepts,10,4
+1,7,9780321369574,Fundamentals of database systems,25,6
+2,7,9780321369574,Fundamentals of database systems,15,4
+1,8,9780131225206,A first course in database systems,32,8
+2,8,9780131225206,A first course in database systems,20,5
+1,9,9780357673034,Database systems,39,9
+2,9,9780357673034,Database systems,25,6
+1,10,9783030262532,Principles of distributed database systems,46,11
+2,10,9783030262532,Principles of distributed database systems,30,7
+1,11,9780201144710,An introduction to database systems,53,13
+2,11,9780201144710,An introduction to database systems,35,8
+1,12,9781403916013,Database Systems,60,15
+2,12,9781403916013,Database Systems,40,10
+1,13,9780760049044,Database systems,67,16
+2,13,9780760049044,Database systems,45,11
+1,14,9780131873254,Database systems,74,18
+2,14,9780131873254,Database systems,10,4
+1,15,9780071217620,Database system concepts,81,20
+2,15,9780071217620,Database system concepts,15,4
+1,16,9780321210258,Database systems,23,5
+2,16,9780321210258,Database systems,20,5
+1,17,9780072958867,Database Systems Concepts,30,7
+2,17,9780072958867,Database Systems Concepts,25,6
+1,62,9780393034264,The Norton book of classical literature,37,9
+2,62,9780393034264,The Norton book of classical literature,30,7
+1,63,9781548127596,The Book of Five Rings,44,11
+2,63,9781548127596,The Book of Five Rings,35,8
+1,64,9781539004950,Idiot,51,12
+2,64,9781539004950,Idiot,40,10
+1,65,9781977930231,The Secret Garden,58,14
+2,65,9781977930231,The Secret Garden,45,11
+1,66,9781497354975,Treasure Island,65,16
+2,66,9781497354975,Treasure Island,10,4
+1,67,9798681983439,Orlando,72,18
+2,67,9798681983439,Orlando,15,4
+1,68,9781847498014,White Fang,79,19
+2,68,9781847498014,White Fang,20,5
+1,69,9798461321680,The Moon Pool,21,5
+2,69,9798461321680,The Moon Pool,25,6
+1,70,9781507585559,Ethan Frome,28,7
+2,70,9781507585559,Ethan Frome,30,7
+1,71,9798463083326,The Scarlet Letter,35,8
+2,71,9798463083326,The Scarlet Letter,35,8
+1,72,9782070586646,Heidi,42,10
+2,72,9782070586646,Heidi,40,10
+1,73,9780198600817,The Oxford companion to classical literature,49,12
+2,73,9780198600817,The Oxford companion to classical literature,45,11
