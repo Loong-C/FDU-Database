@@ -1,0 +1,33 @@
+supplier_id,product_id,product_barcode,product_name,supply_price,min_order_qty,is_primary
+1,6,9780072283631,Database system concepts,44.24,10,1
+101,6,9780072283631,Database system concepts,47.78,20,0
+2,7,9780321369574,Fundamentals of database systems,46.61,20,1
+101,8,9780131225206,A first course in database systems,48.98,30,1
+102,9,9780357673034,Database systems,51.35,40,1
+1,9,9780357673034,Database systems,55.46,50,0
+103,10,9783030262532,Principles of distributed database systems,44.24,50,1
+1,11,9780201144710,An introduction to database systems,46.61,10,1
+2,12,9781403916013,Database Systems,48.98,20,1
+102,12,9781403916013,Database Systems,52.9,30,0
+101,13,9780760049044,Database systems,51.35,30,1
+102,14,9780131873254,Database systems,44.24,40,1
+103,15,9780071217620,Database system concepts,46.61,50,1
+2,15,9780071217620,Database system concepts,50.34,60,0
+1,16,9780321210258,Database systems,48.98,10,1
+2,17,9780072958867,Database Systems Concepts,51.35,20,1
+101,62,9780393034264,The Norton book of classical literature,27.44,30,1
+103,62,9780393034264,The Norton book of classical literature,29.64,40,0
+102,63,9781548127596,The Book of Five Rings,28.91,40,1
+103,64,9781539004950,Idiot,30.38,50,1
+1,65,9781977930231,The Secret Garden,31.85,10,1
+101,65,9781977930231,The Secret Garden,34.4,20,0
+2,66,9781497354975,Treasure Island,27.44,20,1
+101,67,9798681983439,Orlando,28.91,30,1
+102,68,9781847498014,White Fang,30.38,40,1
+1,68,9781847498014,White Fang,32.81,50,0
+103,69,9798461321680,The Moon Pool,31.85,50,1
+1,70,9781507585559,Ethan Frome,27.44,10,1
+2,71,9798463083326,The Scarlet Letter,28.91,20,1
+102,71,9798463083326,The Scarlet Letter,31.22,30,0
+101,72,9782070586646,Heidi,30.38,30,1
+102,73,9780198600817,The Oxford companion to classical literature,31.85,40,1
