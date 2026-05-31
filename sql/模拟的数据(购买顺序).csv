@@ -1,0 +1,5 @@
+purchase_order_id,supplier_id,store_id,created_by,order_time,status,total_amount
+3001,101,1,1,2026-05-05 09:30:00,received,4114.32
+3002,102,2,2,2026-05-07 14:00:00,approved,4555.14
+3003,103,1,2,2026-05-10 11:15:00,submitted,2204.1
+3004,1,2,1,2026-05-12 16:40:00,received,4114.32
