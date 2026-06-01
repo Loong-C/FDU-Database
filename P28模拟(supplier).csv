@@ -1,0 +1,51 @@
+﻿supplier_id,supplier_name,contact_name,phone,email,status
+101,国际科技图,赵文博,010-700100,techbooks@,active
+102,经典文学图,林雅雯,021-700100,literatureh,active
+103,学术资源联,周启航,020-700100,academicre,active
+104,河畔图书分,沈嘉禾,0571-70010,riversidebo,inactive
+105,Harvard Academic Press | 哈佛学术出版社,William Houston,+1 (354) 713-4647,william.houston@tandf.co.uk,inactive
+106,Pearson University Press | 培生大学出版社,Sharon Miller,+1 (308) 442-9831,sharon.miller@penguinrandomhouse.com,active
+107,Princeton Academic Press | 普林斯顿学术出版社,Dr. Debbie Miles MD,+1 (851) 354-6108,dr..debbie.miles.md@tandf.co.uk,active
+108,Scholastic Books | 学乐图书,Scott Moore,+1 (455) 966-5965,scott.moore@macmillan.com,active
+109,Penguin University Press | 企鹅大学出版社,Jacqueline Carey,+1 (758) 910-5465,jacqueline.carey@penguinrandomhouse.com,active
+110,SAGE Books | 赛吉图书,Jerry Hall,+1 (514) 254-7079,jerry.hall@macmillan.com,inactive
+111,Wiley Educational Services | 威利教育服务,Mr Anthony Ball,+44 (24) 8723 8410,mr.anthony.ball@cambridge.org,active
+112,Penguin Books | 企鹅图书,Sarah Meyer,+1 (994) 690-6369,sarah.meyer@elsevier.com,active
+113,Random House Global Distribution | 兰登书屋全球分销,Nicole Schultz,+1 (638) 491-6753,nicole.schultz@hachette.com,active
+114,Springer Scholarly Resources | 施普林格学术资源,Craig Rice,+1 (884) 439-3765,craig.rice@tandf.co.uk,inactive
+115,Scholastic Academic Press | 学乐学术出版社,Rachel Smith,+1 (390) 724-2441,rachel.smith@elsevier.com,active
+116,Cambridge Academic Press | 剑桥学术出版社,Elizabeth Knight,+1 (363) 690-1331,elizabeth.knight@macmillan.com,active
+117,Wiley Books | 威利图书,Justin Kelly,+1 (505) 381-3372,justin.kelly@wiley.com,active
+118,Cambridge Library Solutions | 剑桥图书馆解决方案,Mrs Jayne Jones,+44 (33) 9502 4023,mrs.jayne.jones@cengage.com,active
+119,Springer Publishing Group | 施普林格出版集团,Jack Perkins,+1 (949) 954-4476,jack.perkins@cambridge.org,active
+120,Princeton Books | 普林斯顿图书,Pauline Begum,+44 (28) 5980 3682,pauline.begum@oxfordup.com,inactive
+121,Harvard University Press | 哈佛大学出版社,Glen Jackson-Owens,+44 (23) 9356 6520,glen.jackson-owens@sagepub.com,active
+122,Routledge Publishing Group | 劳特利奇出版集团,John Evans,+1 (805) 765-4595,john.evans@jstor.org,active
+123,Springer Educational Services | 施普林格教育服务,Thomas Allen,+1 (632) 599-6150,thomas.allen@jstor.org,active
+124,SAGE Global Distribution | 赛吉全球分销,Jamie Andrews,+1 (724) 943-9769,jamie.andrews@cambridge.org,active
+125,Bloomsbury Educational Services | 布鲁姆斯伯里教育服务,Dr Danielle Hunt,+44 (77) 9579 3692,dr.danielle.hunt@stanford.edu,active
+126,Taylor & Francis Library Solutions | 泰勒弗朗西斯图书馆解决方案,Samantha Warner,+1 (590) 210-9143,samantha.warner@wiley.com,inactive
+127,SAGE Library Solutions | 赛吉图书馆解决方案,Dr. Thomas Figueroa,+1 (552) 325-5121,dr..thomas.figueroa@scholastic.com,active
+128,Hachette Publishing Group | 阿歇特出版集团,Douglas Russell,+1 (371) 858-5528,douglas.russell@bloomsbury.com,active
+129,Springer Books | 施普林格图书,Lori Robbins,+1 (528) 520-3255,lori.robbins@cengage.com,active
+130,Penguin Academic Press | 企鹅学术出版社,Julia O'Brien,+44 (77) 1073 8397,julia.obrien@tandf.co.uk,active
+131,Springer Academic Press | 施普林格学术出版社,Carl Davies,+44 (23) 3626 6919,carl.davies@sagepub.com,active
+132,Hachette Scholarly Resources | 阿歇特学术资源,Catherine Pratt,+1 (366) 408-7917,catherine.pratt@springer.com,inactive
+133,Random House Publishing Group | 兰登书屋出版集团,Angela Frazier,+1 (221) 520-7369,angela.frazier@scholastic.com,active
+134,Bloomsbury Publishing Group | 布鲁姆斯伯里出版集团,Guy Davis,+1 (403) 348-5389,guy.davis@scholastic.com,active
+135,Harvard Academic Press | 哈佛学术出版社,Dr Phillip Jackson,+44 (33) 7394 3209,dr.phillip.jackson@cengage.com,active
+136,Pearson Library Solutions | 培生图书馆解决方案,Glenda Martin,+1 (975) 944-3350,glenda.martin@macmillan.com,active
+137,Pearson Academic Press | 培生学术出版社,Joanna Robbins,+1 (780) 314-5573,joanna.robbins@penguinrandomhouse.com,inactive
+138,Elsevier Publishing Group | 爱思唯尔出版集团,Dr Ross Barnes,+44 (33) 7358 6145,dr.ross.barnes@bloomsbury.com,active
+139,Routledge University Press | 劳特利奇大学出版社,Alexandra Moody,+1 (466) 461-6827,alexandra.moody@harvard.edu,active
+140,Wiley Digital Media | 威利数字媒体,Andrew Richards,+1 (374) 956-9926,andrew.richards@hachette.com,active
+141,Wiley Global Distribution | 威利全球分销,John Allan,+44 (33) 8897 2085,john.allan@tandf.co.uk,active
+142,Scholastic University Press | 学乐大学出版社,Jennifer Cantu,+1 (700) 487-6078,jennifer.cantu@harvard.edu,active
+143,Elsevier Library Solutions | 爱思唯尔图书馆解决方案,Amanda Shelton,+1 (905) 431-7962,amanda.shelton@hachette.com,active
+144,Wiley Publishing Group | 威利出版集团,Kelly Harris PhD,+1 (937) 897-1379,kelly.harris.phd@springer.com,active
+145,Harvard Academic Press | 哈佛学术出版社,Matthew Hardy,+1 (619) 903-2950,matthew.hardy@cambridge.org,active
+146,Random House Library Solutions | 兰登书屋图书馆解决方案,Dr Karl Norton,+44 (33) 9796 4403,dr.karl.norton@springer.com,active
+147,Cambridge University Press | 剑桥大学出版社,Scott Medina,+1 (891) 760-9710,scott.medina@pearson.com,active
+148,Elsevier Global Distribution | 爱思唯尔全球分销,Mr. Anthony Juarez,+1 (446) 838-3870,mr..anthony.juarez@princeton.edu,active
+149,Oxford Global Distribution | 牛津全球分销,Scott West,+44 (78) 7755 2860,scott.west@tandf.co.uk,active
+150,Routledge Publishing Group | 劳特利奇出版集团,Ashley Herrera,+1 (686) 490-6770,ashley.herrera@penguinrandomhouse.com,active
