@@ -85,8 +85,9 @@ MAX_LENGTHS = {
 }
 
 MINIMUM_ROWS = {
-    "product": 100,
-    "book": 100,
+    "product": 10000,
+    "book": 10000,
+    "book_author": 10000,
     "inventory": 20,
     "sale": 10,
     "sale_item": 20,

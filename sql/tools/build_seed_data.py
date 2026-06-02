@@ -101,6 +101,23 @@ def build_seed_data() -> None:
         {"category_id": 2, "category_name": "文学", "parent_category_id": 1},
         {"category_id": 3, "category_name": "计算机", "parent_category_id": 1},
         {"category_id": 4, "category_name": "文具", "parent_category_id": ""},
+        {"category_id": 5, "category_name": "数据库", "parent_category_id": 3},
+        {"category_id": 6, "category_name": "编程语言", "parent_category_id": 3},
+        {"category_id": 7, "category_name": "软件工程", "parent_category_id": 3},
+        {"category_id": 8, "category_name": "人工智能", "parent_category_id": 3},
+        {"category_id": 9, "category_name": "算法与数据结构", "parent_category_id": 3},
+        {"category_id": 10, "category_name": "操作系统与网络", "parent_category_id": 3},
+        {"category_id": 11, "category_name": "数学", "parent_category_id": 1},
+        {"category_id": 12, "category_name": "科学技术", "parent_category_id": 1},
+        {"category_id": 13, "category_name": "经济管理", "parent_category_id": 1},
+        {"category_id": 14, "category_name": "历史社科", "parent_category_id": 1},
+        {"category_id": 15, "category_name": "医学健康", "parent_category_id": 1},
+        {"category_id": 16, "category_name": "心理哲学", "parent_category_id": 1},
+        {"category_id": 17, "category_name": "教育", "parent_category_id": 1},
+        {"category_id": 18, "category_name": "传记", "parent_category_id": 1},
+        {"category_id": 19, "category_name": "其他图书", "parent_category_id": 1},
+        {"category_id": 20, "category_name": "书写工具", "parent_category_id": 4},
+        {"category_id": 21, "category_name": "纸本文具", "parent_category_id": 4},
     ]
     write_csv("category", ["category_id", "category_name", "parent_category_id"], categories)
     category_ids = {row["category_name"]: row["category_id"] for row in categories}
@@ -186,7 +203,7 @@ def build_seed_data() -> None:
         {
             "product_id": 1,
             "product_name": "数据库系统概论（第6版）",
-            "category_id": 3,
+            "category_id": category_ids["数据库"],
             "unit": "本",
             "unit_price": "88.00",
             "cost_price": "55.00",
@@ -196,7 +213,7 @@ def build_seed_data() -> None:
         {
             "product_id": 2,
             "product_name": "深入理解计算机系统",
-            "category_id": 3,
+            "category_id": category_ids["操作系统与网络"],
             "unit": "本",
             "unit_price": "129.00",
             "cost_price": "80.00",
@@ -206,7 +223,7 @@ def build_seed_data() -> None:
         {
             "product_id": 3,
             "product_name": "百年孤独",
-            "category_id": 2,
+            "category_id": category_ids["文学"],
             "unit": "本",
             "unit_price": "59.00",
             "cost_price": "35.00",
@@ -216,7 +233,7 @@ def build_seed_data() -> None:
         {
             "product_id": 4,
             "product_name": "黑色中性笔",
-            "category_id": 4,
+            "category_id": category_ids["书写工具"],
             "unit": "支",
             "unit_price": "3.50",
             "cost_price": "1.20",
@@ -226,7 +243,7 @@ def build_seed_data() -> None:
         {
             "product_id": 5,
             "product_name": "A4笔记本",
-            "category_id": 4,
+            "category_id": category_ids["纸本文具"],
             "unit": "本",
             "unit_price": "12.00",
             "cost_price": "6.00",

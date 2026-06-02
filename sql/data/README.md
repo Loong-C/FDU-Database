@@ -18,3 +18,11 @@
 python sql/tools/build_seed_data.py
 python sql/tools/validate_seed_data.py
 ```
+
+需要重新在线拉取图书来源数据时，先执行：
+
+```powershell
+python sql/tools/fetch_openlibrary_books.py --target 10000
+```
+
+抓取脚本默认保留已有来源行，再补齐不足的数据；如需完全重抓，可增加 `--replace`。
