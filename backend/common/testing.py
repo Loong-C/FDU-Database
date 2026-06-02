@@ -3,6 +3,7 @@ from django.db import connection
 from common.sql import (
     BUSINESS_TABLES,
     BUSINESS_VIEWS,
+    load_csv_seed_data,
     load_sql_script,
     split_sql_statements,
     strip_use_statements,
@@ -30,6 +31,6 @@ def bootstrap_business_schema(include_seed: bool = True, include_views: bool = T
     reset_business_schema()
     execute_script(load_sql_script("create_tables.sql"))
     if include_seed:
-        execute_script(load_sql_script("insert_sample_data.sql"))
+        load_csv_seed_data(connection)
     if include_views:
         execute_script(load_sql_script("views_or_reports.sql"))
