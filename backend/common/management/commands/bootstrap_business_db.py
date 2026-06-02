@@ -2,7 +2,12 @@ import pymysql
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from common.sql import load_sql_script, split_sql_statements, strip_use_statements
+from common.sql import (
+    load_csv_seed_data,
+    load_sql_script,
+    split_sql_statements,
+    strip_use_statements,
+)
 
 
 class Command(BaseCommand):
@@ -34,8 +39,12 @@ class Command(BaseCommand):
         with pymysql.connect(database=database["NAME"], **connection_kwargs) as conn:
             self._execute_script(conn, load_sql_script("create_tables.sql"))
             if options["seed"]:
-                self.stdout.write("Loading sample data...")
-                self._execute_script(conn, load_sql_script("insert_sample_data.sql"))
+                self.stdout.write("Loading CSV seed data...")
+                imported_rows = load_csv_seed_data(conn)
+                conn.commit()
+                self.stdout.write(
+                    f"Loaded {sum(imported_rows.values())} rows from {len(imported_rows)} CSV files."
+                )
             if options["views"]:
                 self.stdout.write("Creating analytics views...")
                 self._execute_script(conn, load_sql_script("views_or_reports.sql"))

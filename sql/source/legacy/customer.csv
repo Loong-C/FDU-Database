@@ -1,0 +1,13 @@
+customer_id,customer_name,phone,email,address,register_time,status
+1001,陈思远,13810000001,chen.siyuan@example.com,北京市海淀区中关村南大街1号,2026-01-01 10:00:00,active
+1002,赵可欣,13810000002,zhao.kexin@example.com,上海市徐汇区漕溪北路18号,2026-01-01 10:00:00,active
+1003,王嘉宁,13810000003,wang.jianing@example.com,南京市鼓楼区中央路66号,2026-01-01 10:00:00,active
+1004,刘子墨,13810000004,liu.zimo@example.com,杭州市西湖区文三路88号,2026-01-01 10:00:00,active
+1005,李安然,13810000005,li.anran@example.com,广州市天河区体育西路28号,2026-01-01 10:00:00,active
+1006,周亦辰,13810000006,zhou.yichen@example.com,成都市高新区天府大道399号,2026-01-01 10:00:00,active
+1007,徐若彤,13810000007,xu.ruotong@example.com,武汉市洪山区珞喻路77号,2026-01-01 10:00:00,active
+1008,孙景行,13810000008,sun.jingxing@example.com,西安市雁塔区长安中路15号,2026-01-01 10:00:00,active
+1009,郑雨桐,13810000009,zheng.yutong@example.com,苏州市工业园区星湖街9号,2026-01-01 10:00:00,active
+1010,何沐阳,13810000010,he.muyang@example.com,天津市南开区白堤路56号,2026-01-01 10:00:00,active
+1011,邵明哲,13810000011,shao.mingzhe@example.com,长沙市岳麓区麓山南路12号,2026-01-01 10:00:00,active
+1012,彭语晴,13810000012,peng.yuqing@example.com,青岛市市南区香港中路30号,2026-01-01 10:00:00,active

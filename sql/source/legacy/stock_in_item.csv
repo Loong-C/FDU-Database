@@ -1,0 +1,10 @@
+stock_in_id,line_no,product_id,product_barcode,product_name,quantity,unit_cost,line_amount
+4001,1,6,9780072283631,Database system concepts,26,48.98,1273.48
+4001,2,7,9780321369574,Fundamentals of database systems,30,48.98,1469.4
+4001,3,8,9780131225206,A first course in database systems,34,48.98,1665.32
+4002,1,9,9780357673034,Database systems,24,48.98,1175.52
+4002,2,10,9783030262532,Principles of distributed database systems,28,48.98,1371.44
+4002,3,11,9780201144710,An introduction to database systems,32,48.98,1567.36
+4003,1,14,9780131873254,Database systems,26,48.98,1273.48
+4003,2,15,9780071217620,Database system concepts,30,48.98,1469.4
+4003,3,16,9780321210258,Database systems,34,48.98,1665.32

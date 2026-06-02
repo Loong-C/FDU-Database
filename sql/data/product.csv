@@ -1,0 +1,120 @@
+product_id,product_name,category_id,unit,unit_price,cost_price,barcode,status
+1,数据库系统概论（第6版）,3,本,88.00,55.00,9787111000001,onsale
+2,深入理解计算机系统,3,本,129.00,80.00,9787111000002,onsale
+3,百年孤独,2,本,59.00,35.00,9787111000003,onsale
+4,黑色中性笔,4,支,3.50,1.20,690123450001,onsale
+5,A4笔记本,4,本,12.00,6.00,690123450002,offsale
+6,Database system concepts,3,本,79.00,51.35,9780072283631,onsale
+7,Fundamentals of database systems,3,本,79.00,51.35,9780321369574,onsale
+8,A first course in database systems,3,本,79.00,51.35,9780131225206,onsale
+9,Database systems,3,本,79.00,51.35,9780357673034,onsale
+10,Principles of distributed database systems,3,本,79.00,51.35,9783030262532,onsale
+11,An introduction to database systems,3,本,79.00,51.35,9780201144710,onsale
+12,Database Systems,3,本,79.00,51.35,9781403916013,onsale
+13,Database systems,3,本,79.00,51.35,9780760049044,onsale
+14,Database systems,3,本,79.00,51.35,9780131873254,onsale
+15,Database system concepts,3,本,79.00,51.35,9780071217620,onsale
+16,Database systems,3,本,79.00,51.35,9780321210258,onsale
+17,Database Systems Concepts,3,本,79.00,51.35,9780072958867,onsale
+18,Fundamentals of database systems,3,本,79.00,51.35,9780136086208,onsale
+19,"Database System Concepts, 3rd",3,本,79.00,51.35,9780071148108,onsale
+20,Fundamentals of database systems,3,本,79.00,51.35,9780321415066,onsale
+21,Database systems,3,本,79.00,51.35,9780321228383,onsale
+22,An introduction to database systems,3,本,79.00,51.35,9780201684193,onsale
+23,Database systems,3,本,79.00,51.35,9780132943260,onsale
+24,Principles of database systems,3,本,79.00,51.35,9780914894131,onsale
+25,Computer system architecture,3,本,79.00,51.35,9781405825160,onsale
+26,Computer systems,3,本,79.00,51.35,9780134123837,onsale
+27,Computer systems design and architecture,3,本,79.00,51.35,9780130484406,onsale
+28,Computer system architecture,3,本,79.00,51.35,9780131757387,onsale
+29,Computer systems,3,本,79.00,51.35,9780763771447,onsale
+30,Computer systems architecture,3,本,79.00,51.35,9780716780328,onsale
+31,Computer Systems: A Programmer's Perspective (3rd Edition),3,本,79.00,51.35,9780134092669,onsale
+32,Understanding computer systems,3,本,79.00,51.35,9789173723336,onsale
+33,Elements of Computing Systems,3,本,79.00,51.35,9780262640688,onsale
+34,The art of computer systems performance analysis,3,本,79.00,51.35,9781118858356,onsale
+35,Computer Systems Organization and Architecture,3,本,79.00,51.35,9780201612530,onsale
+36,The Elements of Computing Systems,3,本,79.00,51.35,9780262140874,onsale
+37,Racing the Beam,3,本,79.00,51.35,9780262012577,onsale
+38,Design of real time computer systems,3,本,79.00,51.35,9780132014007,onsale
+39,Computer Systems Architecture,3,本,79.00,51.35,9781482231069,onsale
+40,Simulating computer systems,3,本,79.00,51.35,9780262132299,onsale
+41,Computer System Design,3,本,79.00,51.35,9781118009918,onsale
+42,Programming real-time computer systems,3,本,79.00,51.35,9780137305070,onsale
+43,Core Python Programming,3,本,79.00,51.35,9789390457151,onsale
+44,Black Hat Python,3,本,79.00,51.35,9781593275907,onsale
+45,Core Python programming,3,本,79.00,51.35,9780132269933,onsale
+46,Python Programming,3,本,79.00,51.35,9789354973765,onsale
+47,Python programming,3,本,79.00,51.35,9781887902991,onsale
+48,Learning Python,3,本,79.00,51.35,9788173667381,onsale
+49,Python Programming Crash Course,3,本,79.00,51.35,9798846955790,onsale
+50,Python Programming,3,本,79.00,51.35,9781951339944,onsale
+51,Python Programming,3,本,79.00,51.35,9781542988940,onsale
+52,Python,3,本,79.00,51.35,9781543252217,onsale
+53,Python Programming,3,本,79.00,51.35,9789332585348,onsale
+54,Introduction to Python Programming,3,本,79.00,51.35,9780815394372,onsale
+55,Python programming in context,3,本,79.00,51.35,9781284175554,onsale
+56,Python Programming,3,本,79.00,51.35,9781032028491,onsale
+57,Murach's Python Programming (2nd Edition),3,本,79.00,51.35,9781943872749,onsale
+58,Python for Beginners : 2 Books in 1,3,本,79.00,51.35,9798722827302,onsale
+59,Programming Python,3,本,79.00,51.35,9789350232873,onsale
+60,Python Programming For Beginners,3,本,79.00,51.35,9781521432341,onsale
+61,Murach's Python Programming,3,本,79.00,51.35,9781890774974,onsale
+62,The Norton book of classical literature,2,本,49.00,31.85,9780393034264,onsale
+63,The Book of Five Rings,2,本,49.00,31.85,9781548127596,onsale
+64,Idiot,2,本,49.00,31.85,9781539004950,onsale
+65,The Secret Garden,2,本,49.00,31.85,9781977930231,onsale
+66,Treasure Island,2,本,49.00,31.85,9781497354975,onsale
+67,Orlando,2,本,49.00,31.85,9798681983439,onsale
+68,White Fang,2,本,49.00,31.85,9781847498014,onsale
+69,The Moon Pool,2,本,49.00,31.85,9798461321680,onsale
+70,Ethan Frome,2,本,49.00,31.85,9781507585559,onsale
+71,The Scarlet Letter,2,本,49.00,31.85,9798463083326,onsale
+72,Heidi,2,本,49.00,31.85,9782070586646,onsale
+73,The Oxford companion to classical literature,2,本,49.00,31.85,9780198600817,onsale
+74,Pollyanna,2,本,49.00,31.85,9781070647005,onsale
+75,Harper's dictionary of classical literature and antiquities,2,本,49.00,31.85,9780815401766,onsale
+76,Utilitarianism,2,本,49.00,31.85,9781512151275,onsale
+77,The Oxford companion to classical literature,2,本,49.00,31.85,9780198661030,onsale
+78,Professor,2,本,49.00,31.85,9781975717766,onsale
+79,Classical Literature,2,本,49.00,31.85,9781136736599,onsale
+80,The reluctant dragon,2,本,49.00,31.85,9798442512304,onsale
+81,The Norton Anthology of World Literature,2,本,49.00,31.85,9780393656022,onsale
+82,The Norton anthology of world literature,2,本,49.00,31.85,9780393152494,onsale
+83,The Norton anthology of world literature,2,本,49.00,31.85,9780393913347,onsale
+84,The Bedford anthology of world literature,2,本,49.00,31.85,9780312402624,onsale
+85,World literature -- revised edition,2,本,49.00,31.85,9780030514098,onsale
+86,75 Short Masterpieces,2,本,49.00,31.85,9789994911233,onsale
+87,Brave New World,2,本,49.00,31.85,9781521308578,onsale
+88,World Literature 1999,2,本,49.00,31.85,9780785418283,onsale
+89,What is world literature?,2,本,49.00,31.85,9780691049854,onsale
+90,The War of the Worlds,2,本,49.00,31.85,9783257201710,onsale
+91,The Norton anthology of world literature,2,本,49.00,31.85,9780393977592,onsale
+92,World Literature Instructor's Manual,2,本,49.00,31.85,9780844254814,onsale
+93,"The Norton Anthology of World Literature, Vol. F",2,本,49.00,31.85,9780393924510,onsale
+94,World Literature,2,本,49.00,31.85,9780844254821,onsale
+95,Guide to modern world literature,2,本,49.00,31.85,9780333427941,onsale
+96,"Prentice Hall Literature--Timeless Voices, Timeless Themes--World Literature",2,本,49.00,31.85,9780130508362,onsale
+97,Masterpieces of world literature in digest form,2,本,49.00,31.85,9780060037505,onsale
+98,Essentials of British and World Literature,2,本,49.00,31.85,9780030791796,onsale
+99,The Lost World,2,本,49.00,31.85,9798696445403,onsale
+100,November 9,2,本,49.00,31.85,9781508284987,onsale
+101,Confess,2,本,49.00,31.85,9781476791456,onsale
+102,The Hating Game,2,本,49.00,31.85,9780062439598,onsale
+103,Drama,2,本,49.00,31.85,9788417108588,onsale
+104,The Spanish Love Deception,2,本,49.00,31.85,9798705893843,onsale
+105,Haunted,2,本,49.00,31.85,9788497934893,onsale
+106,Maurice,2,本,49.00,31.85,9782264012739,onsale
+107,Icebreaker,2,本,49.00,31.85,9788466679299,onsale
+108,Infinite Jest,2,本,49.00,31.85,9783499249570,onsale
+109,Middlesex,2,本,49.00,31.85,9788467202281,onsale
+110,Push,2,本,49.00,31.85,9781784877361,onsale
+111,Post office,2,本,49.00,31.85,9780061492570,onsale
+112,Eleven Minutes,2,本,49.00,31.85,9780061835575,onsale
+113,Uprooted,2,本,49.00,31.85,9780804179034,onsale
+114,Insomnia,2,本,49.00,31.85,9785170178285,onsale
+115,Ugly Love,2,本,49.00,31.85,9788501105738,onsale
+116,Little Fires Everywhere,2,本,49.00,31.85,9783423147231,onsale
+117,Daemon,2,本,49.00,31.85,9780525951117,onsale
+118,Making Money,2,本,49.00,31.85,9788499899657,onsale
+119,Purple Hibiscus,2,本,49.00,31.85,9788535918502,onsale

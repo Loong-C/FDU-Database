@@ -57,7 +57,7 @@
 | 文件 | 修正内容 |
 |---|---|
 | `sql/create_tables.sql` | 扩展到 25 张表，库存迁移到 `inventory` |
-| `sql/insert_sample_data.sql` | 补充权限、采购入库、门店库存样例数据 |
+| `sql/data/*.csv` | 保存权限、采购入库、门店库存等初始化数据 |
 | `sql/views_or_reports.sql` | 新增库存预警和库存汇总视图 |
 | `docs/database/需求分析.md` | 补充业务范围、实体、关系、规则 |
 | `docs/database/ER图.md` | 补充权限、采购、库存关系图 |
@@ -80,7 +80,7 @@
 
 ## 6. 验证建议
 
-1. 按顺序执行 `create_database.sql`、`create_tables.sql`、`insert_sample_data.sql`、`views_or_reports.sql`。
+1. 执行 `python manage.py bootstrap_business_db --seed --views`，按顺序创建数据库、业务表、CSV 初始化数据和统计视图。
 2. 使用 `SHOW TABLES;` 确认 25 张基础表已创建。
 3. 查询 `inventory` 确认库存按门店和商品组合保存。
 4. 查询 `v_inventory_warning` 确认低库存预警可用。

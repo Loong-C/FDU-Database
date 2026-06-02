@@ -1,0 +1,115 @@
+source_query_category,title,isbn,authors,publisher,publish_year,publish_date_raw,page_count,language,category_name,unit,suggested_unit_price,status,openlibrary_key
+计算机,Database system concepts,9780072283631,Abraham Silberschatz,WCB/McGraw-Hill,1997,,840,eng,计算机,本,79.0,onsale,/works/OL1854539W
+计算机,Fundamentals of database systems,9780321369574,Ramez Elmasri; Shamkant B. Navathe,Pearson,1989,,1030,eng,计算机,本,79.0,onsale,/works/OL3947220W
+计算机,A first course in database systems,9780131225206,Jeffrey D. Ullman; Jennifer D. Widom,Pearson Prentice Hall,1997,,528,eng,计算机,本,79.0,onsale,/works/OL2640322W
+计算机,Database systems,9780357673034,Peter Rob; Carlos Coronel,Cengage Learning,2006,,812,eng,计算机,本,79.0,onsale,/works/OL17310241W
+计算机,Principles of distributed database systems,9783030262532,M. Tamer Özsu; M. Tamer Ozsu; Patrick Valduriez,Springer International Publishing AG,1999,,691,"eng,ger",计算机,本,79.0,onsale,/works/OL17707115W
+计算机,An introduction to database systems,9780201144710,C. J. Date,Addison Wesley Longman,1975,,639,eng,计算机,本,79.0,onsale,/works/OL1840931W
+计算机,Database Systems,9781403916013,Paul Beynon-Davies,Macmillan,1996,,420,"eng,und",计算机,本,79.0,onsale,/works/OL4296322W
+计算机,Database systems,9780760049044,Peter Rob,Course Technology Ptr (Sd),1993,,796,eng,计算机,本,79.0,onsale,/works/OL2055298W
+计算机,Database systems,9780131873254,Hector Garcia-Molina; Jeffrey D. Ullman; Jennifer D. Widom,Pearson Prentice Hall,2001,,1152,eng,计算机,本,79.0,onsale,/works/OL6442784W
+计算机,Database system concepts,9780071217620,Henry F. Korth,Mcgraw-hill Education,1986,,694,eng,计算机,本,79.0,onsale,/works/OL4453514W
+计算机,Database systems,9780321210258,Thomas M. Connolly; Carolyn E. Begg,Addison-Wesley,1996,,1374,eng,计算机,本,79.0,onsale,/works/OL1907567W
+计算机,Database Systems Concepts,9780072958867,Abraham Silberschatz,McGraw-Hill Science/Engineering/Math,2005,,1168,eng,计算机,本,79.0,onsale,/works/OL15326817W
+计算机,Fundamentals of database systems,9780136086208,Ramez Elmasri,Addison-Wesley,2011,,1172,eng,计算机,本,79.0,onsale,/works/OL15443742W
+计算机,"Database System Concepts, 3rd",9780071148108,"Abraham; Korth, Henry F.; Sudarshan, S.; Silberschatz Silberschatz",McGraw-Hill College,1997,,848,,计算机,本,79.0,onsale,/works/OL281791W
+计算机,Fundamentals of database systems,9780321415066,Ramez Elmasri; Shamkant Navathe,"Pearson Education, Limited",1999,,1089,eng,计算机,本,79.0,onsale,/works/OL18491883W
+计算机,Database systems,9780321228383,Michael Kifer; Arthur J. Bernstein; Philip M. Lewis; Michael Kifer; Arthur Bernstein,Addison-Wesley,2004,,980,eng,计算机,本,79.0,onsale,/works/OL13539683W
+计算机,An introduction to database systems,9780201684193,C. J. Date; C.J. Date,Addison-Wesley,2000,,938,eng,计算机,本,79.0,onsale,/works/OL16037479W
+计算机,Database systems,9780132943260,Thomas Connolly; Carolyn Begg,Addison Wesley,2001,,1338,eng,计算机,本,79.0,onsale,/works/OL18156628W
+计算机,Principles of database systems,9780914894131,Jeffrey D. Ullman,Pitman,1980,,484,eng,计算机,本,79.0,onsale,/works/OL2640324W
+计算机,Computer system architecture,9781405825160,M. Morris Mano,"Pearson Education, Limited",1983,,531,"eng,und",计算机,本,79.0,onsale,/works/OL11309879W
+计算机,Computer systems,9780134123837,Randal Bryant; Randal E. Bryant; David R. O'Hallaron,Pearson Education,2002,,1079,eng,计算机,本,79.0,onsale,/works/OL12343250W
+计算机,Computer systems design and architecture,9780130484406,Vincent P. Heuring,Pearson/Prentice Hall,1997,,608,eng,计算机,本,79.0,onsale,/works/OL3335981W
+计算机,Computer system architecture,9780131757387,M. Morris Mano,Prentice-Hall,1976,,525,eng,计算机,本,79.0,onsale,/works/OL3281306W
+计算机,Computer systems,9780763771447,J. Stanley Warford,Jones & Bartlett Publishers,1998,,539,eng,计算机,本,79.0,onsale,/works/OL1830511W
+计算机,Computer systems architecture,9780716780328,Jean Loup Baer,Computer Science Press,1980,,626,eng,计算机,本,79.0,onsale,/works/OL6570137W
+计算机,Computer Systems: A Programmer's Perspective (3rd Edition),9780134092669,Randal E. Bryant; David R. O'Hallaron,Pearson,2015,,1128,eng,计算机,本,79.0,onsale,/works/OL19545341W
+计算机,Understanding computer systems,9789173723336,Harold W. Lawson,Chartwell-Bratt,1979,,150,eng,计算机,本,79.0,onsale,/works/OL4125347W
+计算机,Elements of Computing Systems,9780262640688,Noam Nisan; Shimon Schocken,MIT Press,2008,,344,eng,计算机,本,79.0,onsale,/works/OL21015000W
+计算机,The art of computer systems performance analysis,9781118858356,Raj Jain,Wiley,1991,,768,eng,计算机,本,79.0,onsale,/works/OL3933961W
+计算机,Computer Systems Organization and Architecture,9780201612530,John D. Carpinelli,Addison Wesley,2000,,584,eng,计算机,本,79.0,onsale,/works/OL8021046W
+计算机,The Elements of Computing Systems,9780262140874,Noam Nisan; Shimon Schocken,The MIT Press,2005,,,,计算机,本,79.0,onsale,/works/OL19550033W
+计算机,Racing the Beam,9780262012577,Nick Montfort; Ian Bogost,The MIT Press,2009,,192,eng,计算机,本,79.0,onsale,/works/OL9261290W
+计算机,Design of real time computer systems,9780132014007,James Martin,Prentice-Hall,1967,,629,eng,计算机,本,79.0,onsale,/works/OL861049W
+计算机,Computer Systems Architecture,9781482231069,Aharon Yadin,Taylor & Francis Group,2016,,445,eng,计算机,本,79.0,onsale,/works/OL22147218W
+计算机,Simulating computer systems,9780262132299,M. H. MacDougall,MIT Press,1987,,292,eng,计算机,本,79.0,onsale,/works/OL4958709W
+计算机,Computer System Design,9781118009918,Michael J. Flynn; Wayne Luk,"Wiley & Sons, Limited, John",2011,,320,eng,计算机,本,79.0,onsale,/works/OL21456827W
+计算机,Programming real-time computer systems,9780137305070,James Martin,Prentice-Hall,1965,,386,eng,计算机,本,79.0,onsale,/works/OL2354714W
+计算机,Core Python Programming,9789390457151,R. Nageswara Rao,Willy,2016,,,"hin,eng",计算机,本,79.0,onsale,/works/OL30906747W
+计算机,Black Hat Python,9781593275907,Justin Seitz; Tim Arnold,Wydawnictwo Helion,2014,,192,"eng,pol",计算机,本,79.0,onsale,/works/OL19547345W
+计算机,Core Python programming,9780132269933,Wesley Chun,Pearson Education,2006,,1077,eng,计算机,本,79.0,onsale,/works/OL12409294W
+计算机,Python Programming,9789354973765,Reema Thareja,Oxford University Press India,2019,,,eng,计算机,本,79.0,onsale,/works/OL26755050W
+计算机,Python programming,9781887902991,John M. Zelle,"Franklin, Beedle & Associates, Incorporated",2003,,528,eng,计算机,本,79.0,onsale,/works/OL6037340W
+计算机,Learning Python,9788173667381,Mark Lutz; David Ascher,Shroff Publishers & Distributors Pvt. Ltd.,1999,,591,"eng,ger",计算机,本,79.0,onsale,/works/OL2784125W
+计算机,Python Programming Crash Course,9798846955790,Alex Jaxson,Independently Published,2022,,,eng,计算机,本,79.0,onsale,/works/OL29179198W
+计算机,Python Programming,9781951339944,Sarah Stewart,Platinum Press LLC,2019,,180,,计算机,本,79.0,onsale,/works/OL25171735W
+计算机,Python Programming,9781542988940,Adam Stewart,Createspace Independent Publishing Platform,2016,,98,eng,计算机,本,79.0,onsale,/works/OL24567802W
+计算机,Python,9781543252217,Joshua Welsh,CreateSpace Independent Publishing Platform,2017,,384,eng,计算机,本,79.0,onsale,/works/OL20212390W
+计算机,Python Programming,9789332585348,"Naveen ,Kumar and Taneja Sheetal",PEARSON INDIA,2017,,,,计算机,本,79.0,onsale,/works/OL27103303W
+计算机,Introduction to Python Programming,9780815394372,Gowrishankar S; Veena A,Taylor & Francis Group,2018,,444,eng,计算机,本,79.0,onsale,/works/OL25217001W
+计算机,Python programming in context,9781284175554,Bradley N. Miller,Jones and Bartlett Publishers,2009,,498,eng,计算机,本,79.0,onsale,/works/OL5830811W
+计算机,Python Programming,9781032028491,Vijaya Kumara Sarma; Vimal Kumar; Swati Sharma; Shashwat Pathak,Taylor & Francis Group,2021,,316,eng,计算机,本,79.0,onsale,/works/OL25320045W
+计算机,Murach's Python Programming (2nd Edition),9781943872749,Joel Murach; Michael Urban,"Murach & Associates, Incorporated, Mike",2016,,564,eng,计算机,本,79.0,onsale,/works/OL25315386W
+计算机,Python for Beginners : 2 Books in 1,9798722827302,Programming Languages ACADEMY,Independently Published,2021,,,eng,计算机,本,79.0,onsale,/works/OL30980985W
+计算机,Programming Python,9789350232873,Mark Lutz,"O'Reilly Media, Incorporated",1996,,1584,eng,计算机,本,79.0,onsale,/works/OL2784126W
+计算机,Python Programming For Beginners,9781521432341,Python Programming; Michael Knapp,Michael Knapp,2015,,,eng,计算机,本,79.0,onsale,/works/OL17755203W
+计算机,Murach's Python Programming,9781890774974,Michael Urban; Joel Murach,Murach Books,2016,,590,eng,计算机,本,79.0,onsale,/works/OL19546354W
+文学,The Norton book of classical literature,9780393034264,Bernard MacGregor Walker Knox,Norton,1993,,866,eng,文学,本,49.0,onsale,/works/OL16578442W
+文学,The Book of Five Rings,9781548127596,Musashi Miyamoto,CreateSpace Independent Publishing Platform,2013,,50,"eng,spa",文学,本,49.0,onsale,/works/OL39568417W
+文学,Idiot,9781539004950,Фёдор Михайлович Достоевский; Eva Martin,Summit Press,1869,,545,"ger,eng,rus",文学,本,49.0,onsale,/works/OL40756839W
+文学,The Secret Garden,9781977930231,Frances Hodgson Burnett,Brand: CreateSpace Independent Publishing Platform,1911,,256,"eng,spa,und",文学,本,49.0,onsale,/works/OL69612W
+文学,Treasure Island,9781497354975,Robert Louis Stevenson,Gallimard,1880,,248,"cor,ger,heb",文学,本,49.0,onsale,/works/OL24034W
+文学,Orlando,9798681983439,Virginia Woolf,New American Library,1928,,226,"ger,heb,slv",文学,本,49.0,onsale,/works/OL39360W
+文学,White Fang,9781847498014,Jack London,Young Readers' Classics,1905,,237,"ger,eng,kor",文学,本,49.0,onsale,/works/OL74504W
+文学,The Moon Pool,9798461321680,A. Merritt,Nasionale Boekhandel,1919,,286,"fre,eng",文学,本,49.0,onsale,/works/OL4104767W
+文学,Ethan Frome,9781507585559,Edith Wharton,Classic Books Library,1910,,98,"ger,eng,kor",文学,本,49.0,onsale,/works/OL98501W
+文学,The Scarlet Letter,9798463083326,Nathaniel Hawthorne,Artemis-verlag,1800,,272,"ger,heb,pol",文学,本,49.0,onsale,/works/OL455305W
+文学,Heidi,9782070586646,"Spyri, Johanna",Whitman,1885,,284,"ger,eng,kor",文学,本,49.0,onsale,/works/OL1455042W
+文学,The Oxford companion to classical literature,9780198600817,M. C. Howatson,Oxford University Press,1989,,615,eng,文学,本,49.0,onsale,/works/OL4639089W
+文学,Pollyanna,9781070647005,Eleanor Hodgman Porter; Porter; Neil Reed; Lee Giles,A. L. Burt Co.,1912,,194,"heb,chi,eng",文学,本,49.0,onsale,/works/OL2775807W
+文学,Harper's dictionary of classical literature and antiquities,9780815401766,"Peck, Harry Thurston",Cooper Square Pub,1896,,1701,eng,文学,本,49.0,onsale,/works/OL2342915W
+文学,Utilitarianism,9781512151275,John Mill,CreateSpace Independent Publishing Platform,1863,,70,eng,文学,本,49.0,onsale,/works/OL40720408W
+文学,The Oxford companion to classical literature,9780198661030,Sir Paul Harvey,Clarendon Press,1937,,468,eng,文学,本,49.0,onsale,/works/OL5351881W
+文学,Professor,9781975717766,Charlotte Brontë,Mybook,1857,,244,eng,文学,本,49.0,onsale,/works/OL40838648W
+文学,Classical Literature,9781136736599,Neil Croally; Roy Hyde,Routledge,2011,,432,eng,文学,本,49.0,onsale,/works/OL21629221W
+文学,The reluctant dragon,9798442512304,Kenneth Grahame; Jim Weiss; Ernest H. Shepard; Michael Hague,"Holt, Rinehart, and Winston",1938,,38,eng,文学,本,49.0,onsale,/works/OL69602W
+文学,The Norton Anthology of World Literature,9780393656022,Martin Puchner; Suzanne Conklin Akbari; Wiebke Denecke; Barbara Fuchs; Caroline Levine,"Norton & Company Limited, W. W.",2012,,1376,eng,文学,本,49.0,onsale,/works/OL20776250W
+文学,The Norton anthology of world literature,9780393152494,Sarah N. Lawall; Maynard Mack,W.W. Norton,2001,,1896,eng,文学,本,49.0,onsale,/works/OL18606623W
+文学,The Norton anthology of world literature,9780393913347,Martin Puchner,W.W. Norton & Co.,2012,,1504,eng,文学,本,49.0,onsale,/works/OL16299410W
+文学,The Bedford anthology of world literature,9780312402624,Paul Davis; Gary Harrison; David M. Johnson; Patricia Clark Smith; John F. Crawford,Bedford/St. Martin's,2002,,1150,eng,文学,本,49.0,onsale,/works/OL17864096W
+文学,World literature -- revised edition,9780030514098,Susan Wittig Albert; Chinua Achebe; Jorge Luis Borges; Albert Camus; Антон Павлович Чехов,"Holt, Rinehart and Winston",1998,,1504,eng,文学,本,49.0,onsale,/works/OL16024673W
+文学,75 Short Masterpieces,9789994911233,Roger B. Goodman; Ambrose Bierce; Ray Bradbury; Антон Павлович Чехов,Bantam Books,1961,,283,eng,文学,本,49.0,onsale,/works/OL3762003W
+文学,Brave New World,9781521308578,Aldous Huxley,Bange C. GmbH,1932,,241,"glg,jpn,cze",文学,本,49.0,onsale,/works/OL64365W
+文学,World Literature 1999,9780785418283,Jack Cassidy; Arthur Conan Doyle; Isaac Asimov; Rudolf Lorenzen; Robert D. San Souci,American Guidance Services Inc.,1999,,464,eng,文学,本,49.0,onsale,/works/OL18183808W
+文学,What is world literature?,9780691049854,David Damrosch,Princeton University Press,2003,,324,eng,文学,本,49.0,onsale,/works/OL550259W
+文学,The War of the Worlds,9783257201710,H. G. Wells,"Little, Brown Book Group Limited",,,206,"ger,eng,mon",文学,本,49.0,onsale,/works/OL52114W
+文学,The Norton anthology of world literature,9780393977592,Sarah N. Lawall; Maynard Mack,W W Norton & Co Inc,2001,,563,eng,文学,本,49.0,onsale,/works/OL15163066W
+文学,World Literature Instructor's Manual,9780844254814,Donna Rosenberg,National Textbook Company,1992,,,eng,文学,本,49.0,onsale,/works/OL1981906W
+文学,"The Norton Anthology of World Literature, Vol. F",9780393924510,Sarah N. Lawall,W W Norton & Co Inc (Np),2002,,,eng,文学,本,49.0,onsale,/works/OL7005840W
+文学,World Literature,9780844254821,Donna Rosenberg; Фёдор Михайлович Достоевский; Антон Павлович Чехов; Chinua Achebe; Jorge Luis Borges,National Textbook Company,1992,,884,eng,文学,本,49.0,onsale,/works/OL14996137W
+文学,Guide to modern world literature,9780333427941,Martin Seymour-Smith,Papermac,1973,,1206,eng,文学,本,49.0,onsale,/works/OL1838990W
+文学,"Prentice Hall Literature--Timeless Voices, Timeless Themes--World Literature",9780130508362,Carol Domblewski; Chinua Achebe; Anna Akhmatova; Dante Alighieri; Isabel Allende,Prentice Hall,2001,,,eng,文学,本,49.0,onsale,/works/OL24558227W
+文学,Masterpieces of world literature in digest form,9780060037505,Frank N. Magill,HarperCollins Publishers,1952,,1240,eng,文学,本,49.0,onsale,/works/OL6576777W
+文学,Essentials of British and World Literature,9780030791796,Kylene Beers; Chinua Achebe; Margaret Atwood; Jorge Luis Borges; Антон Павлович Чехов,Holt Rinehart & Winston,2006,,1674,eng,文学,本,49.0,onsale,/works/OL270749W
+文学,The Lost World,9798696445403,Arthur Conan Doyle,Babblebooks,1900,,238,"ger,eng,spa",文学,本,49.0,onsale,/works/OL262460W
+文学,November 9,9781508284987,Colleen Hoover,Simon & Schuster,2015,,320,eng,文学,本,49.0,onsale,/works/OL20018811W
+文学,Confess,9781476791456,Colleen Hoover,Cengage Gale,2015,,320,"tur,spa,eng",文学,本,49.0,onsale,/works/OL19998163W
+文学,The Hating Game,9780062439598,Sally Thorne,PIATKUS,2016,,379,eng,文学,本,49.0,onsale,/works/OL20032935W
+文学,Drama,9788417108588,Raina Telgemeier,"Scholastic Canada, Limited",2012,,240,"spa,fre,eng",文学,本,49.0,onsale,/works/OL16793507W
+文学,The Spanish Love Deception,9798705893843,Elena Armas,Simon & Schuster Audio and Blackstone Publishing,2021,,480,eng,文学,本,49.0,onsale,/works/OL26345722W
+文学,Haunted,9788497934893,Chuck Palahniuk,Random House Mondadori,2005,,432,"eng,ita,spa",文学,本,49.0,onsale,/works/OL18931W
+文学,Maurice,9782264012739,E. M. Forster,Alianza Editorial Sa,1971,,256,"heb,eng,spa",文学,本,49.0,onsale,/works/OL88877W
+文学,Icebreaker,9788466679299,Hannah Grace,Take university press,2020,,448,"eng,spa",文学,本,49.0,onsale,/works/OL28952677W
+文学,Infinite Jest,9783499249570,David Foster Wallace,Quetzal,1996,,1104,"eng,ita,por",文学,本,49.0,onsale,/works/OL2943602W
+文学,Middlesex,9788467202281,Jeffrey Eugenides,RBA,2002,,546,"spa,ger,eng",文学,本,49.0,onsale,/works/OL3951520W
+文学,Push,9781784877361,"Sapphire; Tayari Jones; Sapphire; Sapphire, Lofton, Ramona",VINTAGE,1996,,176,"fre,spa,ger",文学,本,49.0,onsale,/works/OL47292W
+文学,Post office,9780061492570,Charles Bukowski,Ecco,1974,,160,"rus,ger,eng",文学,本,49.0,onsale,/works/OL50457W
+文学,Eleven Minutes,9780061835575,Paulo Coelho,HarperCollins Publishers Australia,2003,,304,eng,文学,本,49.0,onsale,/works/OL796601W
+文学,Uprooted,9780804179034,Naomi Novik,Macmillan,2015,,438,eng,文学,本,49.0,onsale,/works/OL17345493W
+文学,Insomnia,9785170178285,Stephen King,AST,1994,,719,"spa,eng,fre",文学,本,49.0,onsale,/works/OL81603W
+文学,Ugly Love,9788501105738,Colleen Hoover,Galera Record,2014,,344,"tur,por,eng",文学,本,49.0,onsale,/works/OL20577143W
+文学,Little Fires Everywhere,9783423147231,Celeste Ng,Penguin Publishing Group,2014,,384,"ger,eng",文学,本,49.0,onsale,/works/OL17821431W
+文学,Daemon,9780525951117,Daniel Suarez,Penguin Audio,2009,,540,eng,文学,本,49.0,onsale,/works/OL13646905W
+文学,Making Money,9788499899657,Terry Pratchett,Goldmann,2007,,400,"eng,pol,ger",文学,本,49.0,onsale,/works/OL453907W
+文学,Purple Hibiscus,9788535918502,Chimamanda Ngozi Adichie,Bonnier pocket,2003,,307,"swe,spa,eng",文学,本,49.0,onsale,/works/OL5731538W
