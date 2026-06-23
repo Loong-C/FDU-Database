@@ -24,7 +24,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20003,3,142,9788131716250,Fundamentals of database systems,26,50.56,1314.56
 20003,4,143,9780760010907,"Database Systems Design, Implementation, and Management",30,45.82,1374.6
 20003,5,144,9781558604438,Advanced database systems,34,47.4,1611.6
-20003,6,145,9780132575676,Database Systems  Introduction to Databases and Data Warehouses,14,48.98,685.72
+20003,6,145,9780132575676,Database Systems Introduction to Databases and Data Warehouses,14,48.98,685.72
 20003,7,146,9780735606340,Designing relational database systems,18,50.56,910.08
 20003,8,147,9780314667717,An introduction to database systems,22,45.82,1008.04
 20003,9,148,9780321197849,An Introduction to Database Systems,26,47.4,1232.4
@@ -467,12 +467,8 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20047,6,585,9780131737150,"GOAL Student Access Card, A First Course in Database Systems",13,48.98,636.74
 20047,7,586,9783896014054,Heuristic and randomised optimisation techniques in object-oriented database systems,17,50.56,859.52
 20047,8,587,9780830633227,Programming with IBM PC Basic and the Pick database system,21,45.82,962.22
-20047,9,588,9783642284861,"Intelligent Information and Database Systems
-            
-                Lecture Notes in Artificial Intelligence",25,47.4,1185.0
-20047,10,589,9783642290343,"Database Systems for Advanced Applications
-            
-                Lecture Notes in Computer Science",29,48.98,1420.42
+20047,9,588,9783642284861,Intelligent Information and Database Systems Lecture Notes in Artificial Intelligence,25,47.4,1185.0
+20047,10,589,9783642290343,Database Systems for Advanced Applications Lecture Notes in Computer Science,29,48.98,1420.42
 20048,1,590,9780792373230,Mutation Testing for the New Century (Advances in Database Systems),18,47.4,853.2
 20048,2,591,9781423544531,Analysis of N-Tier Architecture Applied to Distributed-Database Systems,22,48.98,1077.56
 20048,3,592,9781931332002,BCM SmartBIA,26,50.56,1314.56
@@ -507,7 +503,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20051,2,621,9783642402708,"Database Systems for Advanced Applications : 18th International Conference, DASFAA 2013, International Workshops",20,48.98,979.6
 20051,3,622,9781581135077,Proceedings of the Twenty-First ACM SIGMOD-SIGACT-SIGART Symposium on Principles of Database Systems,24,50.56,1213.44
 20051,4,623,9781441991768,Object Management in Distributed Database Systems for Stationary and Mobile Computing Environments,28,45.82,1282.96
-20051,5,624,9780769500843,"Proceedings, 6th International Conference on  Database Systems for Advanced Applications : April 19-21, 1999, Hsinchu,Taiwan",32,47.4,1516.8
+20051,5,624,9780769500843,"Proceedings, 6th International Conference on Database Systems for Advanced Applications : April 19-21, 1999, Hsinchu,Taiwan",32,47.4,1516.8
 20051,6,625,9781558602946,Database modeling & design,12,48.98,587.76
 20051,7,626,9780321205612,Seeing data,16,50.56,808.96
 20051,8,627,9781405817714,Value Pack,20,45.82,916.4
@@ -556,7 +552,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20056,1,670,9787118085761,"Kong jian shu ju ku xi tong she ji, shi shi he xiang mu guan li",16,47.4,758.4
 20056,2,671,9780137718740,Relational database management,20,48.98,979.6
 20056,3,672,9780133820607,AS/400,24,50.56,1213.44
-20056,4,673,9781405825016,"Value Pack : Database Systems : an Application Oriented Apprach, Complete Version  with Learning SQL",28,45.82,1282.96
+20056,4,673,9781405825016,"Value Pack : Database Systems : an Application Oriented Apprach, Complete Version with Learning SQL",28,45.82,1282.96
 20056,5,674,9780582831391,"Database Systems : A Practical Approach to Design, Implementation and Management with Learning Sql",32,47.4,1516.8
 20056,6,675,9783031354144,Database Systems for Advanced Applications. DASFAA 2023 International Workshops,12,48.98,587.76
 20056,7,676,9783642145889,Database systems for advanced applications,16,50.56,808.96
@@ -606,9 +602,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20061,1,720,9783642237409,Transactions on Large-Scale Data- and Knowledge-Centered Systems IV,16,47.4,758.4
 20061,2,721,9781450331098,PODS' 14,20,48.98,979.6
 20061,3,722,9783642290374,Database Systems For Advanced Applications 17th International Conference Dasfaa 2012 Busan South Korea April 1518 2012 Proceedings,24,50.56,1213.44
-20061,4,723,9783642202438,"Database Systems for Advanced Applications 16th International Conference DASFAA 2011 International Workshops
-            
-                Lecture Notes in Computer Science",28,45.82,1282.96
+20061,4,723,9783642202438,Database Systems for Advanced Applications 16th International Conference DASFAA 2011 International Workshops Lecture Notes in Computer Science,28,45.82,1282.96
 20061,5,724,9783642145896,"Database Systems for Advanced Applications : 15th International Conference, DASFAA 2010, International Workshops",32,47.4,1516.8
 20061,6,725,9783662439845,"Database Systems for Advanced Applications : 19th International Conference, DASFAA 2014, International Workshops",12,48.98,587.76
 20061,7,726,9783642202445,"Database Systems for Advanced Applications : 16th International Conference, DASFAA 2011 International Workshops",16,50.56,808.96
@@ -641,7 +635,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20064,4,753,9781721137008,EOSCUBE,31,45.82,1420.42
 20064,5,754,9780897914307,"Proceedings of the Tenth Acm Sigact-Sigmod S-Sigart Symposium on Principles of Database Systems, May 29-31, 1991, Denver, Colorado",35,47.4,1659.0
 20064,6,755,9780897913522,"Proceedings of the Ninth Acm Sigact-Sigmod-Sigart Symposium on Principles of Database Systems, April 2-4, 1990, Nashville, Tennessee (475900)",15,48.98,734.7
-20064,7,756,9781337952804,"Bundle : MindTap MIS, 1 Term  Printed Access Card for Coronel/Morris' Database Systems",19,50.56,960.64
+20064,7,756,9781337952804,"Bundle : MindTap MIS, 1 Term Printed Access Card for Coronel/Morris' Database Systems",19,50.56,960.64
 20064,8,757,9780534100742,Understanding database management systems,23,45.82,1053.86
 20064,9,758,9783540625018,Constraint databases and applications,27,47.4,1279.8
 20064,10,759,9780387710037,"Stream Data Processing: A Quality of Service Perspective: Modeling, Scheduling, Load Shedding, and Complex Event Processing (Advances in Database Systems Book 36)",31,48.98,1518.38
@@ -1016,9 +1010,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20101,9,1128,9783642330735,Advances on Databases and Information Systems,24,47.4,1137.6
 20101,10,1129,9783642039737,Advances in Databases and Information Systems,28,48.98,1371.44
 20102,1,1130,9783030184742,Analysis and Data-Based Reconstruction of Complex Nonlinear Dynamical Systems,17,47.4,805.8
-20102,2,1131,9781447156000,"Concise Guide to Databases
-            
-                Undergraduate Topics in Computer Science",21,48.98,1028.58
+20102,2,1131,9781447156000,Concise Guide to Databases Undergraduate Topics in Computer Science,21,48.98,1028.58
 20102,3,1132,9780028007502,101 Database Exercises,25,50.56,1264.0
 20102,4,1133,9780071812436,Oracle Database 12c PLSQL Programming,29,45.82,1328.78
 20102,5,1134,9780582843103,"Database Systems : A Practical Approach to Design, Implementation and Management with Learning Sql : A Step-by-Step Guide Using Oracle with Learning Sql : A Step-by-Step Guide Using Access : A Practic",33,47.4,1564.2
@@ -1221,7 +1213,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20122,2,1331,9783642326004,Database and Expert Systems Applications,21,48.98,1028.58
 20122,3,1332,9783540744672,Database and expert systems applications,25,50.56,1264.0
 20122,4,1333,9781461314172,Time-Constrained Transaction Management,29,45.82,1328.78
-20122,5,1334,9780130463616,"DB2 Universal Database v8.1 for Linux, UNIX, and  Windows database administration certification guide",33,47.4,1564.2
+20122,5,1334,9780130463616,"DB2 Universal Database v8.1 for Linux, UNIX, and Windows database administration certification guide",33,47.4,1564.2
 20122,6,1335,9781977075383,Identification and Classification Numbering System,13,48.98,636.74
 20122,7,1336,9783642409936,Machine Learning and Knowledge Discovery in Databases,17,50.56,859.52
 20122,8,1337,9780538656429,QwizEd Series: The Software Learning System,21,45.82,962.22
@@ -1347,7 +1339,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20134,8,1457,9780387235684,Semistructured Database Design (Web Information Systems Engineering and Internet Technologies Book Series 1),23,45.82,1053.86
 20134,9,1458,9781931332019,BCM SmartPLAN,27,47.4,1279.8
 20134,10,1459,9789994336838,Computerized Data-Based Systems and Productivity Among Professional Workers,31,48.98,1518.38
-20135,1,1460,9780317426175,"The Db Vista , A Database Management System for C Language         Applications Software Development",20,47.4,948.0
+20135,1,1460,9780317426175,"The Db Vista , A Database Management System for C Language Applications Software Development",20,47.4,948.0
 20135,2,1461,9782212112818,Bases de données,24,48.98,1175.52
 20135,3,1462,9780429876608,Digital Manufacturing and Assembly Systems in Industry 4. 0,28,50.56,1415.68
 20135,4,1463,9780201416473,Relational database management with Oracle,32,45.82,1466.24
@@ -1973,9 +1965,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20197,4,2083,9780585320908,Information Retrieval Systems,29,45.82,1328.78
 20197,5,2084,9781489996701,Secure data management in decentralized systems,33,47.4,1564.2
 20197,6,2085,9780306470295,Semantic models for multimedia database searching and browsing,13,48.98,636.74
-20197,7,2086,9783790824674,"Knowledge Management in Fuzzy Databases
-            
-                Studies in Fuzziness and Soft Computing",17,50.56,859.52
+20197,7,2086,9783790824674,Knowledge Management in Fuzzy Databases Studies in Fuzziness and Soft Computing,17,50.56,859.52
 20197,8,2087,9780312210182,Transaction management,21,45.82,962.22
 20197,9,2088,9780387346298,Multimedia Database Retrieval:: A Human-Centered Approach (Signals and Communication Technology),25,47.4,1185.0
 20197,10,2089,9781856046275,Understanding Data and Information Systems for Recordkeeping,29,48.98,1420.42
@@ -2099,7 +2089,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20209,8,2207,9781003339748,MANTIS Book,23,45.82,1053.86
 20209,9,2208,9780134565422,Use case maps for object-oriented systems,27,47.4,1279.8
 20209,10,2209,9780738426365,Application Recovery Tool for Ims and DB2 Databases a Data Recovery Guide,31,48.98,1518.38
-20210,1,2210,9780471900108,(WCS)Managing and Using Information Systems 2e  with Course Pack Set,20,47.4,948.0
+20210,1,2210,9780471900108,(WCS)Managing and Using Information Systems 2e with Course Pack Set,20,47.4,948.0
 20210,2,2211,9780131840485,DB2 Universal Database V8.1 certification exams 701 and 706 study guide,24,48.98,1175.52
 20210,3,2212,9780309068253,A Question of Balance,28,50.56,1415.68
 20210,4,2213,9783540438939,Handbook on data management in information systems,32,45.82,1466.24
@@ -2383,9 +2373,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20238,2,2491,9781883187033,The regional performance benchmarks system,22,48.98,1077.56
 20238,3,2492,9780835712118,Performance evaluation of data base systems,26,50.56,1314.56
 20238,4,2493,9780471878957,Audit and Control of Systems Software,30,45.82,1374.6
-20238,5,2494,9783642069703,"Data Quality
-            
-                DataCentric Systems and Applications",34,47.4,1611.6
+20238,5,2494,9783642069703,Data Quality DataCentric Systems and Applications,34,47.4,1611.6
 20238,6,2495,9780769513683,20th IEEE Symposium on Reliable Distributed Systems,14,48.98,685.72
 20238,7,2496,9780124438750,Knowledge-Based Systems Techniques and Applications (4-Volume Set),18,50.56,910.08
 20238,8,2497,9780724804313,Fourth Generation Data,22,45.82,1008.04
@@ -2754,9 +2742,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20275,1,2860,9783642241499,Governance and Sustainability in Information Systems. Managing the Transfer and Diffusion of IT,20,47.4,948.0
 20275,2,2861,9783642172267,From active data management to event-based systems and more,24,48.98,1175.52
 20275,3,2862,9780738434490,IBM System Storage N Series and Vmware Vsphere Storage best practices,28,50.56,1415.68
-20275,4,2863,9783642291654,"Information Systems Technology and Management
-            
-                Communications in Computer and Information Science",32,45.82,1466.24
+20275,4,2863,9783642291654,Information Systems Technology and Management Communications in Computer and Information Science,32,45.82,1466.24
 20275,5,2864,9780810457898,I/O design,36,47.4,1706.4
 20275,6,2865,9783642336171,On the Move to Meaningful Internet Systems : OTM 2012 Workshops : Confederated International Workshops,16,48.98,783.68
 20275,7,2866,9781489976406,Machine Learning Models and Algorithms for Big Data Classification: Thinking with Examples for Effective Learning (Integrated Series in Information Systems),20,50.56,1011.2
@@ -2765,18 +2751,14 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20275,10,2869,9780738434193,Best practices for DB2 on AIX 6.1 for Power systems,32,48.98,1567.36
 20276,1,2870,9780120884070,Data mining,16,47.4,758.4
 20276,2,2871,9781455723591,The electronic health record for the physician's office with Medtrak systems,20,48.98,979.6
-20276,3,2872,9783642125492,"Natural Language Processing and Information Systems
-            
-                Lecture Notes in Computer Science",24,50.56,1213.44
+20276,3,2872,9783642125492,Natural Language Processing and Information Systems Lecture Notes in Computer Science,24,50.56,1213.44
 20276,4,2873,9780080520025,Understanding SQL and Java together,28,45.82,1282.96
 20276,5,2874,9783540432203,Foundations of information and knowledge systems,32,47.4,1516.8
 20276,6,2875,9780769523477,Proceedings,12,48.98,587.76
 20276,7,2876,9783540076124,Data Base Systems,16,50.56,808.96
 20276,8,2877,9781466469129,The integrated Rule-Oriented Data System (iRODS 3.0) Micro-service Workbook,20,45.82,916.4
 20276,9,2878,9781880843062,Parallel and distributed computing and systems,24,47.4,1137.6
-20276,10,2879,9781441944467,"The Web Resource Space Model
-            
-                Web Information Systems Engineering and Internet Technologie",28,48.98,1371.44
+20276,10,2879,9781441944467,The Web Resource Space Model Web Information Systems Engineering and Internet Technologie,28,48.98,1371.44
 20277,1,2880,9783662562659,Transactions on Large-Scale Data- and Knowledge-Centered Systems XXXVI,17,47.4,805.8
 20277,2,2881,9780471288251,Online marketing handbook,21,48.98,1028.58
 20277,3,2882,9780738438627,In-memory computing with SAP HANA on IBM ex5 systems,25,50.56,1264.0
@@ -2811,9 +2793,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20280,2,2911,9783319484723,On the Move to Meaningful Internet Systems : OTM 2016 Conferences : Confederated International Conferences,24,48.98,1175.52
 20280,3,2912,9780801614514,Power Pack for the IBM PC With IBM Diskette,28,50.56,1415.68
 20280,4,2913,9783319087955,Information Processing and Management of Uncertainty,32,45.82,1466.24
-20280,5,2914,9783642243950,"Web Information Systems Engineering  WISE 2010 Workshops
-            
-                Lecture Notes in Computer Science",36,47.4,1706.4
+20280,5,2914,9783642243950,Web Information Systems Engineering WISE 2010 Workshops Lecture Notes in Computer Science,36,47.4,1706.4
 20280,6,2915,9780738498737,Peoplesoft V8 on Zseries Using Sysplex Data Sharing And Enterprise Storage Systems,16,48.98,783.68
 20280,7,2916,9783540281757,Artificial Immune Systems (vol. # 3627),20,50.56,1011.2
 20280,8,2917,9783642370878,Web and Wireless Geographical Information Systems,24,45.82,1099.68
@@ -2846,9 +2826,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20283,5,2944,9789062330850,"Evaluation of methods and techniques for the analysis, design, and implementation of information systems",34,47.4,1611.6
 20283,6,2945,9780201325744,Scaling Oracle8i,14,48.98,685.72
 20283,7,2946,9781439860595,Developing Information Systems For Windows And Web Applications In Engineering Business And Science,18,50.56,910.08
-20283,8,2947,9783642177453,"The Semantic Web  Iswc 2010
-            
-                Lecture Notes in Computer Science  Information Systems and",22,45.82,1008.04
+20283,8,2947,9783642177453,The Semantic Web Iswc 2010 Lecture Notes in Computer Science Information Systems and,22,45.82,1008.04
 20283,9,2948,9780387243566,Web content delivery,26,47.4,1232.4
 20283,10,2949,9781599942865,SAS(R) 9.1.3 Intelligence Platform,30,48.98,1469.4
 20284,1,2950,9783540761709,"OOIS '97, 1997 International Conference on Object-Oriented Information Systems, 10-12 November 1997, Brisbane",19,47.4,900.6
@@ -2884,9 +2862,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20287,1,2980,9783540300182,Web Information Systems Engineering - WISE 2005 Workshops,17,47.4,805.8
 20287,2,2981,9783540236641,On the move to meaningful Internet systems 2004,21,48.98,1028.58
 20287,3,2982,9781880446546,Proceedings of the Usenix Symposium on Experiences With Distributed and Multiprocessor Systems (Sedms IV),25,50.56,1264.0
-20287,4,2983,9783642251054,"On the Move to Meaningful Internet Systems OTM 2011
-            
-                Lecture Notes in Computer Science",29,45.82,1328.78
+20287,4,2983,9783642251054,On the Move to Meaningful Internet Systems OTM 2011 Lecture Notes in Computer Science,29,45.82,1328.78
 20287,5,2984,9781583817032,Astronomical data analysis software and systems XVIII,33,47.4,1564.2
 20287,6,2985,9780769506104,Second International Workshop on Advanced Issues of E-Commerce and Web-Based Information Systems/Wecwis 2000,13,48.98,636.74
 20287,7,2986,9789251044544,"The European soil information system : proceedings of a Technical Consultation, Rome, Italy, 2-3 September 1999",17,50.56,859.52
@@ -3276,9 +3252,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20326,1,3370,9780471192343,Oracle8 Administration and Management,16,47.4,758.4
 20326,2,3371,9780470634691,Excel 2010 For Dummies,20,48.98,979.6
 20326,3,3372,9780273012412,Design of computer data files,24,50.56,1213.44
-20326,4,3373,9783642289965,"Advances in Information Retrieval
-            
-                Lecture Notes in Computer Science",28,45.82,1282.96
+20326,4,3373,9783642289965,Advances in Information Retrieval Lecture Notes in Computer Science,28,45.82,1282.96
 20326,5,3374,9780072262766,Oracle E-Business Suite Security (Oracle),32,47.4,1516.8
 20326,6,3375,9781782170679,Implementing Cisco UCS Solutions,12,48.98,587.76
 20326,7,3376,9781906124670,Enterprise content management,16,50.56,808.96
@@ -3669,9 +3643,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20365,2,3761,9781493217151,Extending SAP S/4HANA,24,48.98,1175.52
 20365,3,3762,9782840500452,Gestion électronique de documents et nouvelles technologies en sciences humaines,28,50.56,1415.68
 20365,4,3763,9781430237501,Beginning SQL Server 2012 for Developers,32,45.82,1466.24
-20365,5,3764,9783642314872,"Advances in Data Mining Applications and Theoretical Aspects
-            
-                Lecture Notes in Computer Science  Lecture Notes in Artific",36,47.4,1706.4
+20365,5,3764,9783642314872,Advances in Data Mining Applications and Theoretical Aspects Lecture Notes in Computer Science Lecture Notes in Artific,36,47.4,1706.4
 20365,6,3765,9780672321467,Oracle performance tuning,16,48.98,783.68
 20365,7,3766,9780819441911,Astronomical data analysis,20,50.56,1011.2
 20365,8,3767,9781430211716,Troubleshooting Oracle Performance,24,45.82,1099.68
@@ -3904,7 +3876,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20388,5,3994,9785020066038,Optimizat︠s︡ii︠a︡ struktur dannykh v ASU,34,47.4,1611.6
 20388,6,3995,9783540252955,Advances in information retrieval,14,48.98,685.72
 20388,7,3996,9780072192797,Oracle 9i,18,50.56,910.08
-20388,8,3997,9780471354536,Oracle8i administration and management  / Michael Ault,22,45.82,1008.04
+20388,8,3997,9780471354536,Oracle8i administration and management / Michael Ault,22,45.82,1008.04
 20388,9,3998,5861320571,Folk-art-net--novye gorizonty tvorchestva,26,47.4,1232.4
 20388,10,3999,9783540433439,Advances in information retrieval,30,48.98,1469.4
 20389,1,4000,9780789730282,Special edition using FileMaker 7,19,47.4,900.6
@@ -4024,7 +3996,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20400,5,4114,9780738433455,IBM Tivoli Netcool/Impact V4.0 implementation,36,47.4,1706.4
 20400,6,4115,9781450320016,SIGIR'12 Vol. 2 of 2,16,48.98,783.68
 20400,7,4116,9781430225102,Oracle SQL Recipes,20,50.56,1011.2
-20400,8,4117,9783598202605,"Iud und Normung, Neue Kommunikationstechnologie, Berufspolitik, Datenbanken, Betriebsstatistik, Informetrie, Parlamentsdokumentation, Arbeitskreis Senioren, Gesprã¤Chskreise : Berlin, Vom 29. 09. Bis ",24,45.82,1099.68
+20400,8,4117,9783598202605,"Iud und Normung, Neue Kommunikationstechnologie, Berufspolitik, Datenbanken, Betriebsstatistik, Informetrie, Parlamentsdokumentation, Arbeitskreis Senioren, Gesprã¤Chskreise : Berlin, Vom 29. 09. Bis",24,45.82,1099.68
 20400,9,4118,9780738432472,IBM Tivoli Netcool Service Quality Manager Data Mediation Gateway Development,28,47.4,1327.2
 20400,10,4119,9780072192292,Oracle Pl/Sql 101,32,48.98,1567.36
 20401,1,4120,9781785281273,Oracle SQL Developer,16,47.4,758.4
@@ -4058,18 +4030,12 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20403,9,4148,9783642317170,Advances In Computational Intelligence,26,47.4,1232.4
 20403,10,4149,9785020376144,Upravlenie kachestvom informat︠s︡ionnykh sistem,30,48.98,1469.4
 20404,1,4150,9780819419811,Multimedia,19,47.4,900.6
-20404,2,4151,9783642317149,"Advances in Computational Intelligence Part II
-            
-                Communications in Computer and Information Science",23,48.98,1126.54
+20404,2,4151,9783642317149,Advances in Computational Intelligence Part II Communications in Computer and Information Science,23,48.98,1126.54
 20404,3,4152,9781609600679,Knowledge Discovery Practices And Emerging Applications Of Data Mining Trends And New Domains,27,50.56,1365.12
 20404,4,4153,9783834817303,Efficient Usage Of Adabas Replication A Practical Solution Finder,31,45.82,1420.42
-20404,5,4154,9783642317088,"Advances in Computational Intelligence Part I
-            
-                Communications in Computer and Information Science",35,47.4,1659.0
+20404,5,4154,9783642317088,Advances in Computational Intelligence Part I Communications in Computer and Information Science,35,47.4,1659.0
 20404,6,4155,9781118647196,Balanced Scorecards and Operational Dashboards with SQL Server Reporting Services,15,48.98,734.7
-20404,7,4156,9783642317231,"Advances in Computational Intelligence Part IV
-            
-                Communications in Computer and Information Science",19,50.56,960.64
+20404,7,4156,9783642317231,Advances in Computational Intelligence Part IV Communications in Computer and Information Science,19,50.56,960.64
 20404,8,4157,9780470278338,Unsupervised Learning Via Selforganization A Dynamic Approach,23,45.82,1053.86
 20404,9,4158,9780470747001,Multimedia semantics,27,47.4,1279.8
 20404,10,4159,9783540225393,Image and video retrieval,31,48.98,1518.38
@@ -4215,14 +4181,10 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20418,10,4299,9788770235587,Informationssøgning og dokumentation inden for humaniora og samfundsvidenskab,30,48.98,1469.4
 20419,1,4300,9780132557467,Planning and designing the data warehouse,19,47.4,900.6
 20419,2,4301,9787030196897,Ke ji xin xi jian suo,23,48.98,1126.54
-20419,3,4302,9783211999417,"Preferences and Similarities
-            
-                CISM International Centre for Mechanical Sciences",27,50.56,1365.12
+20419,3,4302,9783211999417,Preferences and Similarities CISM International Centre for Mechanical Sciences,27,50.56,1365.12
 20419,4,4303,9780078820458,Lotus Notes Answers,31,45.82,1420.42
 20419,5,4304,9780071763226,Building And Managing A Cloud Using Oracle Enterprise Manager 12c,35,47.4,1659.0
-20419,6,4305,9783790824599,"Rough Sets in Knowledge Discovery 2
-            
-                Studies in Fuzziness and Soft Computing",15,48.98,734.7
+20419,6,4305,9783790824599,Rough Sets in Knowledge Discovery 2 Studies in Fuzziness and Soft Computing,15,48.98,734.7
 20419,7,4306,9782271051035,La commercialisation des banques de données,19,50.56,960.64
 20419,8,4307,9780851422770,Going online 1991,23,45.82,1053.86
 20419,9,4308,9781581136463,SIGIR 2003,27,47.4,1279.8
@@ -4337,7 +4299,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20430,8,4417,9781466602779,Advancing technologies for Asian business and economics,24,45.82,1099.68
 20430,9,4418,9784790712817,Kontentsu-gaku,28,47.4,1327.2
 20430,10,4419,9783540307372,Progress in Artificial Intelligence,32,48.98,1567.36
-20431,1,4420,9780735680807,Managing the Store  DAG,16,47.4,758.4
+20431,1,4420,9780735680807,Managing the Store DAG,16,47.4,758.4
 20431,2,4421,9780764543685,Professional Sql Server 2000 Dts,20,48.98,979.6
 20431,3,4422,9782920003194,Le Guide d'accès du juriste au monde de la télématique,24,50.56,1213.44
 20431,4,4423,9781565922396,Mastering Oracle Power Objects,28,45.82,1282.96
@@ -4622,7 +4584,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20459,3,4702,9783540007364,Efficiency and effectiveness of XML tools and techniques and data integration over the Web,27,50.56,1365.12
 20459,4,4703,9781555701864,Teaching electronic information literacy,31,45.82,1420.42
 20459,5,4704,9780201433159,Managing knowledge,35,47.4,1659.0
-20459,6,4705,9780387249919,EndNote 1 - 2 - 3  Easy!,15,48.98,734.7
+20459,6,4705,9780387249919,EndNote 1 - 2 - 3 Easy!,15,48.98,734.7
 20459,7,4706,9780596006211,Oracle application server 10g essentials,19,50.56,960.64
 20459,8,4707,9780738497372,A deep blue view of DB2 performance,23,45.82,1053.86
 20459,9,4708,9780130830333,Information modeling,27,47.4,1279.8
@@ -4790,9 +4752,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20476,1,4870,9783642157509,Multilingual Information Access Evaluation,16,47.4,758.4
 20476,2,4871,9783642157530,Multilingual Information Access Evaluation,20,48.98,979.6
 20476,3,4872,9783642290862,Information And Business Intelligence International Conference Ibi 2011 Chongqing China December 2325 2011 Proceedings Part 2,24,50.56,1213.44
-20476,4,4873,9783642290831,"Information and Business Intelligence
-            
-                Communications in Computer and Information Science",28,45.82,1282.96
+20476,4,4873,9783642290831,Information and Business Intelligence Communications in Computer and Information Science,28,45.82,1282.96
 20476,5,4874,9783642173158,Advanced Data Mining And Applications 6th International Conference Adma 2010 Chongqing China November 1921 2010 Proceedings,32,47.4,1516.8
 20476,6,4875,9783540897835,Advances In Web Semantics I Ontologies Web Services And Applied Semantic Web,12,48.98,587.76
 20476,7,4876,9783642154706,Active Media Technology,16,50.56,808.96
@@ -4830,13 +4790,9 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20479,9,4908,9783642167720,Proceedings 9th Mexican International Conference On Artificial Intelligence Micai 2010 Pachuca Mexico November 8 13 2010 Grigori Sidorov Ed,27,47.4,1279.8
 20479,10,4909,9781430233930,Expert Oracle exadata,31,48.98,1518.38
 20480,1,4910,9783540289630,Computer Security - ESORICS 2005,20,47.4,948.0
-20480,2,4911,9783540897217,"Recent Advances in Reinforcement Learning
-            
-                Lecture Notes in Artificial Intelligence",24,48.98,1175.52
+20480,2,4911,9783540897217,Recent Advances in Reinforcement Learning Lecture Notes in Artificial Intelligence,24,48.98,1175.52
 20480,3,4912,9780387789088,The Burrowswheeler Transform Data Compression Suffix Arrays And Pattern Matching,28,50.56,1415.68
-20480,4,4913,9783540749820,"Journal on Data Semantics IX
-            
-                Lecture Notes in Computer Science",32,45.82,1466.24
+20480,4,4913,9783540749820,Journal on Data Semantics IX Lecture Notes in Computer Science,32,45.82,1466.24
 20480,5,4914,9783642273018,Digital Libraries And Archives 7th Italian Research Conference Revised Selected Papers,36,47.4,1706.4
 20480,6,4915,9783642305665,Networked Digital Technologies Part Ii 4th International Conference Ndt 2012 Dubai Uae April 2426 2012 Proceedings Part Ii,16,48.98,783.68
 20480,7,4916,9780760070895,New perspectives on Microsoft Access 2000,20,50.56,1011.2
@@ -4935,9 +4891,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20489,10,5009,9788823804852,Regole giuridiche ed evoluzione tecnologica,31,48.98,1518.38
 20490,1,5010,9780844406367,Intellectual property issues in the library network context,20,47.4,948.0
 20490,2,5011,9780934485302,Science editing and information management,24,48.98,1175.52
-20490,3,5012,9783642160318,"Technological Convergence and Social Networks in Information Management
-            
-                Communications in Computer and Information Science",28,50.56,1415.68
+20490,3,5012,9783642160318,Technological Convergence and Social Networks in Information Management Communications in Computer and Information Science,28,50.56,1415.68
 20490,4,5013,9783642047534,Visioning and engineering the knowledge society,32,45.82,1466.24
 20490,5,5014,9781351823418,Distributed Networks,36,47.4,1706.4
 20490,6,5015,9781441937070,Mining sequential patterns from large data sets,16,48.98,783.68
@@ -4984,9 +4938,7 @@ purchase_order_id,line_no,product_id,product_barcode,product_name,quantity,purch
 20494,7,5056,9780819480293,Medical imaging 2010,19,50.56,960.64
 20494,8,5057,9783642124389,Auditory display,23,45.82,1053.86
 20494,9,5058,9780387485300,The semantic web,27,47.4,1279.8
-20494,10,5059,9783642178313,"Advances in Multimedia Modeling
-            
-                Lecture Notes in Computer Science",31,48.98,1518.38
+20494,10,5059,9783642178313,Advances in Multimedia Modeling Lecture Notes in Computer Science,31,48.98,1518.38
 20495,1,5060,9783642426131,Computational methods for counterterrorism,20,47.4,948.0
 20495,2,5061,9781461493716,Twitter Data Analytics,24,48.98,1175.52
 20495,3,5062,9781591400622,Advanced topics in information resources management,28,50.56,1415.68

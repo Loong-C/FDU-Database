@@ -1,4 +1,8 @@
 supplier_id,supplier_name,contact_name,phone,email,status
+101,国际科技图书供货商,赵文博,010-70010001,techbooks@example.com,active
+102,经典文学图书代理商,林雅雯,021-70010002,literaturehub@example.com,active
+103,学术资源联合供应中心,周启航,020-70010003,academicresource@example.com,active
+104,河畔图书分销公司,沈嘉禾,0571-70010004,riversidebook@example.com,inactive
 201,泛学术科技图书供应中心,联系人1,010-710000,supplier201@example.com,active
 202,北辰国际图书贸易公司,联系人2,010-710001,supplier202@example.com,active
 203,远航出版物代理商,联系人3,010-710002,supplier203@example.com,active
