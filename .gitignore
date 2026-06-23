@@ -8,3 +8,8 @@ __pycache__/
 backend/.env
 backend/media/
 backend/staticfiles/
+backend-runserver*.log
+backend-dev.log
+frontend/.npm-cache/
+bookstore-pythonanywhere*.zip
+zips/
