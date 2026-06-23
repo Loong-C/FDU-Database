@@ -15,7 +15,9 @@ export interface BookWritePayload {
   unit: string
   unit_price: number | string
   cost_price?: number | string
+  store_id?: number
   stock_qty?: number
+  safety_stock_qty?: number
   barcode?: string | null
   status: ProductStatus
   supplier_links?: SupplierLink[]

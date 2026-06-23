@@ -1,0 +1,8 @@
+permission_id,permission_code,permission_name,module_name
+1,store.manage,门店维护,store
+2,catalog.manage,商品与图书维护,catalog
+3,customer.manage,客户会员维护,customer
+4,sale.write,销售录入,sale
+5,purchase.write,采购入库,purchase
+6,analytics.read,统计分析查看,analytics
+7,inventory.read,库存查看,inventory

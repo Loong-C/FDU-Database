@@ -12,14 +12,15 @@ import {
   analyticsProductsRank,
   analyticsStoresDaily,
 } from '@/api/analytics'
-import { listProducts } from '@/api/products'
+import { listInventoryWarnings } from '@/api/inventory'
 import type {
   CategorySummaryRow,
+  InventoryRow,
   MemberRankRow,
   ProductRankRow,
   StoreDailyRow,
 } from '@/api/types'
-import { formatCurrency, memberLevelLabel } from '@/utils/format'
+import { formatCurrency, formatDateTime, memberLevelLabel } from '@/utils/format'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -35,6 +36,7 @@ const productRank = ref<ProductRankRow[]>([])
 const categorySummary = ref<CategorySummaryRow[]>([])
 const memberRank = ref<MemberRankRow[]>([])
 const lowStockCount = ref(0)
+const lowStockRows = ref<InventoryRow[]>([])
 
 const last7Days = computed(() => {
   const arr: string[] = []
@@ -111,10 +113,10 @@ async function fetchAll() {
     loadingMember.value = false
   }
 
-  // 库存预警（客户端过滤，避免再造接口）
   try {
-    const data = await listProducts({ page: 1, page_size: 100, status: 'onsale' })
-    lowStockCount.value = data.items.filter((p) => p.stock_qty < 10).length
+    const warnings = await listInventoryWarnings()
+    lowStockRows.value = warnings.slice(0, 5)
+    lowStockCount.value = warnings.length
   } finally {
     loadingStock.value = false
   }
@@ -168,9 +170,24 @@ onMounted(fetchAll)
         tone="danger"
         icon="WarningFilled"
         :loading="loadingStock"
-        hint="在售商品中库存 < 10 的 SKU 数量"
+        hint="库存小于等于安全库存的门店商品数"
       />
     </section>
+
+    <article v-if="lowStockRows.length" class="app-card">
+      <h3 class="section-title">
+        <el-icon><WarningFilled /></el-icon>库存预警
+      </h3>
+      <el-table :data="lowStockRows" border stripe size="small" v-loading="loadingStock">
+        <el-table-column prop="store_name" label="门店" min-width="140" />
+        <el-table-column prop="product_name" label="商品" min-width="220" />
+        <el-table-column prop="stock_qty" label="当前库存" width="100" align="right" />
+        <el-table-column prop="safety_stock_qty" label="安全库存" width="100" align="right" />
+        <el-table-column label="更新时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.updated_at) }}</template>
+        </el-table-column>
+      </el-table>
+    </article>
 
     <section class="chart-grid">
       <article class="app-card">

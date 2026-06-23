@@ -1,0 +1,6 @@
+stock_in_id,purchase_order_id,store_id,operator_id,inbound_time,status
+1,1,1,2,2026-04-09 16:00:00,approved
+2,2,2,2,2026-04-10 15:30:00,pending
+4001,3001,1,2,2026-05-06 15:00:00,approved
+4002,3002,2,2,2026-05-08 17:20:00,pending
+4003,3004,2,1,2026-05-13 10:45:00,approved

@@ -73,6 +73,10 @@ async function onDelete(row: Book) {
 const statusTagType = (s: ProductStatus) =>
   s === 'onsale' ? 'success' : s === 'offsale' ? 'info' : 'danger'
 
+function warningStoreCount(row: Book) {
+  return row.inventory?.filter((item) => item.stock_qty <= item.safety_stock_qty).length ?? 0
+}
+
 onMounted(() => {
   dicts.ensurePublishers()
   dicts.ensureCategories()
@@ -174,11 +178,15 @@ onMounted(() => {
       <el-table-column label="售价" width="110" align="right">
         <template #default="{ row }"><span class="money">{{ formatCurrency(row.unit_price) }}</span></template>
       </el-table-column>
-      <el-table-column label="库存" width="90" align="right">
+      <el-table-column label="库存" width="130" align="right">
         <template #default="{ row }">
-          <el-tag v-if="row.stock_qty === 0" type="danger" size="small">缺货</el-tag>
-          <el-tag v-else-if="row.stock_qty < 10" type="warning" size="small">低</el-tag>
-          <span v-else class="money">{{ row.stock_qty }}</span>
+          <div class="stock-summary">
+            <span class="money">{{ row.stock_qty }}</span>
+            <el-tag v-if="row.stock_qty === 0" type="danger" size="small">缺货</el-tag>
+            <el-tag v-else-if="warningStoreCount(row)" type="warning" size="small">
+              {{ warningStoreCount(row) }} 店预警
+            </el-tag>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="100">
@@ -204,5 +212,12 @@ onMounted(() => {
 <style scoped>
 .book-title {
   font-weight: 500;
+}
+
+.stock-summary {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
 }
 </style>

@@ -28,6 +28,8 @@ export type ActiveStatus = 'active' | 'inactive'
 export type ProductStatus = 'onsale' | 'offsale' | 'discontinued'
 export type MemberLevel = 'bronze' | 'silver' | 'gold' | 'platinum'
 export type PaymentMethod = 'cash' | 'card' | 'wechat' | 'alipay' | 'mixed'
+export type PurchaseOrderStatus = 'draft' | 'submitted' | 'approved' | 'received' | 'cancelled'
+export type StockInStatus = 'pending' | 'approved' | 'rejected'
 
 export interface User {
   id: number
@@ -115,6 +117,17 @@ export interface SupplierLink {
   is_primary?: boolean
 }
 
+export interface InventoryRow {
+  store_id: number
+  store_name: string
+  product_id: number
+  product_name: string
+  product_status: ProductStatus
+  stock_qty: number
+  safety_stock_qty: number
+  updated_at: string
+}
+
 export interface Product {
   product_id: number
   product_name: string
@@ -128,6 +141,7 @@ export interface Product {
   status: ProductStatus
   created_at: string
   is_book: boolean
+  inventory: InventoryRow[]
   supplier_links: SupplierLink[]
 }
 
@@ -163,6 +177,7 @@ export interface Book {
   page_count: number | null
   authors: BookAuthor[]
   translators: BookTranslatorItem[]
+  inventory: InventoryRow[]
   supplier_links: SupplierLink[]
 }
 
@@ -211,6 +226,50 @@ export interface Sale {
   discount_amount: string
   actual_amount: string
   items: SaleItem[]
+}
+
+export interface PurchaseOrderItem {
+  line_no: number
+  product_id: number
+  product_name: string
+  quantity: number
+  purchase_price: string
+  line_amount: string
+}
+
+export interface PurchaseOrder {
+  purchase_order_id: number
+  supplier_id: number
+  supplier_name: string
+  store_id: number
+  store_name: string
+  created_by: number
+  created_by_name: string
+  order_time: string
+  status: PurchaseOrderStatus
+  total_amount: string
+  items: PurchaseOrderItem[]
+}
+
+export interface StockInItem {
+  line_no: number
+  product_id: number
+  product_name: string
+  quantity: number
+  unit_cost: string
+  line_amount: string
+}
+
+export interface StockIn {
+  stock_in_id: number
+  purchase_order_id: number
+  store_id: number
+  store_name: string
+  operator_id: number
+  operator_name: string
+  inbound_time: string
+  status: StockInStatus
+  items: StockInItem[]
 }
 
 export interface StoreDailyRow {

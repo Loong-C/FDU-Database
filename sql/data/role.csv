@@ -1,0 +1,4 @@
+role_id,role_name,role_desc
+1,admin,全局维护与审核
+2,operator,门店销售、客户维护、采购入库操作
+3,viewer,只读统计分析

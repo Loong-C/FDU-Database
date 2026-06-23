@@ -4,7 +4,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import SupplierLinksEditor from '@/components/common/SupplierLinksEditor.vue'
 import { useDictsStore } from '@/stores/dicts'
 import { createBook, getBook, updateBook, type BookWritePayload } from '@/api/books'
-import type { Book, ProductStatus, SupplierLink } from '@/api/types'
+import type { Book, InventoryRow, ProductStatus, SupplierLink } from '@/api/types'
 import { ApiError } from '@/api/http'
 import { applyServerErrors } from '@/utils/errors'
 
@@ -29,7 +29,9 @@ const form = reactive<{
   unit: string
   unit_price: number | string
   cost_price: number | string
+  store_id: number | null
   stock_qty: number
+  safety_stock_qty: number
   barcode: string
   status: ProductStatus
   isbn: string
@@ -47,7 +49,9 @@ const form = reactive<{
   unit: '本',
   unit_price: 0,
   cost_price: 0,
+  store_id: null,
   stock_qty: 0,
+  safety_stock_qty: 0,
   barcode: '',
   status: 'onsale',
   isbn: '',
@@ -60,12 +64,14 @@ const form = reactive<{
   translator_ids: [],
   supplier_links: [],
 })
+const inventoryRows = ref<InventoryRow[]>([])
 
 const rules: FormRules = {
   product_name: [{ required: true, message: '请输入图书名称', trigger: 'blur' }],
   category_id: [{ required: true, message: '请选择分类', trigger: 'change' }],
   unit: [{ required: true, message: '请输入单位', trigger: 'blur' }],
   unit_price: [{ required: true, message: '请输入售价', trigger: 'blur' }],
+  store_id: [{ required: true, message: '请选择库存门店', trigger: 'change' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
   isbn: [{ required: true, message: '请输入 ISBN', trigger: 'blur' }],
   publisher_id: [{ required: true, message: '请选择出版社', trigger: 'change' }],
@@ -89,6 +95,7 @@ watch(
       dicts.ensurePublishers(),
       dicts.ensureAuthors(),
       dicts.ensureTranslators(),
+      dicts.ensureStores(),
     ])
     if (props.productId) {
       await loadDetail(props.productId)
@@ -105,7 +112,9 @@ function reset() {
     unit: '本',
     unit_price: 0,
     cost_price: 0,
+    store_id: dicts.stores[0]?.store_id ?? null,
     stock_qty: 0,
+    safety_stock_qty: 0,
     barcode: '',
     status: 'onsale' as ProductStatus,
     isbn: '',
@@ -118,6 +127,7 @@ function reset() {
     translator_ids: [] as number[],
     supplier_links: [] as SupplierLink[],
   })
+  inventoryRows.value = []
 }
 
 async function loadDetail(id: number) {
@@ -136,7 +146,11 @@ function applyDetail(d: Book) {
   form.unit = d.unit
   form.unit_price = Number(d.unit_price)
   form.cost_price = Number(d.cost_price)
-  form.stock_qty = d.stock_qty
+  inventoryRows.value = d.inventory || []
+  const firstInventory = inventoryRows.value[0] || null
+  form.store_id = firstInventory?.store_id ?? dicts.stores[0]?.store_id ?? null
+  form.stock_qty = firstInventory?.stock_qty ?? 0
+  form.safety_stock_qty = firstInventory?.safety_stock_qty ?? 0
   form.barcode = d.barcode ?? ''
   form.status = d.status
   form.isbn = d.isbn
@@ -155,6 +169,13 @@ function applyDetail(d: Book) {
   }))
 }
 
+function onStoreChange(storeId: number | string | null) {
+  const numericStoreId = storeId === null ? null : Number(storeId)
+  const row = inventoryRows.value.find((item) => item.store_id === numericStoreId)
+  form.stock_qty = row?.stock_qty ?? 0
+  form.safety_stock_qty = row?.safety_stock_qty ?? 0
+}
+
 async function onSubmit() {
   if (!formRef.value) return
   const valid = await formRef.value.validate().catch(() => false)
@@ -166,7 +187,9 @@ async function onSubmit() {
     unit: form.unit,
     unit_price: Number(form.unit_price),
     cost_price: Number(form.cost_price),
+    store_id: form.store_id as number,
     stock_qty: Number(form.stock_qty),
+    safety_stock_qty: Number(form.safety_stock_qty),
     barcode: form.barcode || null,
     status: form.status,
     isbn: form.isbn,
@@ -234,7 +257,25 @@ async function onSubmit() {
       <el-form-item label="成本价">
         <el-input-number v-model="form.cost_price" :min="0" :precision="2" :step="1" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="库存"><el-input-number v-model="form.stock_qty" :min="0" style="width: 100%" /></el-form-item>
+      <el-divider content-position="left">门店库存</el-divider>
+      <el-form-item label="库存门店" prop="store_id">
+        <el-select v-model="form.store_id" placeholder="选择门店" style="width: 100%" @change="onStoreChange">
+          <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="当前库存">
+        <el-input-number v-model="form.stock_qty" :min="0" style="width: 100%" />
+      </el-form-item>
+      <el-form-item label="安全库存">
+        <el-input-number v-model="form.safety_stock_qty" :min="0" style="width: 100%" />
+      </el-form-item>
+      <el-form-item v-if="isEdit && inventoryRows.length" label="库存明细">
+        <el-table :data="inventoryRows" border size="small" style="width: 100%">
+          <el-table-column prop="store_name" label="门店" min-width="130" />
+          <el-table-column prop="stock_qty" label="库存" width="80" align="right" />
+          <el-table-column prop="safety_stock_qty" label="安全线" width="90" align="right" />
+        </el-table>
+      </el-form-item>
       <el-form-item label="条码"><el-input v-model="form.barcode" /></el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">

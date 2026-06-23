@@ -73,7 +73,7 @@ https://github.com/Loong-C/FDU-Database.git
 4. **编写数据库脚本**
    - `create_database.sql`
    - `create_tables.sql`
-   - `insert_sample_data.sql`
+   - `data/*.csv`
    - `views_or_reports.sql`（如有统计视图）
 
 5. **准备测试数据**
@@ -453,7 +453,7 @@ bookstore-project/
 ├─ database/
 │  ├─ create_database.sql
 │  ├─ create_tables.sql
-│  ├─ insert_sample_data.sql
+│  ├─ data/*.csv
 │  └─ er_diagram.png
 ├─ backend/
 │  ├─ src/ 或 app/
@@ -979,6 +979,8 @@ backend/
   common/
   config/
   customers/
+  inventory/
+  procurement/
   sales/
   stores/
   .env.example
@@ -987,8 +989,10 @@ backend/
 sql/
   create_database.sql
   create_tables.sql
-  insert_sample_data.sql
   views_or_reports.sql
+  data/*.csv
+  source/
+  tools/
 docs/
   api/API接口文档.md
   test/接口测试结果.md
@@ -1024,6 +1028,7 @@ cd backend
 - 实际命令中的 Python 路径应写成 `..\.venv\Scripts\python`
 - `backend/.env` 中需要填写真实 MySQL 连接信息
 - 首次初始化时需要先执行 `bootstrap_business_db` 创建业务数据库，再执行 `migrate`
+- `bootstrap_business_db --seed` 会按外键顺序导入 `sql/data/*.csv`；需要调整演示数据时直接修改对应表的 CSV 即可
 
 ### 19.3 已实现的后端模块
 
@@ -1031,16 +1036,28 @@ cd backend
 - `stores`：门店管理接口
 - `catalog`：供应商、分类、出版社、作者、译者、商品、图书接口
 - `customers`：客户与会员接口
+- `inventory`：门店-商品库存列表、库存预警、库存与安全库存调整接口
+- `procurement`：采购单、入库单接口，入库审核后增加门店库存
 - `sales`：销售主单与明细接口，含库存扣减/回滚
 - `analytics`：门店日报、商品排行、会员消费排行、分类汇总接口
 
-### 19.4 文档位置
+### 19.4 已实现的前端模块
+
+- 登录、JWT 刷新、角色菜单与页面级权限控制
+- 数据总览与销售分析图表
+- 门店、供应商、分类、出版社、作者、译者、商品、图书管理
+- 客户、会员、销售订单与新开销售单
+- 门店库存、库存预警、采购单、入库单
+- 商品/图书表单已按 `inventory(store_id, product_id)` 维护门店库存；销售开单按所选门店库存判断可售数量
+
+### 19.5 文档位置
 
 - API 文档：`docs/api/API接口文档.md`
 - 测试说明：`docs/test/接口测试结果.md`
 - 数据库设计文档：`docs/database/`
+- 用户手册：`docs/用户手册.md`
 
-### 19.5 演示账号
+### 19.6 演示账号
 
 执行 `python manage.py seed_demo_users` 后可用：
 
