@@ -1,7 +1,7 @@
 import { http } from './http'
-import type { InventoryRow, PageResult } from './types'
+import type { InventoryRow, PageQuery, PageResult } from './types'
 
-export interface InventoryQuery {
+export interface InventoryQuery extends PageQuery {
   store_id?: number
   product_id?: number
   warning?: boolean
