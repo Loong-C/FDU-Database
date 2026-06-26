@@ -25,6 +25,8 @@ const tableRows = computed(() =>
   })),
 )
 const loading = ref(false)
+const page = ref(1)
+const pageSize = ref(20)
 const total = ref(0)
 const productOptions = ref<Product[]>([])
 const productLoading = ref(false)
@@ -39,6 +41,8 @@ async function fetchList() {
   loading.value = true
   try {
     const data = await listInventory({
+      page: page.value,
+      page_size: pageSize.value,
       store_id: filters.store_id,
       product_id: filters.product_id,
       warning: filters.warning || undefined,
@@ -50,11 +54,16 @@ async function fetchList() {
   }
 }
 
+function onSearch() {
+  page.value = 1
+  fetchList()
+}
+
 function onReset() {
   filters.store_id = undefined
   filters.product_id = undefined
   filters.warning = false
-  fetchList()
+  onSearch()
 }
 
 async function searchProducts(query = '') {
@@ -128,7 +137,7 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <FilterBar :loading="loading" @submit="fetchList" @reset="onReset">
+    <FilterBar :loading="loading" @submit="onSearch" @reset="onReset">
       <el-form-item label="门店">
         <el-select v-model="filters.store_id" clearable placeholder="全部门店" style="width: 180px">
           <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
@@ -163,11 +172,14 @@ onMounted(() => {
       :rows="tableRows"
       :loading="loading"
       :total="total"
-      :show-pagination="false"
+      :page="page"
+      :page-size="pageSize"
       row-key="inventory_key"
       empty-icon="Box"
       empty-title="暂无库存记录"
       empty-description="库存行由商品初始化或入库流程产生"
+      @page-change="(p) => { page = p; fetchList() }"
+      @size-change="(s) => { pageSize = s; page = 1; fetchList() }"
     >
       <el-table-column prop="store_name" label="门店" min-width="150" />
       <el-table-column label="商品" min-width="220">

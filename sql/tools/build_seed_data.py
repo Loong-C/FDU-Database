@@ -13,6 +13,7 @@ SQL_DIR = Path(__file__).resolve().parents[1]
 SOURCE_DIR = SQL_DIR / "source"
 LEGACY_DIR = SOURCE_DIR / "legacy"
 DATA_DIR = SQL_DIR / "data"
+OPENLIBRARY_PRODUCT_ID_START = 120
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -42,9 +43,29 @@ def collation_key(value: str) -> str:
     return "".join(char for char in decomposed if not unicodedata.combining(char)).casefold()
 
 
+def limit_text(value: str, max_length: int) -> str:
+    return " ".join(value.split())[:max_length].strip()
+
+
+def legacy_product_overrides() -> dict[str, dict[str, str]]:
+    overrides: dict[str, dict[str, str]] = {}
+    for path in LEGACY_DIR.glob("*.csv"):
+        for row in read_csv(path):
+            if "product_id" in row and "product_barcode" in row and "product_name" in row:
+                overrides.setdefault(
+                    row["product_id"],
+                    {
+                        "barcode": row["product_barcode"],
+                        "product_name": row["product_name"],
+                    },
+                )
+    return overrides
+
+
 def build_seed_data() -> None:
     DATA_DIR.mkdir(exist_ok=True)
     source_books = read_csv(SOURCE_DIR / "books_openlibrary.csv")
+    product_overrides = legacy_product_overrides()
 
     stores = [
         {
@@ -176,7 +197,7 @@ def build_seed_data() -> None:
             publishers.append(
                 {
                     "publisher_id": publisher_id,
-                    "publisher_name": publisher_name,
+                    "publisher_name": limit_text(publisher_name, 150),
                     "contact_name": "",
                     "phone": "",
                     "email": "",
@@ -251,16 +272,17 @@ def build_seed_data() -> None:
             "status": "offsale",
         },
     ]
-    for product_id, row in enumerate(source_books, start=6):
+    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
+        override = product_overrides.get(str(product_id), {})
         products.append(
             {
                 "product_id": product_id,
-                "product_name": row["title"],
+                "product_name": limit_text(override.get("product_name") or row["title"], 200),
                 "category_id": category_ids[row["category_name"]],
                 "unit": row["unit"],
                 "unit_price": money(row["suggested_unit_price"]),
                 "cost_price": money(Decimal(row["suggested_unit_price"]) * Decimal("0.65")),
-                "barcode": row["isbn"],
+                "barcode": override.get("barcode") or row["isbn"],
                 "status": row["status"],
             }
         )
@@ -296,11 +318,12 @@ def build_seed_data() -> None:
             "page_count": 360,
         },
     ]
-    for product_id, row in enumerate(source_books, start=6):
+    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
+        override = product_overrides.get(str(product_id), {})
         books.append(
             {
                 "product_id": product_id,
-                "isbn": row["isbn"],
+                "isbn": override.get("barcode") or row["isbn"],
                 "publisher_id": publisher_ids[row["publisher"]],
                 "publish_date": row["publish_date_raw"],
                 "edition": "",
@@ -326,7 +349,7 @@ def build_seed_data() -> None:
     for author_name in sorted(source_author_names):
         if author_name not in author_ids:
             author_id = len(authors) + 1
-            authors.append({"author_id": author_id, "author_name": author_name, "country": ""})
+            authors.append({"author_id": author_id, "author_name": limit_text(author_name, 100), "country": ""})
             author_ids[author_name] = author_id
     write_csv("author", author_fields, authors)
 
@@ -341,7 +364,7 @@ def build_seed_data() -> None:
         {"product_id": 2, "author_id": 2, "author_order": 1},
         {"product_id": 3, "author_id": 3, "author_order": 1},
     ]
-    for product_id, row in enumerate(source_books, start=6):
+    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
         names = list(dict.fromkeys(name.strip() for name in row["authors"].split(";") if name.strip()))
         for author_order, author_name in enumerate(names, start=1):
             book_authors.append(
