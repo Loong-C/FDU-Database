@@ -44,8 +44,14 @@ export const useDictsStore = defineStore('dicts', () => {
 
   async function ensureCategories(force = false) {
     if (loaded.categories && !force) return categories.value
-    const res = await listCategories({ page: 1, page_size: 200 })
-    categories.value = res.items
+    const first = await listCategories({ page: 1, page_size: 100 })
+    const all = [...first.items]
+    const totalPages = Math.ceil(first.total / first.page_size)
+    for (let page = 2; page <= totalPages; page += 1) {
+      const res = await listCategories({ page, page_size: 100 })
+      all.push(...res.items)
+    }
+    categories.value = all
     loaded.categories = true
     return categories.value
   }

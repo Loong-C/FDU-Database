@@ -1,6 +1,6 @@
 category_id,category_name,parent_category_id
 1,图书,
-2,非书商品,
+2,通用商品,
 3,文学艺术,1
 4,小说,3
 5,中国小说,4

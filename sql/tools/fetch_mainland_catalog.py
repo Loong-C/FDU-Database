@@ -313,9 +313,9 @@ def build_project_categories(source_categories: list[SourceCategory]) -> tuple[l
         )
         return category_id
 
-    used_names.update({"图书", "非书商品"})
+    used_names.update({"图书", "通用商品"})
     book_root_id = add_category(None, "图书", "", True, False)
-    nonbook_root_id = add_category(None, "非书商品", "", False, False)
+    nonbook_root_id = add_category(None, "通用商品", "", False, False)
 
     selected_top_names = set(BOOK_PARENT_WEIGHTS) | set(NONBOOK_PARENT_WEIGHTS)
     for source in source_categories:
@@ -711,7 +711,7 @@ def main() -> None:
     write_csv(PROJECT_CATEGORY_PATH, CSV_CATEGORY_FIELDS, project_categories)
 
     book_leaves = [leaf for leaf in leaves if leaf.is_book]
-    nonbook_root_id = next(row["category_id"] for row in project_categories if row["category_name"] == "非书商品")
+    nonbook_root_id = next(row["category_id"] for row in project_categories if row["category_name"] == "通用商品")
     nonbook_leaves = [
         ProjectLeaf(
             category_name=str(row["category_name"]),

@@ -7,6 +7,7 @@ import { createProduct, getProduct, updateProduct, type ProductWritePayload } fr
 import type { InventoryRow, Product, ProductStatus, SupplierLink } from '@/api/types'
 import { ApiError } from '@/api/http'
 import { applyServerErrors } from '@/utils/errors'
+import { categoryDescendants, categoryOptionLabel } from '@/utils/categories'
 
 const props = defineProps<{
   modelValue: boolean
@@ -49,6 +50,7 @@ const form = reactive<{
   supplier_links: [],
 })
 const inventoryRows = ref<InventoryRow[]>([])
+const generalCategories = computed(() => categoryDescendants(dicts.categories, '通用商品'))
 
 const rules: FormRules = {
   product_name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
@@ -195,9 +197,9 @@ async function onSubmit() {
       <el-form-item label="分类" prop="category_id">
         <el-select v-model="form.category_id" filterable placeholder="请选择分类" style="width: 100%">
           <el-option
-            v-for="c in dicts.categories"
+            v-for="c in generalCategories"
             :key="c.category_id"
-            :label="c.parent_category_name ? `${c.parent_category_name} / ${c.category_name}` : c.category_name"
+            :label="categoryOptionLabel(c, dicts.categories, '通用商品')"
             :value="c.category_id"
           />
         </el-select>

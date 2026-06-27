@@ -1,6 +1,6 @@
 category_id,category_name,parent_category_id,source_site,source_category_id,source_category_name,source_category_path,is_book,is_leaf
 1,图书,,,,图书,图书,1,0
-2,非书商品,,,,非书商品,非书商品,0,0
+2,通用商品,,,,通用商品,通用商品,0,0
 3,文学艺术,1,新华书店网,33,文学艺术,文学艺术,1,0
 4,小说,3,新华书店网,41,小说,文学艺术>小说,1,0
 5,中国小说,4,新华书店网,86,中国小说,文学艺术>小说>中国小说,1,1

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
@@ -9,6 +9,7 @@ import BookFormDrawer from './BookFormDrawer.vue'
 import { deleteBook, listBooks, type BookQuery } from '@/api/books'
 import type { Book, ProductStatus } from '@/api/types'
 import { formatCurrency, formatDate, statusLabel } from '@/utils/format'
+import { categoryDescendants, categoryOptionLabel } from '@/utils/categories'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
 
@@ -22,6 +23,7 @@ const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 const filters = reactive<BookQuery>({ search: '', publisher_id: undefined, category_id: undefined })
+const bookCategories = computed(() => categoryDescendants(dicts.categories, '图书'))
 
 async function fetchList() {
   loading.value = true
@@ -118,9 +120,9 @@ onMounted(() => {
       <el-form-item label="分类">
         <el-select v-model="filters.category_id" placeholder="全部" clearable filterable style="width: 200px">
           <el-option
-            v-for="c in dicts.categories"
+            v-for="c in bookCategories"
             :key="c.category_id"
-            :label="c.parent_category_name ? `${c.parent_category_name} / ${c.category_name}` : c.category_name"
+            :label="categoryOptionLabel(c, dicts.categories, '图书')"
             :value="c.category_id"
           />
         </el-select>

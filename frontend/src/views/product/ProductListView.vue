@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
@@ -9,6 +9,7 @@ import ProductFormDrawer from './ProductFormDrawer.vue'
 import { deleteProduct, listProducts, type ProductQuery } from '@/api/products'
 import type { Product, ProductStatus } from '@/api/types'
 import { formatCurrency, statusLabel } from '@/utils/format'
+import { categoryDescendants, categoryOptionLabel } from '@/utils/categories'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
 
@@ -23,6 +24,7 @@ const pageSize = ref(20)
 const total = ref(0)
 
 const filters = reactive<ProductQuery>({ search: '', category_id: undefined, status: undefined })
+const generalCategories = computed(() => categoryDescendants(dicts.categories, '通用商品'))
 
 async function fetchList() {
   loading.value = true
@@ -110,9 +112,9 @@ onMounted(() => {
       <el-form-item label="分类">
         <el-select v-model="filters.category_id" placeholder="全部" clearable style="width: 200px" filterable>
           <el-option
-            v-for="c in dicts.categories"
+            v-for="c in generalCategories"
             :key="c.category_id"
-            :label="c.parent_category_name ? `${c.parent_category_name} / ${c.category_name}` : c.category_name"
+            :label="categoryOptionLabel(c, dicts.categories, '通用商品')"
             :value="c.category_id"
           />
         </el-select>

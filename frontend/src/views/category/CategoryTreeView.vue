@@ -8,6 +8,7 @@ import { ApiError } from '@/api/http'
 import { applyServerErrors } from '@/utils/errors'
 import { useAuthStore } from '@/stores/auth'
 import EmptyState from '@/components/common/EmptyState.vue'
+import { displayCategoryName } from '@/utils/categories'
 
 interface TreeNode extends Category {
   children: TreeNode[]
@@ -39,12 +40,22 @@ function buildTree(list: Category[]): TreeNode[] {
 async function fetchList() {
   loading.value = true
   try {
-    const data = await listCategories({ page: 1, page_size: 200 })
-    flat.value = data.items
+    const first = await listCategories({ page: 1, page_size: 100 })
+    const all = [...first.items]
+    const totalPages = Math.ceil(first.total / first.page_size)
+    for (let page = 2; page <= totalPages; page += 1) {
+      const data = await listCategories({ page, page_size: 100 })
+      all.push(...data.items)
+    }
+    flat.value = all
     expandedKeys.value = flat.value.map((c) => c.category_id)
   } finally {
     loading.value = false
   }
+}
+
+function categoryLabel(category: Category) {
+  return displayCategoryName(category.category_name)
 }
 
 // Dialog
@@ -90,7 +101,7 @@ function openCreateChild(parent: TreeNode) {
 function openEdit(node: TreeNode) {
   dialogMode.value = 'edit'
   form.category_id = node.category_id
-  form.category_name = node.category_name
+  form.category_name = categoryLabel(node)
   form.parent_category_id = node.parent_category_id
   dialogVisible.value = true
 }
@@ -124,7 +135,7 @@ async function onSubmit() {
 async function onDelete(node: TreeNode) {
   try {
     await ElMessageBox.confirm(
-      `确定删除分类「${node.category_name}」？若存在关联商品将无法删除。`,
+      `确定删除分类「${categoryLabel(node)}」？若存在关联商品将无法删除。`,
       '删除确认',
       { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' },
     )
@@ -216,7 +227,7 @@ onMounted(fetchList)
           <div class="category-row">
             <span class="category-row__name">
               <el-icon><component :is="data.children?.length ? 'FolderOpened' : 'Menu'" /></el-icon>
-              {{ data.category_name }}
+              {{ categoryLabel(data) }}
               <el-tag size="small" effect="plain" round>ID {{ data.category_id }}</el-tag>
             </span>
             <span class="category-row__actions" v-if="canWrite()">
@@ -239,7 +250,7 @@ onMounted(fetchList)
             <el-option
               v-for="c in flat.filter((x) => x.category_id !== form.category_id)"
               :key="c.category_id"
-              :label="c.category_name"
+              :label="categoryLabel(c)"
               :value="c.category_id"
             />
           </el-select>
