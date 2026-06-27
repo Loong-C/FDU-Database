@@ -80,6 +80,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '商品中心', icon: 'Goods', roles: ['admin'], menuGroup: '商品中心', order: 20 },
       },
       {
+        path: 'books',
+        name: 'Books',
+        component: () => import('@/views/book/BookListView.vue'),
+        meta: { title: '图书档案', icon: 'Reading', roles: ['admin'], menuGroup: '商品中心', order: 21, hidden: true },
+      },
+      {
         path: 'categories',
         name: 'Categories',
         component: () => import('@/views/category/CategoryTreeView.vue'),

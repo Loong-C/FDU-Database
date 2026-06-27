@@ -146,27 +146,30 @@ onMounted(() => {
       </el-table-column>
       <el-table-column label="作者" min-width="180">
         <template #default="{ row }">
+          <span v-if="row.authors?.length" class="person-tags">
           <el-tag
             v-for="a in row.authors"
             :key="a.author_id"
             size="small"
-            type="info"
-            style="margin-right: 4px"
+            effect="plain"
+            class="person-tag"
           >
             {{ a.author_name }}
           </el-tag>
+          </span>
           <span v-if="!row.authors?.length" class="text-muted">-</span>
         </template>
       </el-table-column>
       <el-table-column label="译者" min-width="140">
         <template #default="{ row }">
-          <span v-if="row.translators?.length">
+          <span v-if="row.translators?.length" class="person-tags">
             <el-tag
               v-for="t in row.translators"
               :key="t.translator_id"
               size="small"
+              type="info"
               effect="plain"
-              style="margin-right: 4px"
+              class="person-tag person-tag--muted"
             >
               {{ t.translator_name }}
             </el-tag>
@@ -215,6 +218,26 @@ onMounted(() => {
 <style scoped>
 .book-title {
   font-weight: 500;
+}
+
+.person-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.person-tag {
+  max-width: 132px;
+}
+
+.person-tag :deep(.el-tag__content) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-tag--muted {
+  --el-tag-text-color: var(--app-text-muted);
 }
 
 .stock-summary {
