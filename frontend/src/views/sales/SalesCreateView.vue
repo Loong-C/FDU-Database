@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import dayjs from 'dayjs'
 import PageHeader from '@/components/common/PageHeader.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import { listProducts } from '@/api/products'
 import { listCustomers } from '@/api/customers'
+import { createCustomer } from '@/api/customers'
+import { createMember } from '@/api/members'
 import { createSale, type SaleWritePayload } from '@/api/sales'
-import type { Customer, PaymentMethod, Product } from '@/api/types'
+import type { Customer, MemberLevel, PaymentMethod, Product } from '@/api/types'
 import { formatCurrency } from '@/utils/format'
 import { ApiError } from '@/api/http'
 import { firstErrorMessage } from '@/utils/errors'
@@ -36,6 +38,9 @@ const customerLoading = ref(false)
 const cart = ref<CartLine[]>([])
 const cartError = ref<string | null>(null)
 const lineErrors = ref<Record<number, string>>({})
+const customerDialogVisible = ref(false)
+const customerFormRef = ref<FormInstance | null>(null)
+const customerSubmitting = ref(false)
 
 const form = reactive<{
   store_id: number | null
@@ -53,7 +58,30 @@ const form = reactive<{
 
 const totalAmount = computed(() => cart.value.reduce((acc, l) => acc + l.unit_price * l.quantity, 0))
 const actualAmount = computed(() => Math.max(0, totalAmount.value - (Number(form.discount_amount) || 0)))
+const selectedCustomer = computed(() => customerOptions.value.find((item) => item.customer_id === form.customer_id) || null)
+const estimatedPoints = computed(() => (selectedCustomer.value?.is_member ? Math.floor(actualAmount.value) : 0))
 const submitting = ref(false)
+
+const customerForm = reactive<{
+  customer_name: string
+  phone: string
+  email: string
+  address: string
+  make_member: boolean
+  level: MemberLevel
+}>({
+  customer_name: '',
+  phone: '',
+  email: '',
+  address: '',
+  make_member: true,
+  level: 'bronze',
+})
+
+const customerRules: FormRules = {
+  customer_name: [{ required: true, message: '请输入客户姓名', trigger: 'blur' }],
+  email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
+}
 
 async function onSearchProducts() {
   if (!form.store_id) {
@@ -153,6 +181,51 @@ function removeLine(productId: number) {
 function clearCart() {
   cart.value = []
   lineErrors.value = {}
+}
+
+function openCustomerDialog() {
+  Object.assign(customerForm, {
+    customer_name: '',
+    phone: '',
+    email: '',
+    address: '',
+    make_member: true,
+    level: 'bronze' as MemberLevel,
+  })
+  customerDialogVisible.value = true
+}
+
+async function onCustomerSubmit() {
+  if (!customerFormRef.value) return
+  const valid = await customerFormRef.value.validate().catch(() => false)
+  if (!valid) return
+  customerSubmitting.value = true
+  try {
+    const created = await createCustomer({
+      customer_name: customerForm.customer_name,
+      phone: customerForm.phone || null,
+      email: customerForm.email || null,
+      address: customerForm.address || null,
+      status: 'active',
+    })
+    let nextCustomer: Customer = created
+    if (customerForm.make_member) {
+      await createMember({
+        customer_id: created.customer_id,
+        member_no: `M${dayjs().format('YYYYMMDD')}${String(created.customer_id).padStart(3, '0')}`,
+        level: customerForm.level,
+        points: 0,
+        join_date: dayjs().format('YYYY-MM-DD'),
+      })
+      nextCustomer = { ...created, is_member: true }
+    }
+    customerOptions.value = [nextCustomer, ...customerOptions.value.filter((item) => item.customer_id !== created.customer_id)]
+    form.customer_id = created.customer_id
+    ElMessage.success(customerForm.make_member ? '客户已新增并升级为会员' : '客户已新增')
+    customerDialogVisible.value = false
+  } finally {
+    customerSubmitting.value = false
+  }
 }
 
 async function onSubmit() {
@@ -322,18 +395,30 @@ onMounted(() => {
         <div class="pos-cart__meta">
           <el-form label-width="72px" size="small">
             <el-form-item label="客户">
-              <el-select
-                v-model="form.customer_id"
-                placeholder="游客（可留空）"
-                filterable
-                remote
-                clearable
-                :remote-method="onSearchCustomers"
-                :loading="customerLoading"
-                style="width: 100%"
-              >
-                <el-option v-for="c in customerOptions" :key="c.customer_id" :label="c.customer_name + (c.phone ? ` · ${c.phone}` : '')" :value="c.customer_id" />
-              </el-select>
+              <div class="customer-pick">
+                <el-select
+                  v-model="form.customer_id"
+                  placeholder="游客（可留空）"
+                  filterable
+                  remote
+                  clearable
+                  :remote-method="onSearchCustomers"
+                  :loading="customerLoading"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="c in customerOptions"
+                    :key="c.customer_id"
+                    :label="c.customer_name + (c.phone ? ` · ${c.phone}` : '') + (c.is_member ? ' · 会员' : '')"
+                    :value="c.customer_id"
+                  />
+                </el-select>
+                <el-button @click="openCustomerDialog">新增</el-button>
+              </div>
+              <div v-if="selectedCustomer" class="customer-hint">
+                <span>{{ selectedCustomer.is_member ? '会员消费' : '普通客户' }}</span>
+                <span v-if="selectedCustomer.is_member">预计积分 +{{ estimatedPoints }}</span>
+              </div>
             </el-form-item>
             <el-form-item label="开单时间">
               <el-date-picker
@@ -389,6 +474,38 @@ onMounted(() => {
         </el-button>
       </section>
     </div>
+
+    <el-dialog v-model="customerDialogVisible" title="快速新增客户" width="520" destroy-on-close>
+      <el-form ref="customerFormRef" :model="customerForm" :rules="customerRules" label-width="90px">
+        <el-form-item label="姓名" prop="customer_name">
+          <el-input v-model="customerForm.customer_name" />
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="customerForm.phone" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="customerForm.email" />
+        </el-form-item>
+        <el-form-item label="地址">
+          <el-input v-model="customerForm.address" type="textarea" :rows="2" />
+        </el-form-item>
+        <el-form-item label="会员">
+          <el-switch v-model="customerForm.make_member" active-text="同步升级" />
+        </el-form-item>
+        <el-form-item v-if="customerForm.make_member" label="等级">
+          <el-radio-group v-model="customerForm.level">
+            <el-radio value="bronze">青铜</el-radio>
+            <el-radio value="silver">白银</el-radio>
+            <el-radio value="gold">黄金</el-radio>
+            <el-radio value="platinum">铂金</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="customerDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="customerSubmitting" @click="onCustomerSubmit">保存并选中</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -614,6 +731,23 @@ onMounted(() => {
 
 .pos-cart__meta :deep(.el-form-item__label) {
   padding-right: 8px;
+}
+
+.customer-pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  width: 100%;
+}
+
+.customer-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+  color: var(--app-text-muted);
+  font-size: 12px;
 }
 
 .pos-cart__error {

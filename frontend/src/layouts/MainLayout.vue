@@ -59,7 +59,7 @@ const menuGroups = computed(() => {
     if (!grouped.has(item.group)) grouped.set(item.group, [])
     grouped.get(item.group)!.push(item)
   })
-  const orderedGroups = ['概览', '交易', '商品', '库存', '客户', '组织', '系统']
+  const orderedGroups = ['首页', '经营', '门店销售', '采购入库', '商品中心', '库存补货', '客户会员', '基础资料', '系统权限']
   const result: Array<{ name: string; items: MenuItem[] }> = []
   orderedGroups.forEach((g) => {
     if (grouped.has(g)) result.push({ name: g, items: grouped.get(g)! })
@@ -226,7 +226,7 @@ const userInitial = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px 0;
+  padding: 0;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--app-border);
   transition: width 0.15s ease;
@@ -245,9 +245,9 @@ const userInitial = computed(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px 10px;
+  padding: 14px 16px;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--app-border-muted);
+  border-bottom: 1px solid var(--app-border-strong);
 }
 
 .brand--collapsed {
@@ -256,9 +256,9 @@ const userInitial = computed(() => {
 }
 
 .brand__mark {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--app-radius-sm);
+  width: 30px;
+  height: 30px;
+  border-radius: var(--app-radius);
   background: var(--brand);
   color: #fff;
   display: inline-flex;
@@ -267,9 +267,9 @@ const userInitial = computed(() => {
 }
 
 .brand__name {
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+  font-size: 15px;
 }
 
 .brand__sub {
@@ -286,10 +286,10 @@ const userInitial = computed(() => {
 }
 
 .app-nav__group {
-  padding: 12px 20px 4px;
+  padding: 14px 20px 5px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--app-text-muted);
 }
@@ -301,7 +301,7 @@ const userInitial = computed(() => {
   height: var(--header-height);
   padding: 0 16px;
   background: var(--app-header-bg);
-  border-bottom: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border-strong);
   flex-shrink: 0;
   position: sticky;
   top: 0;
@@ -339,10 +339,10 @@ const userInitial = computed(() => {
 .user-chip__avatar {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: var(--app-radius);
   background: var(--brand);
   color: #fff;
-  font-weight: 600;
+  font-weight: 900;
   font-size: 12px;
   display: inline-flex;
   align-items: center;
@@ -356,7 +356,7 @@ const userInitial = computed(() => {
 }
 
 .user-chip__name {
-  font-weight: 600;
+  font-weight: 900;
   font-size: 12.5px;
 }
 
@@ -373,6 +373,23 @@ const userInitial = computed(() => {
 }
 
 @media (max-width: 768px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-main-container {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .app-main {
+    padding: 16px 16px 32px;
+  }
+
   .user-chip__meta { display: none; }
 }
 </style>

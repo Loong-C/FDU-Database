@@ -98,6 +98,17 @@ function onReset() {
   loadActive()
 }
 
+function salesQuery(extra: Record<string, string | number | undefined> = {}) {
+  return {
+    path: '/sales',
+    query: {
+      date_from: filters.date_range[0],
+      date_to: filters.date_range[1],
+      ...extra,
+    },
+  }
+}
+
 // Chart data per tab
 const storeTrend = computed(() => {
   const dates = new Set<string>()
@@ -240,7 +251,7 @@ onMounted(() => {
         </el-select>
       </el-form-item>
       <el-form-item v-if="activeTab === 'product' || activeTab === 'member'" label="Top N">
-        <el-input-number v-model="filters.limit" :min="1" :max="100" :step="5" style="width: 120px" />
+        <el-input-number v-model="filters.limit" :min="1" :max="100" :step="1" :step-strictly="true" style="width: 132px" />
       </el-form-item>
     </FilterBar>
 
@@ -272,6 +283,11 @@ onMounted(() => {
             <el-table-column label="实付" width="140" align="right">
               <template #default="{ row }"><strong class="money" style="color: var(--brand)">{{ formatCurrency(row.actual_amount_sum) }}</strong></template>
             </el-table-column>
+            <el-table-column label="明细" width="90" align="right">
+              <template #default="{ row }">
+                <router-link :to="salesQuery({ store_id: row.store_id, date_from: dayjs(row.sale_date).format('YYYY-MM-DD'), date_to: dayjs(row.sale_date).format('YYYY-MM-DD') })">查看</router-link>
+              </template>
+            </el-table-column>
           </el-table>
           <EmptyState v-if="!loading && !storeRows.length" icon="TrendCharts" title="暂无数据" description="调整日期范围或门店再试" />
         </article>
@@ -279,7 +295,7 @@ onMounted(() => {
 
       <el-tab-pane label="商品排行" name="product">
         <article v-if="productBar.categories.length" class="app-card">
-          <h3 class="section-title"><el-icon><Crown /></el-icon>销售额 Top {{ filters.limit }}</h3>
+          <h3 class="section-title"><el-icon><Trophy /></el-icon>销售额 Top {{ filters.limit }}</h3>
           <BarRank
             :categories="productBar.categories"
             :values="productBar.values"
@@ -296,6 +312,11 @@ onMounted(() => {
             <el-table-column prop="total_qty" label="销量" width="120" align="right" />
             <el-table-column label="销售额" width="160" align="right">
               <template #default="{ row }"><span class="money">{{ formatCurrency(row.total_sales_amount) }}</span></template>
+            </el-table-column>
+            <el-table-column label="明细" width="90" align="right">
+              <template #default>
+                <router-link :to="salesQuery({ store_id: filters.store_id ?? undefined })">时段</router-link>
+              </template>
             </el-table-column>
           </el-table>
           <EmptyState v-if="!loading && !productRows.length" icon="Goods" title="无销售记录" />
@@ -316,6 +337,11 @@ onMounted(() => {
             <el-table-column label="累计消费" width="160" align="right">
               <template #default="{ row }"><strong class="money" style="color: var(--brand)">{{ formatCurrency(row.total_spending) }}</strong></template>
             </el-table-column>
+            <el-table-column label="明细" width="90" align="right">
+              <template #default="{ row }">
+                <router-link :to="salesQuery({ customer_id: row.customer_id })">查看</router-link>
+              </template>
+            </el-table-column>
           </el-table>
           <EmptyState v-if="!loading && !memberRows.length" icon="Medal" title="无会员消费记录" />
         </article>
@@ -333,6 +359,11 @@ onMounted(() => {
             <el-table-column prop="total_qty" label="销量" width="120" align="right" />
             <el-table-column label="销售额" width="160" align="right">
               <template #default="{ row }"><span class="money">{{ formatCurrency(row.total_sales_amount) }}</span></template>
+            </el-table-column>
+            <el-table-column label="明细" width="90" align="right">
+              <template #default>
+                <router-link :to="salesQuery()">时段</router-link>
+              </template>
             </el-table-column>
           </el-table>
           <EmptyState v-if="!loading && !categoryRows.length" icon="Menu" title="无分类销售记录" />

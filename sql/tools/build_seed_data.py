@@ -13,7 +13,50 @@ SQL_DIR = Path(__file__).resolve().parents[1]
 SOURCE_DIR = SQL_DIR / "source"
 LEGACY_DIR = SOURCE_DIR / "legacy"
 DATA_DIR = SQL_DIR / "data"
-OPENLIBRARY_PRODUCT_ID_START = 120
+SOURCE_BOOK_PRODUCT_ID_START = 120
+NONBOOK_PRODUCT_ID_START = 20000
+
+NONBOOK_SUPPLIERS = [
+    {
+        "supplier_id": 301,
+        "supplier_name": "新华文具学习用品供应商",
+        "contact_name": "吴倩",
+        "phone": "010-73010001",
+        "email": "stationery@example.com",
+        "status": "active",
+    },
+    {
+        "supplier_id": 302,
+        "supplier_name": "生活文创综合供货商",
+        "contact_name": "郑涛",
+        "phone": "021-73020002",
+        "email": "lifestyle@example.com",
+        "status": "active",
+    },
+    {
+        "supplier_id": 303,
+        "supplier_name": "数码学习设备供应商",
+        "contact_name": "孙悦",
+        "phone": "0755-73030003",
+        "email": "digital@example.com",
+        "status": "active",
+    },
+    {
+        "supplier_id": 304,
+        "supplier_name": "礼品卡服务供应商",
+        "contact_name": "高铭",
+        "phone": "400-7304004",
+        "email": "giftcard@example.com",
+        "status": "active",
+    },
+]
+
+NONBOOK_SUPPLIER_BY_CATEGORY = {
+    "学习用品": 301,
+    "家居/生活用品": 302,
+    "3C数码": 303,
+    "礼品卡": 304,
+}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -47,6 +90,10 @@ def limit_text(value: str, max_length: int) -> str:
     return " ".join(value.split())[:max_length].strip()
 
 
+def stable_int(value: str) -> int:
+    return sum((index + 1) * ord(char) for index, char in enumerate(value))
+
+
 def legacy_product_overrides() -> dict[str, dict[str, str]]:
     overrides: dict[str, dict[str, str]] = {}
     for path in LEGACY_DIR.glob("*.csv"):
@@ -64,7 +111,8 @@ def legacy_product_overrides() -> dict[str, dict[str, str]]:
 
 def build_seed_data() -> None:
     DATA_DIR.mkdir(exist_ok=True)
-    source_books = read_csv(SOURCE_DIR / "books_openlibrary.csv")
+    source_books = read_csv(SOURCE_DIR / "books_mainland.csv")
+    source_nonbooks = read_csv(SOURCE_DIR / "nonbook_mainland.csv")
     product_overrides = legacy_product_overrides()
 
     stores = [
@@ -114,33 +162,13 @@ def build_seed_data() -> None:
             "status": "inactive",
         },
     ]
+    suppliers += NONBOOK_SUPPLIERS
     suppliers += project(read_csv(LEGACY_DIR / "supplier.csv"), supplier_fields)
     write_csv("supplier", supplier_fields, suppliers)
 
-    categories = [
-        {"category_id": 1, "category_name": "图书", "parent_category_id": ""},
-        {"category_id": 2, "category_name": "文学", "parent_category_id": 1},
-        {"category_id": 3, "category_name": "计算机", "parent_category_id": 1},
-        {"category_id": 4, "category_name": "文具", "parent_category_id": ""},
-        {"category_id": 5, "category_name": "数据库", "parent_category_id": 3},
-        {"category_id": 6, "category_name": "编程语言", "parent_category_id": 3},
-        {"category_id": 7, "category_name": "软件工程", "parent_category_id": 3},
-        {"category_id": 8, "category_name": "人工智能", "parent_category_id": 3},
-        {"category_id": 9, "category_name": "算法与数据结构", "parent_category_id": 3},
-        {"category_id": 10, "category_name": "操作系统与网络", "parent_category_id": 3},
-        {"category_id": 11, "category_name": "数学", "parent_category_id": 1},
-        {"category_id": 12, "category_name": "科学技术", "parent_category_id": 1},
-        {"category_id": 13, "category_name": "经济管理", "parent_category_id": 1},
-        {"category_id": 14, "category_name": "历史社科", "parent_category_id": 1},
-        {"category_id": 15, "category_name": "医学健康", "parent_category_id": 1},
-        {"category_id": 16, "category_name": "心理哲学", "parent_category_id": 1},
-        {"category_id": 17, "category_name": "教育", "parent_category_id": 1},
-        {"category_id": 18, "category_name": "传记", "parent_category_id": 1},
-        {"category_id": 19, "category_name": "其他图书", "parent_category_id": 1},
-        {"category_id": 20, "category_name": "书写工具", "parent_category_id": 4},
-        {"category_id": 21, "category_name": "纸本文具", "parent_category_id": 4},
-    ]
-    write_csv("category", ["category_id", "category_name", "parent_category_id"], categories)
+    category_fields = ["category_id", "category_name", "parent_category_id"]
+    categories = project(read_csv(SOURCE_DIR / "categories_mainland.csv"), category_fields)
+    write_csv("category", category_fields, categories)
     category_ids = {row["category_name"]: row["category_id"] for row in categories}
 
     publisher_fields = [
@@ -224,7 +252,7 @@ def build_seed_data() -> None:
         {
             "product_id": 1,
             "product_name": "数据库系统概论（第6版）",
-            "category_id": category_ids["数据库"],
+            "category_id": category_ids["计算机类"],
             "unit": "本",
             "unit_price": "88.00",
             "cost_price": "55.00",
@@ -234,7 +262,7 @@ def build_seed_data() -> None:
         {
             "product_id": 2,
             "product_name": "深入理解计算机系统",
-            "category_id": category_ids["操作系统与网络"],
+            "category_id": category_ids["计算机类"],
             "unit": "本",
             "unit_price": "129.00",
             "cost_price": "80.00",
@@ -244,7 +272,7 @@ def build_seed_data() -> None:
         {
             "product_id": 3,
             "product_name": "百年孤独",
-            "category_id": category_ids["文学"],
+            "category_id": category_ids["外国小说"],
             "unit": "本",
             "unit_price": "59.00",
             "cost_price": "35.00",
@@ -254,7 +282,7 @@ def build_seed_data() -> None:
         {
             "product_id": 4,
             "product_name": "黑色中性笔",
-            "category_id": category_ids["书写工具"],
+            "category_id": category_ids["中性笔"],
             "unit": "支",
             "unit_price": "3.50",
             "cost_price": "1.20",
@@ -264,7 +292,7 @@ def build_seed_data() -> None:
         {
             "product_id": 5,
             "product_name": "A4笔记本",
-            "category_id": category_ids["纸本文具"],
+            "category_id": category_ids["笔记本/记事本"],
             "unit": "本",
             "unit_price": "12.00",
             "cost_price": "6.00",
@@ -272,7 +300,7 @@ def build_seed_data() -> None:
             "status": "offsale",
         },
     ]
-    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
+    for product_id, row in enumerate(source_books, start=SOURCE_BOOK_PRODUCT_ID_START):
         override = product_overrides.get(str(product_id), {})
         products.append(
             {
@@ -283,6 +311,19 @@ def build_seed_data() -> None:
                 "unit_price": money(row["suggested_unit_price"]),
                 "cost_price": money(Decimal(row["suggested_unit_price"]) * Decimal("0.65")),
                 "barcode": override.get("barcode") or row["isbn"],
+                "status": row["status"],
+            }
+        )
+    for product_id, row in enumerate(source_nonbooks, start=NONBOOK_PRODUCT_ID_START):
+        products.append(
+            {
+                "product_id": product_id,
+                "product_name": limit_text(row["product_name"], 200),
+                "category_id": category_ids[row["category_name"]],
+                "unit": row["unit"],
+                "unit_price": money(row["suggested_unit_price"]),
+                "cost_price": money(Decimal(row["suggested_unit_price"]) * Decimal("0.70")),
+                "barcode": row["barcode"],
                 "status": row["status"],
             }
         )
@@ -318,7 +359,7 @@ def build_seed_data() -> None:
             "page_count": 360,
         },
     ]
-    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
+    for product_id, row in enumerate(source_books, start=SOURCE_BOOK_PRODUCT_ID_START):
         override = product_overrides.get(str(product_id), {})
         books.append(
             {
@@ -364,7 +405,7 @@ def build_seed_data() -> None:
         {"product_id": 2, "author_id": 2, "author_order": 1},
         {"product_id": 3, "author_id": 3, "author_order": 1},
     ]
-    for product_id, row in enumerate(source_books, start=OPENLIBRARY_PRODUCT_ID_START):
+    for product_id, row in enumerate(source_books, start=SOURCE_BOOK_PRODUCT_ID_START):
         names = list(dict.fromkeys(name.strip() for name in row["authors"].split(";") if name.strip()))
         for author_order, author_name in enumerate(names, start=1):
             book_authors.append(
@@ -392,6 +433,25 @@ def build_seed_data() -> None:
         {"supplier_id": 3, "product_id": 3, "supply_price": "25.00", "min_order_qty": 100, "is_primary": 0},
     ]
     supplier_products += project(read_csv(LEGACY_DIR / "supplier_product.csv"), supplier_product_fields)
+    supplier_product_keys = {
+        (str(row["supplier_id"]), str(row["product_id"]))
+        for row in supplier_products
+    }
+    for product_id, row in enumerate(source_nonbooks, start=NONBOOK_PRODUCT_ID_START):
+        supplier_id = NONBOOK_SUPPLIER_BY_CATEGORY.get(row["category_name"], 302)
+        key = (str(supplier_id), str(product_id))
+        if key in supplier_product_keys:
+            continue
+        supplier_product_keys.add(key)
+        supplier_products.append(
+            {
+                "supplier_id": supplier_id,
+                "product_id": product_id,
+                "supply_price": money(Decimal(row["suggested_unit_price"]) * Decimal("0.70")),
+                "min_order_qty": 60 if row["category_name"] == "学习用品" else 12,
+                "is_primary": 1,
+            }
+        )
     write_csv("supplier_product", supplier_product_fields, supplier_products)
 
     customer_fields = ["customer_id", "customer_name", "phone", "email", "address", "register_time", "status"]
@@ -660,6 +720,28 @@ def build_seed_data() -> None:
         {"store_id": 2, "product_id": 5, "stock_qty": 8, "safety_stock_qty": 10},
     ]
     inventory += project(read_csv(LEGACY_DIR / "inventory.csv"), inventory_fields)
+    inventory_keys = {
+        (str(row["store_id"]), str(row["product_id"]))
+        for row in inventory
+    }
+    for product_id, row in enumerate(source_nonbooks, start=NONBOOK_PRODUCT_ID_START):
+        seed = stable_int(row["barcode"])
+        for store_id in (1, 2):
+            key = (str(store_id), str(product_id))
+            if key in inventory_keys:
+                continue
+            inventory_keys.add(key)
+            base_qty = 18 if row["category_name"] == "学习用品" else 8
+            stock_qty = base_qty + ((seed + store_id * 7) % (36 if row["category_name"] == "学习用品" else 18))
+            safety_stock_qty = max(3, stock_qty // 4)
+            inventory.append(
+                {
+                    "store_id": store_id,
+                    "product_id": product_id,
+                    "stock_qty": stock_qty,
+                    "safety_stock_qty": safety_stock_qty,
+                }
+            )
     write_csv("inventory", inventory_fields, inventory)
 
     sale_fields = [

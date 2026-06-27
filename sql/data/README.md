@@ -8,21 +8,22 @@
 - CSV 表头必须与 `backend/common/sql.py` 中的 `CSV_SEED_FILES` 完全一致。
 - 空字符串会作为 SQL `NULL` 导入。
 - 修改外键数据时，同时检查依赖它的明细表。
-- `sql/source/books_openlibrary.csv` 是图书元数据来源备份，不会在初始化时直接导入。
+- `sql/source/` 下保存分类、图书、非书商品的来源数据和历史业务单据，不会在初始化时直接导入。
 
 导入顺序由后端统一维护，不需要手写 `INSERT` SQL。
 
 需要从保留的来源数据重新生成整套 CSV 时，在仓库根目录执行：
 
 ```powershell
+python sql/tools/align_mainland_legacy_data.py
 python sql/tools/build_seed_data.py
 python sql/tools/validate_seed_data.py
 ```
 
-需要重新在线拉取图书来源数据时，先执行：
+需要重新在线拉取中国大陆书店来源数据时，先执行：
 
 ```powershell
-python sql/tools/fetch_openlibrary_books.py --target 10000
+python sql/tools/fetch_mainland_catalog.py --book-target 12000 --nonbook-target 480
 ```
 
-抓取脚本默认保留已有来源行，再补齐不足的数据；如需完全重抓，可增加 `--replace`。
+当前数据口径以新华书店网分类树为分类参照，并用当当网图书搜索结果补充 12000 条中文图书商品。非书商品来自新华书店网分类页，共 480 条，覆盖学习用品、家居/生活用品、3C 数码和礼品卡。

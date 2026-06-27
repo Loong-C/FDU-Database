@@ -2,6 +2,10 @@ supplier_id,supplier_name,contact_name,phone,email,status
 1,华北图书供应链,刘洋,010-60010001,hb_supplier@example.com,active
 2,华东文化供货商,陈晨,021-60020002,hd_supplier@example.com,active
 3,旧版图书清结商,赵宁,0755-60030003,oldbooks@example.com,inactive
+301,新华文具学习用品供应商,吴倩,010-73010001,stationery@example.com,active
+302,生活文创综合供货商,郑涛,021-73020002,lifestyle@example.com,active
+303,数码学习设备供应商,孙悦,0755-73030003,digital@example.com,active
+304,礼品卡服务供应商,高铭,400-7304004,giftcard@example.com,active
 101,国际科技图书供货商,赵文博,010-70010001,techbooks@example.com,active
 102,经典文学图书代理商,林雅雯,021-70010002,literaturehub@example.com,active
 103,学术资源联合供应中心,周启航,020-70010003,academicresource@example.com,active

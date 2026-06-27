@@ -7,6 +7,7 @@ export interface ProductQuery {
   search?: string
   category_id?: number
   status?: ProductStatus
+  is_book?: boolean
 }
 
 export interface ProductWritePayload {

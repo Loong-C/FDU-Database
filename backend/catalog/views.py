@@ -123,6 +123,13 @@ class ProductViewSet(BaseCatalogViewSet):
         category_id = self.request.query_params.get("category_id")
         status_value = self.request.query_params.get("status")
         search = self.request.query_params.get("search")
+        is_book = self.request.query_params.get("is_book")
+        if is_book is not None:
+            normalized = is_book.lower()
+            if normalized in {"false", "0", "no"}:
+                queryset = queryset.filter(book__isnull=True)
+            elif normalized in {"true", "1", "yes"}:
+                queryset = queryset.filter(book__isnull=False)
         if category_id:
             # 选父分类时一并匹配其下所有子分类，避免商品挂在叶子分类时父分类筛选返回空。
             queryset = queryset.filter(category_id__in=category_descendant_ids(category_id))

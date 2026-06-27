@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
@@ -16,6 +17,9 @@ import { useDictsStore } from '@/stores/dicts'
 const auth = useAuthStore()
 const dicts = useDictsStore()
 const canWrite = () => auth.role === 'admin'
+const canProcure = () => auth.role === 'admin' || auth.role === 'operator'
+const route = useRoute()
+const router = useRouter()
 
 const rows = ref<InventoryRow[]>([])
 const tableRows = computed(() =>
@@ -120,7 +124,20 @@ async function onSubmit() {
 const statusTagType = (s: ProductStatus) =>
   s === 'onsale' ? 'success' : s === 'offsale' ? 'info' : 'danger'
 
+function openReplenish(row: InventoryRow) {
+  const suggestQty = Math.max(row.safety_stock_qty - row.stock_qty + 1, 1)
+  router.push({
+    path: '/purchase-orders',
+    query: {
+      replenish_product_id: String(row.product_id),
+      store_id: String(row.store_id),
+      qty: String(suggestQty),
+    },
+  })
+}
+
 onMounted(() => {
+  filters.warning = route.query.warning === '1' || route.query.warning === 'true'
   dicts.ensureStores()
   searchProducts()
   fetchList()
@@ -205,10 +222,13 @@ onMounted(() => {
       <el-table-column label="更新时间" width="170">
         <template #default="{ row }">{{ formatDateTime(row.updated_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="120" fixed="right" align="right">
+      <el-table-column label="操作" width="180" fixed="right" align="right">
         <template #default="{ row }">
-          <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">调整</el-button>
-          <span v-else class="text-muted">—</span>
+          <div class="table-actions">
+            <el-button v-if="canProcure()" text type="primary" @click="openReplenish(row)">补货采购</el-button>
+            <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">调整</el-button>
+            <span v-if="!canProcure() && !canWrite()" class="text-muted">—</span>
+          </div>
         </template>
       </el-table-column>
     </CrudTable>

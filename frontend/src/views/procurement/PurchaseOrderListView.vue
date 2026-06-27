@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
-import { listProducts } from '@/api/products'
+import { getProduct, listProducts } from '@/api/products'
 import {
   createPurchaseOrder,
   deletePurchaseOrder,
@@ -21,13 +22,22 @@ import { useDictsStore } from '@/stores/dicts'
 
 interface EditableLine {
   product_id: number | null
+  product_name?: string
   quantity: number
   purchase_price: number
+}
+
+interface CreatePrefill {
+  product_id?: number
+  store_id?: number
+  quantity?: number
 }
 
 const auth = useAuthStore()
 const dicts = useDictsStore()
 const canWrite = () => auth.role === 'admin' || auth.role === 'operator'
+const route = useRoute()
+const router = useRouter()
 
 const rows = ref<PurchaseOrder[]>([])
 const loading = ref(false)
@@ -78,6 +88,28 @@ async function searchProducts(query = '') {
   }
 }
 
+function ensureProductOptionsFromItems(items: Array<{ product_id: number; product_name: string; purchase_price?: string }>) {
+  items.forEach((item) => {
+    if (productOptions.value.some((product) => product.product_id === item.product_id)) return
+    productOptions.value.unshift({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      category_id: 0,
+      category_name: '采购明细',
+      unit: '件',
+      unit_price: item.purchase_price || '0',
+      cost_price: item.purchase_price || '0',
+      stock_qty: 0,
+      barcode: null,
+      status: 'onsale',
+      created_at: '',
+      is_book: false,
+      inventory: [],
+      supplier_links: [],
+    })
+  })
+}
+
 const dialogVisible = ref(false)
 const submitting = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
@@ -114,11 +146,34 @@ function resetForm() {
   })
 }
 
-async function openCreate() {
+async function openCreate(prefill: CreatePrefill = {}) {
   dialogMode.value = 'create'
   editingId.value = null
   await Promise.all([dicts.ensureStores(), dicts.ensureSuppliers(), searchProducts()])
   resetForm()
+  if (prefill.store_id) form.store_id = prefill.store_id
+  if (prefill.product_id) {
+    try {
+      const product = await getProduct(prefill.product_id)
+      if (!productOptions.value.some((item) => item.product_id === product.product_id)) {
+        productOptions.value.unshift(product)
+      }
+      const primaryLink = product.supplier_links?.find((item) => item.is_primary) || product.supplier_links?.[0]
+      if (primaryLink?.supplier_id) {
+        form.supplier_id = primaryLink.supplier_id
+      } else {
+        ElMessage.info('该商品尚未配置供应商，请在采购单中手动选择供应商')
+      }
+      form.items = [{
+        product_id: product.product_id,
+        product_name: product.product_name,
+        quantity: prefill.quantity || 1,
+        purchase_price: Number(primaryLink?.supply_price || product.cost_price || product.unit_price || 0),
+      }]
+    } catch {
+      ElMessage.warning('未能读取预警商品，请手动选择采购明细')
+    }
+  }
   dialogVisible.value = true
 }
 
@@ -133,10 +188,12 @@ async function openEdit(row: PurchaseOrder) {
     status: row.status,
     items: row.items.map((item) => ({
       product_id: item.product_id,
+      product_name: item.product_name,
       quantity: item.quantity,
       purchase_price: Number(item.purchase_price),
     })),
   })
+  ensureProductOptionsFromItems(row.items)
   dialogVisible.value = true
 }
 
@@ -234,11 +291,48 @@ const statusTagType = (status: PurchaseOrderStatus) => {
   return ''
 }
 
-onMounted(() => {
-  dicts.ensureStores()
-  dicts.ensureSuppliers()
-  searchProducts()
+const purchaseFlow: PurchaseOrderStatus[] = ['draft', 'submitted', 'approved', 'received']
+
+function stepClass(rowStatus: PurchaseOrderStatus, step: PurchaseOrderStatus) {
+  if (rowStatus === 'cancelled') return ''
+  const current = purchaseFlow.indexOf(rowStatus)
+  const target = purchaseFlow.indexOf(step)
+  return target < current ? 'is-done' : target === current ? 'is-current' : ''
+}
+
+function nextPurchaseStatus(status: PurchaseOrderStatus): { label: string; value: PurchaseOrderStatus } | null {
+  if (status === 'draft') return { label: '提交', value: 'submitted' }
+  if (status === 'submitted') return { label: '审核', value: 'approved' }
+  if (status === 'approved') return { label: '标记收货', value: 'received' }
+  return null
+}
+
+async function advancePurchaseOrder(row: PurchaseOrder) {
+  const next = nextPurchaseStatus(row.status)
+  if (!next) return
+  await updatePurchaseOrder(row.purchase_order_id, { status: next.value })
+  ElMessage.success(`采购单 #${row.purchase_order_id} 已${next.label}`)
   fetchList()
+}
+
+function createStockInFromOrder(row: PurchaseOrder) {
+  router.push({
+    path: '/stock-ins',
+    query: { purchase_order_id: String(row.purchase_order_id) },
+  })
+}
+
+onMounted(async () => {
+  await Promise.all([dicts.ensureStores(), dicts.ensureSuppliers(), searchProducts()])
+  await fetchList()
+  const productId = Number(route.query.replenish_product_id || 0)
+  if (productId) {
+    await openCreate({
+      product_id: productId,
+      store_id: Number(route.query.store_id || 0) || undefined,
+      quantity: Number(route.query.qty || 1) || 1,
+    })
+  }
 })
 </script>
 
@@ -246,11 +340,34 @@ onMounted(() => {
   <div class="page-wrapper">
     <PageHeader title="采购单" subtitle="记录向供应商采购商品的下单过程，入库单可基于采购单生成">
       <template #extra>
-        <el-button v-if="canWrite()" type="primary" @click="openCreate">
+        <el-button v-if="canWrite()" type="primary" @click="openCreate()">
           <el-icon><Plus /></el-icon>新增采购单
         </el-button>
       </template>
     </PageHeader>
+
+    <section class="process-rail">
+      <article class="process-rail__step">
+        <div class="process-rail__number">01</div>
+        <div class="process-rail__title">草稿</div>
+        <div class="process-rail__body">选择供应商、门店与采购明细。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">02</div>
+        <div class="process-rail__title">提交审核</div>
+        <div class="process-rail__body">确认采购需求，进入审核状态。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">03</div>
+        <div class="process-rail__title">生成入库</div>
+        <div class="process-rail__body">采购通过后，按到货情况生成入库单。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">04</div>
+        <div class="process-rail__title">库存恢复</div>
+        <div class="process-rail__body">入库审核通过后增加门店库存。</div>
+      </article>
+    </section>
 
     <FilterBar
       :loading="loading"
@@ -303,6 +420,18 @@ onMounted(() => {
           <el-tag :type="statusTagType(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="流程" width="150">
+        <template #default="{ row }">
+          <span class="status-stepper" :title="statusLabel(row.status)">
+            <span
+              v-for="step in purchaseFlow"
+              :key="step"
+              class="status-stepper__dot"
+              :class="stepClass(row.status, step)"
+            />
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="明细" width="90" align="right">
         <template #default="{ row }">{{ row.items?.length ?? 0 }} 项</template>
       </el-table-column>
@@ -313,9 +442,25 @@ onMounted(() => {
       <el-table-column label="下单时间" width="170">
         <template #default="{ row }">{{ formatDateTime(row.order_time) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="150" fixed="right" align="right">
+      <el-table-column label="操作" width="260" fixed="right" align="right">
         <template #default="{ row }">
           <div class="table-actions">
+            <el-button
+              v-if="canWrite() && nextPurchaseStatus(row.status)"
+              text
+              type="primary"
+              @click="advancePurchaseOrder(row)"
+            >
+              {{ nextPurchaseStatus(row.status)?.label }}
+            </el-button>
+            <el-button
+              v-if="canWrite() && row.status === 'approved'"
+              text
+              type="primary"
+              @click="createStockInFromOrder(row)"
+            >
+              生成入库
+            </el-button>
             <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-if="canWrite()" text type="danger" @click="onDelete(row)">删除</el-button>
             <span v-if="!canWrite()" class="text-muted">—</span>

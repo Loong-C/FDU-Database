@@ -4,10 +4,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
+import CatalogTabs from '@/components/common/CatalogTabs.vue'
 import ProductFormDrawer from './ProductFormDrawer.vue'
-import BookFormDrawer from '../book/BookFormDrawer.vue'
 import { deleteProduct, listProducts, type ProductQuery } from '@/api/products'
-import { deleteBook } from '@/api/books'
 import type { Product, ProductStatus } from '@/api/types'
 import { formatCurrency, statusLabel } from '@/utils/format'
 import { useDictsStore } from '@/stores/dicts'
@@ -34,6 +33,7 @@ async function fetchList() {
       search: filters.search || undefined,
       category_id: filters.category_id ?? undefined,
       status: filters.status ?? undefined,
+      is_book: false,
     })
     rows.value = data.items
     total.value = data.total
@@ -44,29 +44,21 @@ async function fetchList() {
 
 // drawer control
 const productDrawer = ref(false)
-const bookDrawer = ref(false)
 const editingId = ref<number | null>(null)
 
 function openCreateProduct() {
   editingId.value = null
   productDrawer.value = true
 }
-function openCreateBook() {
-  editingId.value = null
-  bookDrawer.value = true
-}
 function openEdit(row: Product) {
   editingId.value = row.product_id
-  if (row.is_book) bookDrawer.value = true
-  else productDrawer.value = true
+  productDrawer.value = true
 }
 
 async function onDelete(row: Product) {
   try {
     await ElMessageBox.confirm(
-      row.is_book
-        ? `删除图书「${row.product_name}」？若存在销售记录将返回冲突。`
-        : `删除商品「${row.product_name}」？若存在销售记录将返回冲突。`,
+      `删除商品「${row.product_name}」？若存在销售记录将返回冲突。`,
       '删除确认',
       { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' },
     )
@@ -74,8 +66,7 @@ async function onDelete(row: Product) {
     return
   }
   try {
-    if (row.is_book) await deleteBook(row.product_id)
-    else await deleteProduct(row.product_id)
+    await deleteProduct(row.product_id)
     ElMessage.success('已删除')
     fetchList()
   } catch {
@@ -98,25 +89,15 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="商品管理" subtitle="管理全部商品，图书类商品用图书抽屉编辑">
+    <PageHeader title="商品中心" subtitle="通用商品维护：办公用品、文创、耗材等图书以外商品与门店库存">
       <template #extra>
-        <el-dropdown v-if="canWrite()" trigger="click">
-          <el-button type="primary">
-            <el-icon><Plus /></el-icon>新增商品<el-icon style="margin-left: 4px"><ArrowDown /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="openCreateProduct">
-                <el-icon><Goods /></el-icon>普通商品
-              </el-dropdown-item>
-              <el-dropdown-item @click="openCreateBook">
-                <el-icon><Reading /></el-icon>图书商品
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <el-button v-if="canWrite()" type="primary" @click="openCreateProduct">
+          <el-icon><Plus /></el-icon>新增商品
+        </el-button>
       </template>
     </PageHeader>
+
+    <CatalogTabs />
 
     <FilterBar
       :loading="loading"
@@ -159,7 +140,6 @@ onMounted(() => {
       <el-table-column label="名称" min-width="220">
         <template #default="{ row }">
           <div class="product-name">
-            <el-tag v-if="row.is_book" type="primary" size="small" effect="light" round>图书</el-tag>
             <span>{{ row.product_name }}</span>
           </div>
           <div class="text-muted" style="font-size: 12px">{{ row.barcode || '无条码' }}</div>
@@ -202,11 +182,6 @@ onMounted(() => {
 
     <ProductFormDrawer
       v-model="productDrawer"
-      :product-id="editingId"
-      @success="fetchList"
-    />
-    <BookFormDrawer
-      v-model="bookDrawer"
       :product-id="editingId"
       @success="fetchList"
     />

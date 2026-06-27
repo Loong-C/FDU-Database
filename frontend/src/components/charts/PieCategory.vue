@@ -17,6 +17,11 @@ const ui = useUiStore()
 // 浅色模式用 GitHub 风的浅灰边框；深色模式用白色细边，与图例 marker 的亮边一致。
 const separatorColor = computed(() => (ui.isDark ? '#ffffff' : '#d0d7de'))
 const legendTextColor = computed(() => (ui.isDark ? '#e6edf3' : '#1f2328'))
+const swissPalette = computed(() => (
+  ui.isDark
+    ? ['#ff2a1f', '#f4f4f2', '#9c9c98', '#4a4a4a', '#ff8a80', '#d6d6d0', '#6f6f6b', '#2c2c2c']
+    : ['#e10600', '#111111', '#6f6f6f', '#d7d7d7', '#b00000', '#2a2a2a', '#9a9a9a', '#f2f2f2']
+))
 
 const option = computed<EChartsCoreOption | null>(() => {
   if (!props.data.length) return null
@@ -44,7 +49,7 @@ const option = computed<EChartsCoreOption | null>(() => {
         radius: ['50%', '76%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 6,
+          borderRadius: 0,
           borderColor: separatorColor.value,
           borderWidth: 2,
         },
@@ -53,7 +58,7 @@ const option = computed<EChartsCoreOption | null>(() => {
         data: props.data,
       },
     ],
-    color: ['#0969da', '#1a7f37', '#8250df', '#bf8700', '#cf222e', '#176f64', '#6639ba', '#953800'],
+    color: swissPalette.value,
   }
 })
 

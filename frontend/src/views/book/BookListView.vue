@@ -4,6 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
+import CatalogTabs from '@/components/common/CatalogTabs.vue'
 import BookFormDrawer from './BookFormDrawer.vue'
 import { deleteBook, listBooks, type BookQuery } from '@/api/books'
 import type { Book, ProductStatus } from '@/api/types'
@@ -86,13 +87,15 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="图书管理" subtitle="维护图书独有字段：ISBN、出版社、作者、译者">
+    <PageHeader title="商品中心" subtitle="图书档案维护：ISBN、出版社、作者、译者与门店库存">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增图书
         </el-button>
       </template>
     </PageHeader>
+
+    <CatalogTabs />
 
     <FilterBar
       :loading="loading"

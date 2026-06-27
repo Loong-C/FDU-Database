@@ -85,10 +85,11 @@ MAX_LENGTHS = {
 }
 
 MINIMUM_ROWS = {
-    "product": 10000,
-    "book": 10000,
-    "book_author": 10000,
-    "inventory": 20,
+    "category": 300,
+    "product": 12480,
+    "book": 12000,
+    "book_author": 12000,
+    "inventory": 10000,
     "sale": 10,
     "sale_item": 20,
 }
@@ -152,6 +153,11 @@ def validate_seed_data() -> None:
         assert len(data[table]) >= minimum, f"{table} needs at least {minimum} seed rows."
 
     product_lookup = {row["product_id"]: row for row in data["product"]}
+    book_product_ids = {row["product_id"] for row in data["book"]}
+    nonbook_count = sum(1 for row in data["product"] if row["product_id"] not in book_product_ids)
+    assert nonbook_count >= 480, "product needs at least 480 non-book seed rows."
+    assert all(row["language"] == "中文" for row in data["book"]), "book rows must use Chinese mainland seed data."
+
     for path in LEGACY_DIR.glob("*.csv"):
         for row in read_csv(path):
             if "product_id" in row and "product_barcode" in row:

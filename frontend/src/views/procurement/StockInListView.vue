@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
@@ -22,6 +23,7 @@ import { useDictsStore } from '@/stores/dicts'
 
 interface EditableLine {
   product_id: number | null
+  product_name?: string
   quantity: number
   unit_cost: number
 }
@@ -29,6 +31,7 @@ interface EditableLine {
 const auth = useAuthStore()
 const dicts = useDictsStore()
 const canWrite = () => auth.role === 'admin' || auth.role === 'operator'
+const route = useRoute()
 
 const rows = ref<StockIn[]>([])
 const loading = ref(false)
@@ -81,6 +84,28 @@ async function searchProducts(query = '') {
   }
 }
 
+function ensureProductOptionsFromItems(items: Array<{ product_id: number; product_name: string; unit_cost?: string; purchase_price?: string }>) {
+  items.forEach((item) => {
+    if (productOptions.value.some((product) => product.product_id === item.product_id)) return
+    productOptions.value.unshift({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      category_id: 0,
+      category_name: '采购明细',
+      unit: '件',
+      unit_price: item.purchase_price || item.unit_cost || '0',
+      cost_price: item.purchase_price || item.unit_cost || '0',
+      stock_qty: 0,
+      barcode: null,
+      status: 'onsale',
+      created_at: '',
+      is_book: false,
+      inventory: [],
+      supplier_links: [],
+    })
+  })
+}
+
 async function loadPurchaseOrders() {
   purchaseOrderLoading.value = true
   try {
@@ -127,11 +152,15 @@ function resetForm() {
   })
 }
 
-async function openCreate() {
+async function openCreate(purchaseOrderId?: number) {
   dialogMode.value = 'create'
   editingId.value = null
   await Promise.all([dicts.ensureStores(), loadPurchaseOrders(), searchProducts()])
   resetForm()
+  if (purchaseOrderId) {
+    form.purchase_order_id = purchaseOrderId
+    onPurchaseOrderChange(purchaseOrderId)
+  }
   dialogVisible.value = true
 }
 
@@ -146,10 +175,12 @@ async function openEdit(row: StockIn) {
     status: row.status,
     items: row.items.map((item) => ({
       product_id: item.product_id,
+      product_name: item.product_name,
       quantity: item.quantity,
       unit_cost: Number(item.unit_cost),
     })),
   })
+  ensureProductOptionsFromItems(row.items)
   dialogVisible.value = true
 }
 
@@ -158,8 +189,10 @@ function onPurchaseOrderChange(id: number | string | null) {
   const order = purchaseOrderOptions.value.find((item) => item.purchase_order_id === numericId)
   if (!order) return
   form.store_id = order.store_id
+  ensureProductOptionsFromItems(order.items)
   form.items = order.items.map((item) => ({
     product_id: item.product_id,
+    product_name: item.product_name,
     quantity: item.quantity,
     unit_cost: Number(item.purchase_price),
   }))
@@ -258,15 +291,36 @@ const statusTagType = (status: StockInStatus) => {
   return 'warning'
 }
 
+const stockFlow: StockInStatus[] = ['pending', 'approved']
+
+function stockStepClass(rowStatus: StockInStatus, step: StockInStatus) {
+  if (rowStatus === 'rejected') return ''
+  const current = stockFlow.indexOf(rowStatus)
+  const target = stockFlow.indexOf(step)
+  return target < current ? 'is-done' : target === current ? 'is-current' : ''
+}
+
+async function approveStockIn(row: StockIn) {
+  await updateStockIn(row.stock_in_id, { status: 'approved' })
+  ElMessage.success(`入库单 #${row.stock_in_id} 已审核，库存已增加`)
+  fetchList()
+}
+
+async function rejectStockIn(row: StockIn) {
+  await updateStockIn(row.stock_in_id, { status: 'rejected' })
+  ElMessage.success(`入库单 #${row.stock_in_id} 已驳回`)
+  fetchList()
+}
+
 function stockInAmount(row: StockIn) {
   return row.items?.reduce((sum, item) => sum + Number(item.line_amount || 0), 0) || 0
 }
 
-onMounted(() => {
-  dicts.ensureStores()
-  loadPurchaseOrders()
-  searchProducts()
-  fetchList()
+onMounted(async () => {
+  await Promise.all([dicts.ensureStores(), loadPurchaseOrders(), searchProducts()])
+  await fetchList()
+  const purchaseOrderId = Number(route.query.purchase_order_id || 0)
+  if (purchaseOrderId) await openCreate(purchaseOrderId)
 })
 </script>
 
@@ -274,11 +328,34 @@ onMounted(() => {
   <div class="page-wrapper">
     <PageHeader title="入库单" subtitle="记录采购到货验收；审核通过后自动增加对应门店库存">
       <template #extra>
-        <el-button v-if="canWrite()" type="primary" @click="openCreate">
+        <el-button v-if="canWrite()" type="primary" @click="openCreate()">
           <el-icon><Plus /></el-icon>新增入库单
         </el-button>
       </template>
     </PageHeader>
+
+    <section class="process-rail">
+      <article class="process-rail__step">
+        <div class="process-rail__number">01</div>
+        <div class="process-rail__title">选择采购单</div>
+        <div class="process-rail__body">从已审核采购单带入门店和明细。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">02</div>
+        <div class="process-rail__title">到货验收</div>
+        <div class="process-rail__body">核对实际入库数量和入库成本。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">03</div>
+        <div class="process-rail__title">审核入库</div>
+        <div class="process-rail__body">通过后服务端写入入库事实。</div>
+      </article>
+      <article class="process-rail__step">
+        <div class="process-rail__number">04</div>
+        <div class="process-rail__title">更新库存</div>
+        <div class="process-rail__body">按门店和商品组合增加库存。</div>
+      </article>
+    </section>
 
     <FilterBar
       :loading="loading"
@@ -331,6 +408,18 @@ onMounted(() => {
           <el-tag :type="statusTagType(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="流程" width="120">
+        <template #default="{ row }">
+          <span class="status-stepper" :title="statusLabel(row.status)">
+            <span
+              v-for="step in stockFlow"
+              :key="step"
+              class="status-stepper__dot"
+              :class="stockStepClass(row.status, step)"
+            />
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="明细" width="90" align="right">
         <template #default="{ row }">{{ row.items?.length ?? 0 }} 项</template>
       </el-table-column>
@@ -343,11 +432,13 @@ onMounted(() => {
       <el-table-column label="入库时间" width="170">
         <template #default="{ row }">{{ formatDateTime(row.inbound_time) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="150" fixed="right" align="right">
+      <el-table-column label="操作" width="240" fixed="right" align="right">
         <template #default="{ row }">
           <div class="table-actions">
-            <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button v-if="canWrite()" text type="danger" @click="onDelete(row)">删除</el-button>
+            <el-button v-if="canWrite() && row.status === 'pending'" text type="primary" @click="approveStockIn(row)">审核入库</el-button>
+            <el-button v-if="canWrite() && row.status === 'pending'" text type="danger" @click="rejectStockIn(row)">驳回</el-button>
+            <el-button v-if="canWrite() && row.status !== 'approved'" text type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button v-if="canWrite() && row.status !== 'approved'" text type="danger" @click="onDelete(row)">删除</el-button>
             <span v-if="!canWrite()" class="text-muted">—</span>
           </div>
         </template>

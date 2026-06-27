@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import PageHeader from '@/components/common/PageHeader.vue'
 import StatCard from '@/components/common/StatCard.vue'
@@ -21,9 +22,8 @@ import type {
   StoreDailyRow,
 } from '@/api/types'
 import { formatCurrency, formatDateTime, memberLevelLabel } from '@/utils/format'
-import { useAuthStore } from '@/stores/auth'
 
-const auth = useAuthStore()
+const router = useRouter()
 
 const loadingDaily = ref(false)
 const loadingProduct = ref(false)
@@ -122,12 +122,24 @@ async function fetchAll() {
   }
 }
 
+function openReplenish(row: InventoryRow) {
+  const suggestQty = Math.max(row.safety_stock_qty - row.stock_qty + 1, 1)
+  router.push({
+    path: '/purchase-orders',
+    query: {
+      replenish_product_id: String(row.product_id),
+      store_id: String(row.store_id),
+      qty: String(suggestQty),
+    },
+  })
+}
+
 onMounted(fetchAll)
 </script>
 
 <template>
   <div class="page-wrapper">
-    <PageHeader :title="`你好，${auth.user?.display_name || auth.user?.username}`" subtitle="今日业务概况与近 7 天趋势一览">
+    <PageHeader title="经营总览" subtitle="今日销售、库存与会员概况">
       <template #extra>
         <el-button @click="fetchAll">
           <el-icon><Refresh /></el-icon>刷新
@@ -186,6 +198,11 @@ onMounted(fetchAll)
         <el-table-column label="更新时间" width="160">
           <template #default="{ row }">{{ formatDateTime(row.updated_at) }}</template>
         </el-table-column>
+        <el-table-column label="下一步" width="110" align="right">
+          <template #default="{ row }">
+            <el-button text type="primary" @click="openReplenish(row)">补货</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </article>
 
@@ -211,7 +228,7 @@ onMounted(fetchAll)
 
     <article class="app-card">
       <h3 class="section-title">
-        <el-icon><Crown /></el-icon>热销商品 TOP 10（近 7 日）
+        <el-icon><Trophy /></el-icon>热销商品 TOP 10（近 7 日）
       </h3>
       <BarRank
         :categories="productBarCategories"
