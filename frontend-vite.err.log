@@ -54,3 +54,75 @@ at <ElContainer>
 at <MainLayout>
 at <RouterView>
 at <App> [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [2m14:25:51[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > fetchList src/views/book/BookListView.vue:31:17
+
+[2m14:25:51[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > Proxy.ensurePublishers src/stores/dicts.ts:61:16
+
+[2m14:25:51[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > Proxy.ensureCategories src/stores/dicts.ts:47:18
+
+[2m15:31:09[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > fetchList src/views/book/BookListView.vue:31:17
+
+[2m15:31:09[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > Proxy.ensurePublishers src/stores/dicts.ts:61:16
+
+[2m15:31:09[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: 登录状态已失效，请重新登录
+[39m > src/api/http.ts:121:30
+    119 |          refreshPromise = null
+    120 |          if (onUnauthorized) onUnauthorized()
+    121 |          return Promise.reject(new ApiError(401, '登录状态已失效，请重新登录', null, refreshError))
+        |                                ^
+    122 |        }
+    123 |      }
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > Proxy.ensureCategories src/stores/dicts.ts:47:18
+

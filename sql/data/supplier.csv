@@ -1,15 +1,15 @@
 ﻿supplier_id,supplier_name,contact_name,phone,email,status
-1,北京人天书店集团股份有限公司,馆配业务部,合同约定,supplier01@example.local,active
-2,湖北三新文化传媒有限公司,馆配业务部,合同约定,supplier02@example.local,active
-3,浙江省新华书店集团馆藏图书有限公司,馆配业务部,合同约定,supplier03@example.local,active
-4,江苏凤凰新华书店集团有限公司,发行采购部,合同约定,supplier04@example.local,active
-5,上海新华传媒连锁有限公司,发行采购部,合同约定,supplier05@example.local,active
-6,中国图书进出口（集团）有限公司,发行采购部,合同约定,supplier06@example.local,active
-7,高等教育出版社直供,发行部,见出版社官网,supplier07@example.local,active
-8,清华大学出版社直供,发行部,见出版社官网,supplier08@example.local,active
-9,人民邮电出版社直供,发行部,见出版社官网,supplier09@example.local,active
-10,商务印书馆直供,发行部,见出版社官网,supplier10@example.local,active
-11,中国人民大学出版社直供,发行部,见出版社官网,supplier11@example.local,active
-12,复旦大学出版社直供,发行部,见出版社官网,supplier12@example.local,active
-13,生活·读书·新知三联书店直供,发行部,见出版社官网,supplier13@example.local,active
-14,人民卫生出版社直供,发行部,见出版社官网,supplier14@example.local,active
+1,北京人天书店集团股份有限公司,馆配业务部,010-5143 8155-811,rtbook@rtbook.com,active
+2,湖北三新文化传媒有限公司,馆配业务部,027-51850902,sanxin@sanxinbook.com,active
+3,浙江省新华书店集团馆藏图书有限公司,馆配业务部,0571-88937381,xhsdbgszj@126.com,active
+4,江苏凤凰新华书店集团有限公司,发行采购部,025-83658837,zhaoyuhan@ppm.cn,active
+5,上海新华传媒连锁有限公司,发行采购部,021-56517598, xhcmpublic@xhmedia.com,active
+6,中国图书进出口（集团）有限公司,发行采购部,010-65066688,export@cnpiec.com.cn,active
+7,高等教育出版社直供,发行部,010-58581118/010-58581116,gjdzfwb@pub.hep.cn;dd@hep.com,active
+8,清华大学出版社直供,发行部,010-62776969,c-service@tup.tsinghua.edu.cn,active
+9,人民邮电出版社直供,发行部,010-81055236/010-81055237/010-81055232,proedu@ptpres.com.cn,active
+10,商务印书馆直供,营销中心,010-65253913,swysg_duzhe@cp.com.cn,active
+11,中国人民大学出版社直供,发行部,010-62514760,club@crup.com.cn,active
+12,复旦大学出版社直供,发行部,021-65642854,fdupress@163.com,active
+13,生活·读书·新知三联书店直供,发行部,010-64001122,qinjuzhao123@yahoo.com.cn,active
+14,人民卫生出版社直供,发行部,010-59780011,pmph@pmph.com,active
