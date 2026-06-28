@@ -25,10 +25,13 @@
 
 ```powershell
 python sql/tools/rebuild_clean_book_data.py --crawl-web --sanlian-pages 323 --sanlian-workers 12 --sanlian-cache-only --crawl-deli
+python sql/tools/rebuild_inventory_seed.py
 python sql/tools/validate_seed_data.py
 ```
 
 如需继续从三联书店网站在线补齐未缓存页面，去掉 `--sanlian-cache-only` 后重跑；脚本会复用 `data/raw/web_catalog/` 中已有缓存。得力集实页面缓存位于 `data/raw/deli_jslink/`，已有缓存时可用 `--deli-cache-only` 复现数据。
+
+如只调整门店库存口径，直接运行 `python sql/tools/rebuild_inventory_seed.py`；该脚本只会重建 `inventory.csv` 和库存审计报告，不会改写出版社、供应商、门店等真实数据表。
 
 中间结果和质量报告位于 `data/clean/`：
 

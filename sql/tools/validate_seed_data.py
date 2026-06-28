@@ -98,6 +98,8 @@ MINIMUM_ROWS = {
 
 FORBIDDEN_MARKETING_TERMS = ["当当网", "当当自营", "新华书店", "包邮", "自营", "旗舰店", "点击购买", "已撤销"]
 
+FLAGSHIP_STORE_IDS = {"1", "2", "5", "9", "10", "14", "15", "16", "17", "20", "21", "23", "24", "27", "35", "38"}
+
 
 def isbn13_check_digit(prefix12: str) -> str:
     total = sum(int(char) * (1 if index % 2 == 0 else 3) for index, char in enumerate(prefix12))
@@ -217,10 +219,11 @@ def validate_seed_data() -> None:
     assert all(row["barcode"] for row in data["product"]), "product rows must contain barcodes or source product codes."
     assert len(product_barcodes) == len(set(product_barcodes)), "product rows contain duplicate barcodes."
     assert {product_lookup[row["product_id"]]["barcode"] for row in data["book"]} == {row["isbn"] for row in data["book"]}, "book product barcode must match ISBN."
-    assert "得力集实" in supplier_by_name, "supplier rows must include Deli JSLink."
+    deli_supplier = next((row for name, row in supplier_by_name.items() if name.startswith("得力集实")), None)
+    assert deli_supplier is not None, "supplier rows must include Deli JSLink."
     assert "办公文具" in category_by_name, "category rows must include office stationery root."
     office_category_ids = category_descendant_ids(data["category"], category_by_name["办公文具"]["category_id"])
-    deli_supplier_id = supplier_by_name["得力集实"]["supplier_id"]
+    deli_supplier_id = deli_supplier["supplier_id"]
     assert all(product_lookup[pid]["category_id"] in office_category_ids for pid in nonbook_product_ids), "non-book products must be under office stationery categories."
     assert all(product_lookup[pid]["unit"] != "箱" for pid in nonbook_product_ids), "Deli products with unit 箱 must be removed."
     assert all(supplier_links_by_product[pid] == {deli_supplier_id} for pid in nonbook_product_ids), "Deli products must use 得力集实 as their only supplier."
@@ -233,6 +236,31 @@ def validate_seed_data() -> None:
     assert len(store_phones) == len(set(store_phones)), "store rows contain duplicate phones."
     assert all(row["store_id"] in stocked_store_ids for row in data["store"]), "every store must have inventory rows."
     assert all(row["product_id"] in authored_product_ids for row in data["book"]), "book rows must have at least one author."
+
+    book_inventory_counts = defaultdict(int)
+    stockout_count = 0
+    warning_count = 0
+    for row in data["inventory"]:
+        if row["product_id"] in book_product_ids:
+            book_inventory_counts[row["store_id"]] += 1
+        stock_qty = int(row["stock_qty"])
+        safety_stock_qty = int(row["safety_stock_qty"])
+        if stock_qty == 0:
+            stockout_count += 1
+        if stock_qty <= safety_stock_qty:
+            warning_count += 1
+
+    for row in data["store"]:
+        store_id = row["store_id"]
+        book_count = book_inventory_counts[store_id]
+        if store_id in FLAGSHIP_STORE_IDS:
+            assert 45000 <= book_count <= 70000, f"flagship store {store_id} has {book_count} book SKUs."
+        else:
+            assert 15000 <= book_count <= 25000, f"standard store {store_id} has {book_count} book SKUs."
+
+    inventory_count = len(data["inventory"])
+    assert 0.01 <= stockout_count / inventory_count <= 0.03, "inventory stockout ratio must stay between 1% and 3%."
+    assert warning_count / inventory_count <= 0.15, "inventory warning ratio must not exceed 15%."
 
     print(f"Validated {sum(len(rows) for rows in data.values())} rows across {len(data)} CSV tables.")
     for table in PRIMARY_KEYS:
