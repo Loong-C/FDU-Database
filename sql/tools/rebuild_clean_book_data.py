@@ -50,13 +50,26 @@ SOURCE_DIR = REPO_ROOT / "data"
 SQL_DATA_DIR = REPO_ROOT / "sql" / "data"
 CLEAN_DIR = SOURCE_DIR / "clean"
 RAW_WEB_DIR = SOURCE_DIR / "raw" / "web_catalog"
+RAW_DELI_DIR = SOURCE_DIR / "raw" / "deli_jslink"
+DELI_PAGE_CACHE_DIR = RAW_DELI_DIR / "pages"
 
 SOURCE_CSV = CLEAN_DIR / "book_source.csv"
 ACCEPTED_CSV = CLEAN_DIR / "books_accepted.csv"
 REJECTED_CSV = CLEAN_DIR / "books_rejected.csv"
 CATEGORY_AUDIT_CSV = CLEAN_DIR / "category_mapping_audit.csv"
 SOURCE_AUDIT_CSV = CLEAN_DIR / "source_file_audit.csv"
+DELI_SOURCE_CSV = CLEAN_DIR / "deli_stationery_source.csv"
+DELI_AUDIT_CSV = CLEAN_DIR / "deli_stationery_audit.csv"
 REPORT_MD = CLEAN_DIR / "clean_data_report.md"
+
+DELI_ROOT_UUID = "ca6221d3291a46f68521453dd96cd886"
+DELI_SOURCE_URL = (
+    "https://www.jslink.com/pcweb/productList?"
+    "cat=%E5%8A%9E%E5%85%AC%E6%96%87%E5%85%B7&categoryUuid=ca6221d3291a46f68521453dd96cd886&state=1"
+)
+DELI_CATEGORY_CACHE = RAW_DELI_DIR / "front_category_tree.json"
+DELI_PRODUCTS_CACHE = RAW_DELI_DIR / "office_stationery_products.jsonl"
+DELI_SUPPLIER_ID = "15"
 
 CSV_HEADERS = {
     "store": ["store_id", "store_name", "city", "address", "phone", "manager_name"],
@@ -209,6 +222,29 @@ class SourceBook:
     translators: list[str] = field(default_factory=list)
     category_path: str = ""
     category_reason: str = ""
+
+
+@dataclass
+class DeliCategory:
+    category_name: str
+    category_uuid: str
+    category_path: str
+    parent_path: str
+    level: int
+    is_leaf: bool
+
+
+@dataclass
+class DeliProduct:
+    sku_no: str
+    product_id: str
+    product_name: str
+    source_product_name: str
+    unit: str
+    unit_price: str
+    category_path: str
+    category_uuid: str
+    source_url: str
 
 
 def compact(value: Any) -> str:
@@ -914,6 +950,462 @@ def collect_sources(args: argparse.Namespace) -> tuple[list[SourceBook], list[di
     return all_books, audits
 
 
+DELI_COMMON_UNITS = {
+    "支",
+    "个",
+    "只",
+    "本",
+    "包",
+    "盒",
+    "套",
+    "袋",
+    "卷",
+    "张",
+    "把",
+    "台",
+    "件",
+    "瓶",
+    "桶",
+    "块",
+    "枚",
+    "片",
+    "条",
+    "根",
+    "双",
+    "副",
+    "组",
+    "册",
+    "板",
+    "束",
+    "罐",
+    "提",
+    "令",
+    "辆",
+    "箱",
+}
+
+
+def jslink_headers() -> dict[str, str]:
+    return {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": DELI_SOURCE_URL,
+        "Content-Type": "application/json;charset=UTF-8",
+        "fake": "false",
+        "domain": "www.jslink.com",
+    }
+
+
+def jslink_session() -> requests.Session:
+    session = requests.Session()
+    session.get(DELI_SOURCE_URL, headers=jslink_headers(), timeout=30)
+    return session
+
+
+def decode_jslink_ret_data(payload: dict[str, Any], endpoint: str) -> Any:
+    if payload.get("retStatus") != "1":
+        raise RuntimeError(f"{endpoint} failed: {payload.get('retMessage') or payload}")
+    ret_data = payload.get("retData")
+    if isinstance(ret_data, str) and ret_data:
+        return json.loads(ret_data)
+    return ret_data
+
+
+def post_jslink_json(session: requests.Session, endpoint: str, payload: dict[str, Any]) -> Any:
+    url = f"https://www.jslink.com/front/{endpoint}"
+    last_error: Exception | None = None
+    for attempt in range(1, 4):
+        try:
+            response = session.post(url, headers=jslink_headers(), json=payload, timeout=60)
+            if response.status_code in {418, 429}:
+                time.sleep(20 * attempt)
+                continue
+            response.raise_for_status()
+            return decode_jslink_ret_data(response.json(), endpoint)
+        except Exception as exc:  # noqa: BLE001 - network scraper retries then reports endpoint context
+            last_error = exc
+            time.sleep(0.6 * attempt)
+    raise RuntimeError(f"Failed to fetch {endpoint}: {last_error}")
+
+
+def fetch_deli_category_tree(crawl: bool) -> list[dict[str, Any]]:
+    if DELI_CATEGORY_CACHE.exists():
+        return json.loads(DELI_CATEGORY_CACHE.read_text(encoding="utf-8"))
+    if not crawl:
+        return []
+    RAW_DELI_DIR.mkdir(parents=True, exist_ok=True)
+    session = jslink_session()
+    tree = post_jslink_json(session, "common/getFrontCategoryTree", {})
+    DELI_CATEGORY_CACHE.write_text(json.dumps(tree, ensure_ascii=False, indent=2), encoding="utf-8")
+    return tree
+
+
+def office_category_root(tree: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for node in tree:
+        if node.get("categoryUuid") == DELI_ROOT_UUID or node.get("categoryName") == "办公文具":
+            return node
+    return None
+
+
+def flatten_deli_categories(root: dict[str, Any] | None) -> list[DeliCategory]:
+    if not root:
+        return []
+    categories: list[DeliCategory] = []
+
+    def walk(node: dict[str, Any], parents: list[str]) -> None:
+        name = compact(node.get("categoryName"))
+        if not name:
+            return
+        path_parts = [*parents, name]
+        category_path = " > ".join(path_parts)
+        children = [child for child in (node.get("subList") or []) if compact(child.get("categoryName"))]
+        categories.append(
+            DeliCategory(
+                category_name=name,
+                category_uuid=compact(node.get("categoryUuid")),
+                category_path=category_path,
+                parent_path=" > ".join(parents),
+                level=len(parents),
+                is_leaf=not children,
+            )
+        )
+        for child in children:
+            walk(child, path_parts)
+
+    walk(root, [])
+    return categories
+
+
+def deli_search_payload(category_uuid: str, page: int, page_size: int) -> dict[str, Any]:
+    return {
+        "nowPage": page,
+        "pageShow": page_size,
+        "totalNum": 0,
+        "backCategoryUuidList": [],
+        "brandNameList": [],
+        "brandUuidList": [],
+        "frontCategoryUuid": category_uuid,
+        "keyword": "",
+        "labelUuid": "",
+        "labels": [],
+        "locateProtocol": {"customerId": "", "hasProtocol": ""},
+        "locateWh": {"provinceCode": "", "cityCode": "", "regionCode": "", "hasStock": ""},
+        "originalPriceStart": "",
+        "originalPriceEnd": "",
+        "searchType": "1",
+        "sortName": "",
+        "sortType": "",
+        "specList": [],
+        "specarr": [],
+        "attrInfoList": [],
+        "supplierName": "",
+    }
+
+
+def deli_page_cache_path(category_uuid: str, page: int, page_size: int) -> Path:
+    return DELI_PAGE_CACHE_DIR / f"{category_uuid}_{page}_{page_size}.json"
+
+
+def fetch_deli_search_page(
+    session: requests.Session,
+    category_uuid: str,
+    page: int,
+    page_size: int,
+    *,
+    crawl: bool,
+    cache_only: bool,
+) -> dict[str, Any]:
+    cache_path = deli_page_cache_path(category_uuid, page, page_size)
+    if cache_path.exists():
+        return json.loads(cache_path.read_text(encoding="utf-8"))
+    if cache_only or not crawl:
+        raise RuntimeError(f"Missing cached Deli page {cache_path}")
+    DELI_PAGE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    data = post_jslink_json(session, "productlist/search", deli_search_payload(category_uuid, page, page_size))
+    cache_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    return data
+
+
+def normalize_deli_unit(value: str) -> str:
+    unit = compact(value)
+    unit = re.sub(r"^(单位|单位[:：])", "", unit).strip(" ：:()（）[]【】")
+    unit = unit.replace(" ", "")
+    if unit in {"PCS", "pcs", "pc", "PC"}:
+        return "个"
+    return unit[:20]
+
+
+def extract_deli_unit(*values: Any) -> str:
+    texts = [BeautifulSoup(compact(value), "html.parser").get_text(" ") for value in values if compact(value)]
+    for text in texts:
+        for match in re.finditer(r"[（(]\s*单位\s*[:：]\s*([^）)]+?)\s*[）)]", text):
+            unit = normalize_deli_unit(match.group(1))
+            if unit:
+                return unit
+        match = re.search(r"单位\s*[:：]\s*([^\s）)]+)", text)
+        if match:
+            unit = normalize_deli_unit(match.group(1))
+            if unit:
+                return unit
+    for text in texts:
+        for match in re.finditer(r"[（(]\s*([^（）()]{1,8})\s*[）)]", text):
+            unit = normalize_deli_unit(match.group(1))
+            if unit in DELI_COMMON_UNITS:
+                return unit
+    return "件"
+
+
+def clean_deli_product_name(value: str) -> str:
+    text = BeautifulSoup(compact(value), "html.parser").get_text(" ")
+    text = text.replace("【集采产品】", "")
+    for term in ["自营专供", "自营官旗", "自营", "包邮", "旗舰店", "全新", "新品"]:
+        text = text.replace(term, "")
+    text = re.sub(r"[（(]\s*单位\s*[:：]\s*[^）)]+?\s*[）)]", "", text)
+    text = re.sub(r"单位\s*[:：]\s*[^\s）)]+", "", text)
+    unit_group = "|".join(re.escape(unit) for unit in sorted(DELI_COMMON_UNITS, key=len, reverse=True))
+    text = re.sub(rf"[（(]\s*(?:{unit_group})\s*[）)]", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip(" -_")[:200]
+
+
+def parse_deli_price(raw: dict[str, Any]) -> str:
+    for key in ["salePrice", "customerPrice", "facePrice", "originalPrice"]:
+        value = compact(raw.get(key))
+        if not value:
+            continue
+        try:
+            price = Decimal(value.replace(",", ""))
+        except InvalidOperation:
+            continue
+        if price > 0:
+            return quantize_money(price)
+    return "1.00"
+
+
+def raw_to_deli_product(raw: dict[str, Any], category: DeliCategory) -> tuple[DeliProduct | None, str]:
+    sku_no = compact(raw.get("skuNo") or raw.get("productId"))
+    source_name = compact(raw.get("productName") or raw.get("sjyGoodsAliasName") or raw.get("cusGoodsAliasName"))
+    if not sku_no or not source_name:
+        return None, "missing_sku_or_name"
+    if "当当网" in source_name:
+        return None, "forbidden_marketplace_name"
+    unit = extract_deli_unit(
+        raw.get("productName"),
+        raw.get("highProductName"),
+        raw.get("sjyGoodsAliasName"),
+        raw.get("cusGoodsAliasName"),
+    )
+    if unit == "箱":
+        return None, "unit_box"
+    name = clean_deli_product_name(source_name)
+    if not name:
+        return None, "missing_clean_name"
+    if any(term in name for term in ["当当网", "包邮", "旗舰店"]):
+        return None, "forbidden_marketing_name"
+    return (
+        DeliProduct(
+            sku_no=sku_no,
+            product_id=compact(raw.get("productId")) or sku_no,
+            product_name=name,
+            source_product_name=source_name,
+            unit=unit,
+            unit_price=parse_deli_price(raw),
+            category_path=category.category_path,
+            category_uuid=category.category_uuid,
+            source_url=f"https://www.jslink.com/pcweb/detail?sku={sku_no}",
+        ),
+        "",
+    )
+
+
+def infer_deli_category_from_name(
+    raw: dict[str, Any],
+    category_by_path: dict[str, DeliCategory],
+    root_category: DeliCategory,
+) -> DeliCategory:
+    text = " ".join(
+        compact(raw.get(key))
+        for key in ["productName", "highProductName", "sjyGoodsAliasName", "cusGoodsAliasName"]
+        if compact(raw.get(key))
+    )
+    rules = [
+        (("复印纸", "打印纸"), "办公文具 > 办公用纸 > 复印纸"),
+        (("自封袋", "塑封袋", "拉链袋"), "办公文具 > 文件管理 > 科目袋/拉链袋"),
+        (("易拉扣", "证件"), "办公文具 > 文件管理 > 卡套/证件套"),
+        (("彩色铅笔",), "办公文具 > 美术用品 > 彩色铅笔"),
+        (("素描", "炭笔", "碳棒"), "办公文具 > 美术用品 > 素描铅笔/碳棒"),
+        (("自动铅笔", "活动铅笔"), "办公文具 > 书写用品 > 自动铅笔"),
+        (("洞洞铅笔", "正姿铅笔"), "办公文具 > 书写用品 > 洞洞铅笔/正姿铅笔"),
+        (("铅笔",), "办公文具 > 书写用品 > 普通铅笔"),
+        (("毛笔",), "办公文具 > 文房四宝 > 毛笔"),
+        (("秀丽笔", "软笔", "纤秀笔", "书法笔"), "办公文具 > 书写用品 > 秀丽笔"),
+    ]
+    for keywords, path in rules:
+        if any(keyword in text for keyword in keywords) and path in category_by_path:
+            return category_by_path[path]
+    return root_category
+
+
+def load_deli_products_cache() -> list[DeliProduct]:
+    if not DELI_PRODUCTS_CACHE.exists():
+        return []
+    products: list[DeliProduct] = []
+    with DELI_PRODUCTS_CACHE.open(encoding="utf-8") as file:
+        for line in file:
+            if line.strip():
+                products.append(DeliProduct(**json.loads(line)))
+    return products
+
+
+def write_deli_products_cache(products: list[DeliProduct]) -> None:
+    RAW_DELI_DIR.mkdir(parents=True, exist_ok=True)
+    with DELI_PRODUCTS_CACHE.open("w", encoding="utf-8", newline="\n") as file:
+        for product in products:
+            file.write(json.dumps(product.__dict__, ensure_ascii=False) + "\n")
+
+
+def collect_deli_sources(args: argparse.Namespace) -> tuple[list[DeliCategory], list[DeliProduct], list[dict[str, Any]]]:
+    tree = fetch_deli_category_tree(crawl=args.crawl_deli and not args.deli_cache_only)
+    categories = flatten_deli_categories(office_category_root(tree))
+    cached_products = load_deli_products_cache()
+    if cached_products and not args.crawl_deli:
+        return categories, cached_products, [
+            {
+                "source": "得力集实办公文具",
+                "kind": "cached_jslink_products",
+                "rows": len(cached_products),
+                "accepted_like": len(cached_products),
+                "status": "cached",
+                "notes": f"loaded {DELI_PRODUCTS_CACHE}",
+            }
+        ]
+    if not args.crawl_deli:
+        return categories, [], [
+            {
+                "source": "得力集实办公文具",
+                "kind": "jslink_products",
+                "rows": 0,
+                "accepted_like": 0,
+                "status": "skipped",
+                "notes": "run with --crawl-deli or keep cached products to include office stationery",
+            }
+        ]
+    if not categories:
+        raise RuntimeError("Deli office category tree is unavailable.")
+
+    leaves = [category for category in categories if category.is_leaf]
+    category_by_path = {category.category_path: category for category in categories}
+    session = jslink_session()
+    root_page = fetch_deli_search_page(
+        session,
+        DELI_ROOT_UUID,
+        1,
+        args.deli_page_size,
+        crawl=not args.deli_cache_only,
+        cache_only=args.deli_cache_only,
+    )
+    time.sleep(args.deli_sleep_seconds)
+    root_total = int(root_page.get("totalNum") or 0)
+    by_sku: dict[str, DeliProduct] = {}
+    back_category_map: dict[str, DeliCategory] = {}
+    scanned_rows = 0
+    root_scanned_rows = 0
+    rejected_counts: Counter[str] = Counter()
+    duplicate_count = 0
+    root_category = next((category for category in categories if category.category_path == "办公文具"), categories[0])
+    for index, leaf in enumerate(leaves, start=1):
+        first_page = fetch_deli_search_page(
+            session,
+            leaf.category_uuid,
+            1,
+            args.deli_page_size,
+            crawl=not args.deli_cache_only,
+            cache_only=args.deli_cache_only,
+        )
+        time.sleep(args.deli_sleep_seconds)
+        total = int(first_page.get("totalNum") or 0)
+        pages = max(1, (total + args.deli_page_size - 1) // args.deli_page_size)
+        page_payloads = [first_page]
+        for page in range(2, pages + 1):
+            page_payloads.append(
+                fetch_deli_search_page(
+                    session,
+                    leaf.category_uuid,
+                    page,
+                    args.deli_page_size,
+                    crawl=not args.deli_cache_only,
+                    cache_only=args.deli_cache_only,
+                )
+            )
+            time.sleep(args.deli_sleep_seconds)
+        for payload in page_payloads:
+            for raw in payload.get("skuList") or []:
+                scanned_rows += 1
+                back_category_uuid = compact(raw.get("backCategoryUuid"))
+                if back_category_uuid and back_category_uuid not in back_category_map:
+                    back_category_map[back_category_uuid] = leaf
+                product, reason = raw_to_deli_product(raw, leaf)
+                if not product:
+                    rejected_counts[reason] += 1
+                    continue
+                if product.sku_no in by_sku:
+                    duplicate_count += 1
+                    continue
+                by_sku[product.sku_no] = product
+        if index % 20 == 0 or index == len(leaves):
+            print(f"deli leaf {index}/{len(leaves)} scanned={scanned_rows} accepted={len(by_sku)}")
+            sys.stdout.flush()
+    root_pages = max(1, (root_total + args.deli_page_size - 1) // args.deli_page_size)
+    root_payloads = [root_page]
+    for page in range(2, root_pages + 1):
+        root_payloads.append(
+            fetch_deli_search_page(
+                session,
+                DELI_ROOT_UUID,
+                page,
+                args.deli_page_size,
+                crawl=not args.deli_cache_only,
+                cache_only=args.deli_cache_only,
+            )
+        )
+        time.sleep(args.deli_sleep_seconds)
+    for payload in root_payloads:
+        for raw in payload.get("skuList") or []:
+            root_scanned_rows += 1
+            sku_no = compact(raw.get("skuNo") or raw.get("productId"))
+            if sku_no in by_sku:
+                duplicate_count += 1
+                continue
+            category = back_category_map.get(compact(raw.get("backCategoryUuid"))) or infer_deli_category_from_name(raw, category_by_path, root_category)
+            product, reason = raw_to_deli_product(raw, category)
+            if not product:
+                rejected_counts[reason] += 1
+                continue
+            by_sku[product.sku_no] = product
+    print(f"deli root scanned={root_scanned_rows} accepted={len(by_sku)}")
+    sys.stdout.flush()
+    products = sorted(by_sku.values(), key=lambda item: (item.category_path, item.sku_no))
+    write_deli_products_cache(products)
+    audit = [
+        {
+            "source": "得力集实办公文具",
+            "kind": "jslink_category_tree",
+            "rows": len(categories),
+            "accepted_like": len(leaves),
+            "status": "ok",
+            "notes": f"root_total={root_total}; source={DELI_SOURCE_URL}",
+        },
+        {
+            "source": "得力集实办公文具",
+            "kind": "jslink_products",
+            "rows": root_scanned_rows,
+            "accepted_like": len(products),
+            "status": "ok",
+            "notes": f"root_total={root_total}; leaf_scanned={scanned_rows}; duplicates={duplicate_count}; rejected={dict(rejected_counts)}",
+        },
+    ]
+    return categories, products, audit
+
+
 def rejection_reason(book: SourceBook) -> str:
     book.publisher_name = normalize_publisher_name(book.publisher_name)
     if not book.isbn:
@@ -1055,12 +1547,27 @@ def classify(book: SourceBook) -> tuple[str, str]:
     return "图书 > 综合图书 > 综合读物", "fallback from source corpus"
 
 
-def build_categories() -> tuple[list[dict[str, str]], dict[str, str]]:
+def build_categories(deli_categories: list[DeliCategory] | None = None) -> tuple[list[dict[str, str]], dict[str, str]]:
     rows: list[dict[str, str]] = []
     path_to_id: dict[str, str] = {}
+    used_names: set[str] = set()
+
+    def unique_category_name(name: str, parent_name: str = "") -> str:
+        candidate = name
+        if candidate in used_names and parent_name:
+            candidate = f"{parent_name}-{name}"
+        suffix = 2
+        base = candidate
+        while candidate in used_names:
+            candidate = f"{base}{suffix}"
+            suffix += 1
+        used_names.add(candidate)
+        return candidate[:100]
+
     def add(name: str, parent_id: str, path: str) -> str:
         cid = str(len(rows) + 1)
-        rows.append({"category_id": cid, "category_name": name, "parent_category_id": parent_id})
+        parent_name = rows[int(parent_id) - 1]["category_name"] if parent_id else ""
+        rows.append({"category_id": cid, "category_name": unique_category_name(name, parent_name), "parent_category_id": parent_id})
         path_to_id[path] = cid
         return cid
     for root, seconds in BOOK_CATEGORY_TREE.items():
@@ -1070,6 +1577,12 @@ def build_categories() -> tuple[list[dict[str, str]], dict[str, str]]:
             second_id = add(second, root_id, second_path)
             for leaf in leaves:
                 add(leaf, second_id, f"{second_path} > {leaf}")
+    if deli_categories:
+        for category in sorted(deli_categories, key=lambda item: (item.level, item.category_path)):
+            if category.category_path in path_to_id:
+                continue
+            parent_id = path_to_id.get(category.parent_path, "")
+            add(category.category_name, parent_id, category.category_path)
     return rows, path_to_id
 
 
@@ -1105,6 +1618,20 @@ def source_book_row(book: SourceBook) -> dict[str, Any]:
     }
 
 
+def source_deli_product_row(product: DeliProduct) -> dict[str, Any]:
+    return {
+        "sku_no": product.sku_no,
+        "product_id": product.product_id,
+        "product_name": product.product_name,
+        "source_product_name": product.source_product_name,
+        "unit": product.unit,
+        "unit_price": product.unit_price,
+        "category_path": product.category_path,
+        "category_uuid": product.category_uuid,
+        "source_url": product.source_url,
+    }
+
+
 def publisher_profile(name: str) -> dict[str, str]:
     profile = PUBLISHER_PROFILES.get(name, {"website": "", "contact_name": "发行部"})
     return {
@@ -1133,6 +1660,15 @@ SEED_SUPPLIERS = [
     {"supplier_id": "14", "supplier_name": "人民卫生出版社直供", "contact_name": "发行部", "phone": "见出版社官网", "email": "supplier14@example.local", "status": "active"},
 ]
 
+DELI_SUPPLIER = {
+    "supplier_id": DELI_SUPPLIER_ID,
+    "supplier_name": "得力集实",
+    "contact_name": "品牌专柜部",
+    "phone": "合同约定",
+    "email": "supplier15@example.local",
+    "status": "active",
+}
+
 DIRECT_SUPPLIER_BY_PUBLISHER = {
     "高等教育出版社": "7",
     "清华大学出版社": "8",
@@ -1155,8 +1691,13 @@ def supplier_for_book(book: SourceBook) -> str:
     return distributor_ids[stable_int(book.publisher_name + book.isbn, len(distributor_ids))]
 
 
-def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
-    category_rows, category_path_to_id = build_categories()
+def build_sql_data(
+    books: list[SourceBook],
+    deli_products: list[DeliProduct] | None = None,
+    deli_categories: list[DeliCategory] | None = None,
+) -> dict[str, list[dict[str, Any]]]:
+    deli_products = deli_products or []
+    category_rows, category_path_to_id = build_categories(deli_categories)
     for book in books:
         book.category_path, book.category_reason = classify(book)
     publisher_names = sorted({book.publisher_name for book in books})
@@ -1174,7 +1715,9 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
         }
         for name in publisher_names
     ]
-    suppliers = SEED_SUPPLIERS
+    suppliers = [*SEED_SUPPLIERS]
+    if deli_products:
+        suppliers.append(DELI_SUPPLIER)
     author_names = sorted({person for book in books for person in book.authors})
     translator_names = sorted({person for book in books for person in book.translators})
     author_id = {name: str(i + 1) for i, name in enumerate(author_names)}
@@ -1186,6 +1729,7 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
     supplier_products: list[dict[str, Any]] = []
     inventory: list[dict[str, Any]] = []
     stores = seed_stores()
+    used_barcodes: set[str] = set()
     for index, book in enumerate(books, start=1):
         pid = str(index)
         unit_price = Decimal(book.price)
@@ -1203,6 +1747,7 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
                 "status": "onsale",
             }
         )
+        used_barcodes.add(book.isbn)
         book_rows.append(
             {
                 "product_id": pid,
@@ -1241,6 +1786,49 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
                     "product_id": pid,
                     "stock_qty": str(1 + stable_int(book.isbn + store["store_id"], 25)),
                     "safety_stock_qty": str(1 + stable_int(book.isbn + "safe" + store["store_id"], 5)),
+                }
+            )
+    next_product_id = len(products) + 1
+    for offset, item in enumerate(deli_products):
+        pid = str(next_product_id + offset)
+        unit_price = Decimal(item.unit_price)
+        cost_ratio = Decimal("0.62") + Decimal(stable_int(item.sku_no + "cost", 1200)) / Decimal("10000")
+        cost_price = quantize_money(unit_price * cost_ratio)
+        barcode = item.product_id[:50]
+        if not barcode or barcode in used_barcodes:
+            barcode = f"DL{item.sku_no}"[:50]
+        used_barcodes.add(barcode)
+        products.append(
+            {
+                "product_id": pid,
+                "product_name": item.product_name,
+                "category_id": category_path_to_id[item.category_path],
+                "unit": item.unit,
+                "unit_price": item.unit_price,
+                "cost_price": cost_price,
+                "barcode": barcode,
+                "status": "onsale",
+            }
+        )
+        supplier_products.append(
+            {
+                "supplier_id": DELI_SUPPLIER_ID,
+                "product_id": pid,
+                "supply_price": cost_price,
+                "min_order_qty": str([5, 10, 20, 50][stable_int(item.sku_no + "moq", 4)]),
+                "is_primary": "1",
+            }
+        )
+        first_store = stable_int(item.sku_no + "store", len(stores))
+        store_indices = {first_store, (first_store + 7) % len(stores), (first_store + 19) % len(stores)}
+        for store_index in sorted(store_indices):
+            store = stores[store_index]
+            inventory.append(
+                {
+                    "store_id": store["store_id"],
+                    "product_id": pid,
+                    "stock_qty": str(8 + stable_int(item.sku_no + store["store_id"], 90)),
+                    "safety_stock_qty": str(3 + stable_int(item.sku_no + "safe" + store["store_id"], 12)),
                 }
             )
     return {
@@ -1380,7 +1968,15 @@ def write_sql_csvs(tables: dict[str, list[dict[str, Any]]]) -> None:
         write_csv(SQL_DATA_DIR / f"{table}.csv", tables.get(table, []), headers)
 
 
-def write_outputs(source_books: list[SourceBook], accepted: list[SourceBook], rejected: list[dict[str, str]], audits: list[dict[str, Any]], tables: dict[str, list[dict[str, Any]]]) -> None:
+def write_outputs(
+    source_books: list[SourceBook],
+    accepted: list[SourceBook],
+    rejected: list[dict[str, str]],
+    audits: list[dict[str, Any]],
+    tables: dict[str, list[dict[str, Any]]],
+    deli_products: list[DeliProduct] | None = None,
+    deli_audits: list[dict[str, Any]] | None = None,
+) -> None:
     source_headers = [
         "isbn",
         "title",
@@ -1405,6 +2001,14 @@ def write_outputs(source_books: list[SourceBook], accepted: list[SourceBook], re
     write_csv(SOURCE_CSV, [source_book_row(book) for book in source_books], source_headers)
     write_csv(ACCEPTED_CSV, [source_book_row(book) for book in accepted], source_headers)
     write_csv(REJECTED_CSV, rejected, ["reason", "isbn", "title", "publisher_name", "price", "source_category", "source_file", "source_url", "source_kind"])
+    deli_products = deli_products or []
+    deli_audits = deli_audits or []
+    write_csv(
+        DELI_SOURCE_CSV,
+        [source_deli_product_row(product) for product in deli_products],
+        ["sku_no", "product_id", "product_name", "source_product_name", "unit", "unit_price", "category_path", "category_uuid", "source_url"],
+    )
+    write_csv(DELI_AUDIT_CSV, deli_audits, ["source", "kind", "rows", "accepted_like", "status", "notes"])
     write_csv(SOURCE_AUDIT_CSV, audits, ["source", "kind", "rows", "accepted_like", "status", "notes"])
     write_csv(
         CATEGORY_AUDIT_CSV,
@@ -1414,12 +2018,24 @@ def write_outputs(source_books: list[SourceBook], accepted: list[SourceBook], re
         ],
         ["isbn", "title", "source_category", "category_path", "reason"],
     )
-    write_report(source_books, accepted, rejected, audits, tables)
+    write_report(source_books, accepted, rejected, audits, tables, deli_products, deli_audits)
 
 
-def write_report(source_books: list[SourceBook], accepted: list[SourceBook], rejected: list[dict[str, str]], audits: list[dict[str, Any]], tables: dict[str, list[dict[str, Any]]]) -> None:
+def write_report(
+    source_books: list[SourceBook],
+    accepted: list[SourceBook],
+    rejected: list[dict[str, str]],
+    audits: list[dict[str, Any]],
+    tables: dict[str, list[dict[str, Any]]],
+    deli_products: list[DeliProduct] | None = None,
+    deli_audits: list[dict[str, Any]] | None = None,
+) -> None:
     publisher_counts = Counter(book.publisher_name for book in accepted)
     category_counts = Counter(book.category_path for book in accepted)
+    deli_products = deli_products or []
+    deli_audits = deli_audits or []
+    deli_category_counts = Counter(product.category_path for product in deli_products)
+    deli_unit_counts = Counter(product.unit for product in deli_products)
     source_kind_counts = Counter(book.source_kind for book in accepted)
     reject_counts = Counter(row["reason"] for row in rejected)
     author_missing = sum(1 for book in accepted if not book.authors)
@@ -1436,10 +2052,15 @@ def write_report(source_books: list[SourceBook], accepted: list[SourceBook], rej
         file.write(f"- 出版社数量：{len(publisher_counts)}\n")
         file.write(f"- 作者数量：{len(tables['author'])}\n")
         file.write(f"- 译者数量：{len(tables['translator'])}\n")
-        file.write("- 已丢弃当当网来源及旧非书商品分类；销售、会员、采购、入库明细清为表头，后续可基于新商品重新生成。\n\n")
+        file.write(f"- 得力办公文具商品：{len(deli_products)}（已剔除单位为“箱”的商品）\n")
+        file.write("- 已丢弃当当网来源及旧非书商品分类；非书商品仅保留“得力办公文具专区”，销售、会员、采购、入库明细清为表头，后续可基于新商品重新生成。\n\n")
         file.write("## 来源文件处理\n\n| 来源 | 类型 | 扫描行 | 候选记录 | 状态 | 备注 |\n|---|---|---:|---:|---|---|\n")
         for row in audits:
             file.write(f"| {row['source']} | {row['kind']} | {row['rows']} | {row['accepted_like']} | {row['status']} | {row['notes']} |\n")
+        if deli_audits:
+            file.write("\n## 得力集实办公文具处理\n\n| 来源 | 类型 | 扫描行 | 候选记录 | 状态 | 备注 |\n|---|---|---:|---:|---|---|\n")
+            for row in deli_audits:
+                file.write(f"| {row['source']} | {row['kind']} | {row['rows']} | {row['accepted_like']} | {row['status']} | {row['notes']} |\n")
         file.write("\n## 入库来源类型\n\n| 类型 | 数量 |\n|---|---:|\n")
         for key, count in source_kind_counts.most_common():
             file.write(f"| {key} | {count} |\n")
@@ -1449,6 +2070,13 @@ def write_report(source_books: list[SourceBook], accepted: list[SourceBook], rej
         file.write("\n## 分类分布\n\n| 分类路径 | 数量 |\n|---|---:|\n")
         for key, count in category_counts.most_common():
             file.write(f"| {key} | {count} |\n")
+        if deli_products:
+            file.write("\n## 得力办公文具分类分布 Top 50\n\n| 分类路径 | 数量 |\n|---|---:|\n")
+            for key, count in deli_category_counts.most_common(50):
+                file.write(f"| {key} | {count} |\n")
+            file.write("\n## 得力办公文具单位分布\n\n| 单位 | 数量 |\n|---|---:|\n")
+            for key, count in deli_unit_counts.most_common():
+                file.write(f"| {key} | {count} |\n")
         file.write("\n## 拒绝原因\n\n| 原因 | 数量 |\n|---|---:|\n")
         for key, count in reject_counts.most_common():
             file.write(f"| {key} | {count} |\n")
@@ -1469,6 +2097,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--sanlian-workers", type=int, default=8, help="Concurrent workers for SDX detail pages.")
     parser.add_argument("--sanlian-cache-only", action="store_true", help="Parse only cached SDX pages and skip uncached network requests.")
     parser.add_argument("--sanlian-stop-after-list-errors", type=int, default=20, help="Stop SDX list crawling after this many consecutive missing/failed list pages.")
+    parser.add_argument("--crawl-deli", action="store_true", help="Crawl Deli JSLink office stationery products.")
+    parser.add_argument("--deli-cache-only", action="store_true", help="Use cached Deli category/product pages and skip network requests.")
+    parser.add_argument("--deli-page-size", type=int, default=1000, help="Page size for Deli JSLink product search requests.")
+    parser.add_argument("--deli-sleep-seconds", type=float, default=0.05, help="Pause between Deli category requests.")
     parser.add_argument("--dry-run", action="store_true", help="Build clean intermediates but do not overwrite sql/data.")
     return parser.parse_args(argv)
 
@@ -1479,12 +2111,14 @@ def main(argv: list[str] | None = None) -> int:
     accepted, rejected = dedupe_books(source_books)
     for book in accepted:
         book.category_path, book.category_reason = classify(book)
-    tables = build_sql_data(accepted)
-    write_outputs(source_books, accepted, rejected, audits, tables)
+    deli_categories, deli_products, deli_audits = collect_deli_sources(args)
+    tables = build_sql_data(accepted, deli_products, deli_categories)
+    write_outputs(source_books, accepted, rejected, audits, tables, deli_products, deli_audits)
     if not args.dry_run:
         write_sql_csvs(tables)
     print(f"source_candidates={len(source_books)} accepted={len(accepted)} rejected={len(rejected)}")
     print(f"publishers={len(tables['publisher'])} authors={len(tables['author'])} translators={len(tables['translator'])}")
+    print(f"deli_products={len(deli_products)} deli_categories={len(deli_categories)}")
     print(f"wrote {SOURCE_CSV}")
     if not args.dry_run:
         print(f"rewrote sql/data/*.csv")

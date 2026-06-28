@@ -69,7 +69,7 @@ function useDemoAccount(account: { name: string; password: string }) {
         <span>销售数据库</span>
       </h1>
       <p class="login__copy">
-        门店销售、采购入库、会员运营与统计分析的一体化后台
+          
       </p>
     </section>
 

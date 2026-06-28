@@ -126,3 +126,48 @@ at <App> [object Object],[object Object],[object Object],[object Object],[object
  > request src/api/http.ts:173:19
  > Proxy.ensureCategories src/stores/dicts.ts:47:18
 
+[2m19:00:58[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/products?page=357&page_size=100&status=onsale[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m19:00:58[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: Bad Gateway
+[39m > src/api/http.ts:145:26
+    143 |      }
+    144 |  
+    145 |      return Promise.reject(new ApiError(status, message, errors, response.data))
+        |                            ^
+    146 |    },
+    147 |  )
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > onSearchProducts src/views/sales/SalesCreateView.vue:107:19
+
+[2m19:01:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/products?page=20&page_size=100&status=onsale&store_id=1&in_stock=true[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m19:01:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/products?page=29&page_size=100&status=onsale[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m19:01:23[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: Bad Gateway
+[39m > src/api/http.ts:145:26
+    143 |      }
+    144 |  
+    145 |      return Promise.reject(new ApiError(status, message, errors, response.data))
+        |                            ^
+    146 |    },
+    147 |  )
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > onSearchProducts src/views/sales/SalesCreateView.vue:109:19
+
+[2m19:01:23[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mApiError[22m: Bad Gateway
+[39m > src/api/http.ts:145:26
+    143 |      }
+    144 |  
+    145 |      return Promise.reject(new ApiError(status, message, errors, response.data))
+        |                            ^
+    146 |    },
+    147 |  )
+ > Axios$1.request node_modules/axios/lib/core/Axios.js:41:13
+ > request src/api/http.ts:173:19
+ > onSearchProducts src/views/sales/SalesCreateView.vue:107:10
+

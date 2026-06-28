@@ -25,7 +25,24 @@ const pageSize = ref(20)
 const total = ref(0)
 
 const filters = reactive<ProductQuery>({ search: '', category_id: undefined, status: undefined })
-const productCategories = computed(() => dicts.categories)
+const productCategories = computed(() => {
+  const officeRoot = dicts.categories.find((category) => category.category_name === '办公文具')
+  if (!officeRoot) {
+    return []
+  }
+  const allowed = new Set<number>([officeRoot.category_id])
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const category of dicts.categories) {
+      if (category.parent_category_id && allowed.has(category.parent_category_id) && !allowed.has(category.category_id)) {
+        allowed.add(category.category_id)
+        changed = true
+      }
+    }
+  }
+  return dicts.categories.filter((category) => allowed.has(category.category_id))
+})
 
 async function fetchList() {
   loading.value = true
@@ -33,6 +50,7 @@ async function fetchList() {
     const data = await listProducts({
       page: page.value,
       page_size: pageSize.value,
+      is_book: false,
       search: filters.search || undefined,
       category_id: filters.category_id ?? undefined,
       status: filters.status ?? undefined,
@@ -100,7 +118,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="商品中心" subtitle="所有商品一览：图书、通用商品、供货关系与门店库存">
+    <PageHeader title="得力办公文具专区" subtitle="品牌专柜商品、独家供货关系与门店库存">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreateProduct">
           <el-icon><Plus /></el-icon>新增商品
@@ -157,7 +175,7 @@ onMounted(() => {
       <el-table-column label="类型" width="100">
         <template #default="{ row }">
           <el-tag :type="row.is_book ? 'danger' : 'info'" size="small" effect="plain">
-            {{ row.is_book ? '图书' : '通用商品' }}
+            {{ row.is_book ? '图书' : '得力文具' }}
           </el-tag>
         </template>
       </el-table-column>

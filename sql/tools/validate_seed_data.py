@@ -79,6 +79,7 @@ FOREIGN_KEYS = [
 MAX_LENGTHS = {
     ("product", "product_name"): 200,
     ("product", "barcode"): 50,
+    ("product", "unit"): 20,
     ("book", "isbn"): 20,
     ("book", "language"): 30,
     ("publisher", "publisher_name"): 150,
@@ -134,6 +135,21 @@ def line_totals(rows: list[dict[str, str]], key: str) -> dict[str, Decimal]:
     return totals
 
 
+def category_descendant_ids(rows: list[dict[str, str]], root_id: str) -> set[str]:
+    children = defaultdict(list)
+    for row in rows:
+        children[row["parent_category_id"]].append(row["category_id"])
+    descendants = {root_id}
+    pending = [root_id]
+    while pending:
+        current = pending.pop()
+        for child in children.get(current, []):
+            if child not in descendants:
+                descendants.add(child)
+                pending.append(child)
+    return descendants
+
+
 def validate_seed_data() -> None:
     data = {path.stem: read_csv(path) for path in DATA_DIR.glob("*.csv")}
     assert set(data) == set(PRIMARY_KEYS), "sql/data must contain exactly one CSV for each business table."
@@ -178,19 +194,36 @@ def validate_seed_data() -> None:
 
     product_lookup = {row["product_id"]: row for row in data["product"]}
     book_product_ids = {row["product_id"] for row in data["book"]}
+    nonbook_product_ids = set(product_lookup) - book_product_ids
     book_isbns = [row["isbn"] for row in data["book"]]
     product_barcodes = [row["barcode"] for row in data["product"]]
     authored_product_ids = {row["product_id"] for row in data["book_author"]}
     supplier_emails = [row["email"] for row in data["supplier"]]
     store_phones = [row["phone"] for row in data["store"]]
     stocked_store_ids = {row["store_id"] for row in data["inventory"]}
-    assert set(product_lookup) == book_product_ids, "clean seed data should contain book products only."
+    category_names = [row["category_name"] for row in data["category"]]
+    supplier_by_name = {row["supplier_name"]: row for row in data["supplier"]}
+    category_by_name = {row["category_name"]: row for row in data["category"]}
+    supplier_links_by_product = defaultdict(set)
+    for row in data["supplier_product"]:
+        supplier_links_by_product[row["product_id"]].add(row["supplier_id"])
+    assert book_product_ids.issubset(product_lookup), "book rows must reference product rows."
+    assert nonbook_product_ids, "seed data should include Deli office stationery products."
+    assert len(category_names) == len(set(category_names)), "category names must be unique for the current schema."
     assert all(row["language"] == "中文" for row in data["book"]), "book rows must use Chinese mainland seed data."
     assert all(valid_isbn13(row["isbn"]) for row in data["book"]), "book rows must contain valid ISBN-13 values."
     assert all(not row["isbn"].upper().startswith("DD") for row in data["book"]), "Dangdang product codes are not ISBNs."
     assert len(book_isbns) == len(set(book_isbns)), "book rows contain duplicate ISBNs."
+    assert all(row["barcode"] for row in data["product"]), "product rows must contain barcodes or source product codes."
     assert len(product_barcodes) == len(set(product_barcodes)), "product rows contain duplicate barcodes."
-    assert {row["barcode"] for row in data["product"]} == {row["isbn"] for row in data["book"]}, "product barcode must match book ISBN."
+    assert {product_lookup[row["product_id"]]["barcode"] for row in data["book"]} == {row["isbn"] for row in data["book"]}, "book product barcode must match ISBN."
+    assert "得力集实" in supplier_by_name, "supplier rows must include Deli JSLink."
+    assert "办公文具" in category_by_name, "category rows must include office stationery root."
+    office_category_ids = category_descendant_ids(data["category"], category_by_name["办公文具"]["category_id"])
+    deli_supplier_id = supplier_by_name["得力集实"]["supplier_id"]
+    assert all(product_lookup[pid]["category_id"] in office_category_ids for pid in nonbook_product_ids), "non-book products must be under office stationery categories."
+    assert all(product_lookup[pid]["unit"] != "箱" for pid in nonbook_product_ids), "Deli products with unit 箱 must be removed."
+    assert all(supplier_links_by_product[pid] == {deli_supplier_id} for pid in nonbook_product_ids), "Deli products must use 得力集实 as their only supplier."
     assert not any(has_forbidden_marketing_text(row["product_name"]) for row in data["product"]), "product names contain marketing noise."
     assert not any(has_forbidden_marketing_text(row["author_name"]) for row in data["author"]), "author names contain marketing noise."
     assert not any(has_forbidden_marketing_text(row["translator_name"]) for row in data["translator"]), "translator names contain marketing noise."

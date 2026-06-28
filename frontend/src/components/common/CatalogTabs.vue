@@ -16,6 +16,6 @@ const active = computed({
 <template>
   <el-tabs v-model="active" class="catalog-tabs">
     <el-tab-pane label="图书档案" name="books" />
-    <el-tab-pane label="通用商品" name="products" />
+    <el-tab-pane label="得力办公文具专区" name="products" />
   </el-tabs>
 </template>
