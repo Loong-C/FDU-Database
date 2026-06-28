@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
@@ -85,14 +86,35 @@ MAX_LENGTHS = {
 }
 
 MINIMUM_ROWS = {
-    "category": 300,
-    "product": 12480,
-    "book": 12000,
-    "book_author": 12000,
+    "category": 40,
+    "publisher": 10,
+    "product": 10000,
+    "book": 10000,
+    "book_author": 10000,
     "inventory": 10000,
-    "sale": 10,
-    "sale_item": 20,
 }
+
+FORBIDDEN_MARKETING_TERMS = ["当当网", "当当自营", "新华书店", "包邮", "自营", "旗舰店", "点击购买", "已撤销"]
+
+
+def isbn13_check_digit(prefix12: str) -> str:
+    total = sum(int(char) * (1 if index % 2 == 0 else 3) for index, char in enumerate(prefix12))
+    return str((10 - total % 10) % 10)
+
+
+def valid_isbn13(value: str) -> bool:
+    return (
+        len(value) == 13
+        and value.isdigit()
+        and value[:3] in {"978", "979"}
+        and isbn13_check_digit(value[:12]) == value[-1]
+    )
+
+
+def has_forbidden_marketing_text(value: str) -> bool:
+    if any(term in value for term in FORBIDDEN_MARKETING_TERMS):
+        return True
+    return bool(re.search(r"(^|[【\[(（\s])正版([】\])）\s]|$|图书|书籍|教材|现货|包邮|全新)", value))
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -147,23 +169,32 @@ def validate_seed_data() -> None:
         assert Decimal(row["actual_amount"]) == expected, "Invalid sale actual amount."
 
     for (table, column), max_length in MAX_LENGTHS.items():
-        assert max(len(row[column]) for row in data[table]) <= max_length, f"{table}.{column} is too long."
+        if data[table]:
+            assert max(len(row[column]) for row in data[table]) <= max_length, f"{table}.{column} is too long."
 
     for table, minimum in MINIMUM_ROWS.items():
         assert len(data[table]) >= minimum, f"{table} needs at least {minimum} seed rows."
 
     product_lookup = {row["product_id"]: row for row in data["product"]}
     book_product_ids = {row["product_id"] for row in data["book"]}
-    nonbook_count = sum(1 for row in data["product"] if row["product_id"] not in book_product_ids)
-    assert nonbook_count >= 480, "product needs at least 480 non-book seed rows."
+    book_isbns = [row["isbn"] for row in data["book"]]
+    product_barcodes = [row["barcode"] for row in data["product"]]
+    authored_product_ids = {row["product_id"] for row in data["book_author"]}
+    supplier_emails = [row["email"] for row in data["supplier"]]
+    assert set(product_lookup) == book_product_ids, "clean seed data should contain book products only."
     assert all(row["language"] == "中文" for row in data["book"]), "book rows must use Chinese mainland seed data."
-
-    for path in LEGACY_DIR.glob("*.csv"):
-        for row in read_csv(path):
-            if "product_id" in row and "product_barcode" in row:
-                product = product_lookup[row["product_id"]]
-                assert product["barcode"] == row["product_barcode"], f"{path.name} contains a mismatched barcode."
-                assert product["product_name"] == row["product_name"], f"{path.name} contains a mismatched product name."
+    assert all(valid_isbn13(row["isbn"]) for row in data["book"]), "book rows must contain valid ISBN-13 values."
+    assert all(not row["isbn"].upper().startswith("DD") for row in data["book"]), "Dangdang product codes are not ISBNs."
+    assert len(book_isbns) == len(set(book_isbns)), "book rows contain duplicate ISBNs."
+    assert len(product_barcodes) == len(set(product_barcodes)), "product rows contain duplicate barcodes."
+    assert {row["barcode"] for row in data["product"]} == {row["isbn"] for row in data["book"]}, "product barcode must match book ISBN."
+    assert not any(has_forbidden_marketing_text(row["product_name"]) for row in data["product"]), "product names contain marketing noise."
+    assert not any(has_forbidden_marketing_text(row["author_name"]) for row in data["author"]), "author names contain marketing noise."
+    assert not any(has_forbidden_marketing_text(row["translator_name"]) for row in data["translator"]), "translator names contain marketing noise."
+    assert all(row["website"] and row["contact_name"] and row["phone"] and row["email"] for row in data["publisher"]), "publisher contact profiles must be complete."
+    assert all(row["contact_name"] and row["phone"] and row["email"] for row in data["supplier"]), "supplier contact profiles must be complete."
+    assert len(supplier_emails) == len(set(supplier_emails)), "supplier rows contain duplicate emails."
+    assert all(row["product_id"] in authored_product_ids for row in data["book"]), "book rows must have at least one author."
 
     print(f"Validated {sum(len(rows) for rows in data.values())} rows across {len(data)} CSV tables.")
     for table in PRIMARY_KEYS:

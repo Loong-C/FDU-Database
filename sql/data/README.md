@@ -2,28 +2,37 @@
 
 后端命令 `python manage.py bootstrap_business_db --seed --views` 会创建业务表，并按外键依赖顺序将本目录中的 CSV 导入 MySQL。
 
+当前数据口径已经重建为“出版社书目 + 官方网页”的干净图书体系：
+
+- 来源为 `data/` 中的出版社书目文件，以及中国出版集团好书榜、三联书店官网的公开图书页面。
+- 当当网数据、由当当数据派生的分类、以及非书商品数据均不进入本目录。
+- `product.csv` 与 `book.csv` 目前是一一对应的图书商品，不再包含文具、数码、礼品卡等非书商品。
+- `publisher.csv`、`author.csv`、`translator.csv` 均从本轮图书源数据重新去重生成。
+- `生活书店`、`生活书店出版有限公司` 归并到 `生活·读书·新知三联书店` 这一出版社口径。
+- 缺少作者的图书候选会被拒绝，不进入最终 `product.csv`、`book.csv` 和关系表。
+- `supplier.csv` 不再与出版社一一相同；供应商按“重点出版社直供 + 区域/馆配批发商”建模，`supplier_product.csv` 记录每本书的主供应商。
+- `customer`、`member`、`sale`、`purchase_order`、`stock_in` 及其明细表已清空为表头，避免旧脏商品和低质量排行/交易数据继续参与演示。
+
 维护规则：
 
-- 每张业务表对应一个同名 CSV，例如 `product.csv`、`sale_item.csv`。
+- 每张业务表对应一个同名 CSV，例如 `product.csv`、`book_author.csv`。
 - CSV 表头必须与 `backend/common/sql.py` 中的 `CSV_SEED_FILES` 完全一致。
 - 空字符串会作为 SQL `NULL` 导入。
-- 修改外键数据时，同时检查依赖它的明细表。
-- `sql/source/` 下保存分类、图书、通用商品的来源数据和历史业务单据，不会在初始化时直接导入。
+- 修改外键数据时，同时检查依赖它的关系表和明细表。
 
-导入顺序由后端统一维护，不需要手写 `INSERT` SQL。
-
-需要从保留的来源数据重新生成整套 CSV 时，在仓库根目录执行：
+重建整套 CSV：
 
 ```powershell
-python sql/tools/align_mainland_legacy_data.py
-python sql/tools/build_seed_data.py
+python sql/tools/rebuild_clean_book_data.py --crawl-web --sanlian-pages 323 --sanlian-workers 12 --sanlian-cache-only
 python sql/tools/validate_seed_data.py
 ```
 
-需要重新在线拉取中国大陆书店来源数据时，先执行：
+如需继续从三联书店网站在线补齐未缓存页面，去掉 `--sanlian-cache-only` 后重跑；脚本会复用 `data/raw/web_catalog/` 中已有缓存。
 
-```powershell
-python sql/tools/fetch_mainland_catalog.py --book-target 12000 --nonbook-target 480
-```
+中间结果和质量报告位于 `data/clean/`：
 
-当前数据口径以新华书店网分类树为分类参照，并用当当网图书搜索结果补充 12000 条中文图书商品。通用商品来自新华书店网分类页，共 480 条，覆盖学习用品、家居/生活用品、3C 数码和礼品卡。
+- `book_source.csv`：清洗后的源图书候选。
+- `books_accepted.csv`：按 ISBN 去重并通过校验的最终图书源数据。
+- `books_rejected.csv`：被拒绝或重复替换的记录及原因。
+- `category_mapping_audit.csv`：分类映射依据。
+- `clean_data_report.md`：来源、数量、分类、缺失率和 SQL CSV 行数统计。
