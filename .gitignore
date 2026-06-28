@@ -1,4 +1,6 @@
 .venv/
+.codex
+.agents
 __pycache__/
 *.py[cod]
 *.sqlite3
@@ -9,6 +11,8 @@ backend/.env
 backend/media/
 backend/staticfiles/
 backend-runserver*.log
+frontend-vite.log
+frontend-vite.err.log
 backend-dev.log
 frontend/.npm-cache/
 bookstore-pythonanywhere*.zip
