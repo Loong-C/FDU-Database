@@ -26,12 +26,15 @@
 ```powershell
 python sql/tools/rebuild_clean_book_data.py --crawl-web --sanlian-pages 323 --sanlian-workers 12 --sanlian-cache-only --crawl-deli
 python sql/tools/rebuild_inventory_seed.py
+python sql/tools/rebuild_business_activity_seed.py
 python sql/tools/validate_seed_data.py
 ```
 
 如需继续从三联书店网站在线补齐未缓存页面，去掉 `--sanlian-cache-only` 后重跑；脚本会复用 `data/raw/web_catalog/` 中已有缓存。得力集实页面缓存位于 `data/raw/deli_jslink/`，已有缓存时可用 `--deli-cache-only` 复现数据。
 
 如只调整门店库存口径，直接运行 `python sql/tools/rebuild_inventory_seed.py`；该脚本只会重建 `inventory.csv` 和库存审计报告，不会改写出版社、供应商、门店等真实数据表。
+
+如只调整客户、会员、销售、采购和入库流水，直接运行 `python sql/tools/rebuild_business_activity_seed.py`；该脚本只会重建对应业务流水 CSV 和业务审计报告，不会改写出版社、供应商、门店、商品、图书等基础数据表。
 
 中间结果和质量报告位于 `data/clean/`：
 
@@ -41,4 +44,7 @@ python sql/tools/validate_seed_data.py
 - `category_mapping_audit.csv`：分类映射依据。
 - `deli_stationery_source.csv`：清洗后的得力办公文具源商品。
 - `deli_stationery_audit.csv`：得力分类和商品爬取统计。
+- `business_activity_audit.md`：客户、会员、销售、采购和入库流水的量级与梯度审计。
+- `business_activity_monthly_summary.csv`：月度销售额和采购额汇总。
+- `business_activity_category_sales_top30.csv`：销售额前 30 分类审计。
 - `clean_data_report.md`：来源、数量、分类、缺失率和 SQL CSV 行数统计。

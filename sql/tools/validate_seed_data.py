@@ -93,6 +93,14 @@ MINIMUM_ROWS = {
     "product": 10000,
     "book": 10000,
     "book_author": 10000,
+    "customer": 80000,
+    "member": 45000,
+    "sale": 300000,
+    "sale_item": 600000,
+    "purchase_order": 2000,
+    "purchase_order_item": 25000,
+    "stock_in": 1800,
+    "stock_in_item": 20000,
     "inventory": 10000,
 }
 
@@ -261,6 +269,47 @@ def validate_seed_data() -> None:
     inventory_count = len(data["inventory"])
     assert 0.01 <= stockout_count / inventory_count <= 0.03, "inventory stockout ratio must stay between 1% and 3%."
     assert warning_count / inventory_count <= 0.15, "inventory warning ratio must not exceed 15%."
+
+    customer_lookup = {row["customer_id"]: row for row in data["customer"]}
+    member_levels = {row["level"] for row in data["member"]}
+    member_ratio = len(data["member"]) / len(data["customer"])
+    assert 0.55 <= member_ratio <= 0.75, "member ratio must reflect a mall bookstore membership program."
+    assert {"bronze", "silver", "gold", "platinum"}.issubset(member_levels), "member rows must include every level."
+    assert all(row["status"] in {"active", "inactive"} for row in data["customer"]), "customer status is invalid."
+
+    sale_dates = [row["sale_time"][:10] for row in data["sale"]]
+    assert min(sale_dates) >= "2026-01-01" and max(sale_dates) <= "2026-06-30", "sale dates must stay in 2026-01-01..2026-06-30."
+    assert all(not row["customer_id"] or customer_lookup[row["customer_id"]]["status"] == "active" for row in data["sale"]), "sales should not reference inactive customers."
+
+    purchase_order_dates = [row["order_time"][:10] for row in data["purchase_order"]]
+    stock_in_dates = [row["inbound_time"][:10] for row in data["stock_in"]]
+    assert min(purchase_order_dates) >= "2025-12-01" and max(purchase_order_dates) <= "2026-06-30", "purchase order dates must stay in 2025-12-01..2026-06-30."
+    assert min(stock_in_dates) >= "2025-12-01" and max(stock_in_dates) <= "2026-06-30", "stock-in dates must stay in 2025-12-01..2026-06-30."
+    purchase_order_lookup = {row["purchase_order_id"]: row for row in data["purchase_order"]}
+    assert all(purchase_order_lookup[row["purchase_order_id"]]["status"] == "received" for row in data["stock_in"]), "stock-in records should come from received purchase orders."
+    assert all(purchase_order_lookup[row["purchase_order_id"]]["store_id"] == row["store_id"] for row in data["stock_in"]), "stock-in store must match its purchase order."
+
+    product_sales = defaultdict(Decimal)
+    category_sales = defaultdict(Decimal)
+    book_sales_amount = Decimal("0")
+    nonbook_sales_amount = Decimal("0")
+    for row in data["sale_item"]:
+        product_id = row["product_id"]
+        amount = Decimal(row["line_amount"])
+        product_sales[product_id] += amount
+        category_sales[product_lookup[product_id]["category_id"]] += amount
+        if product_id in book_product_ids:
+            book_sales_amount += amount
+        else:
+            nonbook_sales_amount += amount
+
+    total_sales_amount = book_sales_amount + nonbook_sales_amount
+    top_product_amounts = [amount for _, amount in sorted(product_sales.items(), key=lambda item: item[1], reverse=True)[:10]]
+    top_category_amounts = [amount for _, amount in sorted(category_sales.items(), key=lambda item: item[1], reverse=True)[:10]]
+    assert len(set(top_product_amounts)) >= 8, "top product sales amounts are too uniform."
+    assert max(top_category_amounts) / min(top_category_amounts) >= Decimal("2.0"), "category sales summary is too uniform."
+    assert book_sales_amount / total_sales_amount >= Decimal("0.80"), "book sales should remain the main business."
+    assert nonbook_sales_amount / total_sales_amount >= Decimal("0.03"), "Deli stationery sales should be visible in business data."
 
     print(f"Validated {sum(len(rows) for rows in data.values())} rows across {len(data)} CSV tables.")
     for table in PRIMARY_KEYS:
