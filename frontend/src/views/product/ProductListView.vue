@@ -4,12 +4,13 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
-import CatalogTabs from '@/components/common/CatalogTabs.vue'
 import ProductFormDrawer from './ProductFormDrawer.vue'
+import BookFormDrawer from '@/views/book/BookFormDrawer.vue'
 import { deleteProduct, listProducts, type ProductQuery } from '@/api/products'
+import { deleteBook } from '@/api/books'
 import type { Product, ProductStatus } from '@/api/types'
 import { formatCurrency, statusLabel } from '@/utils/format'
-import { categoryDescendants, categoryOptionLabel } from '@/utils/categories'
+import { categoryFullOptionLabel, displayCategoryName } from '@/utils/categories'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
 
@@ -24,7 +25,7 @@ const pageSize = ref(20)
 const total = ref(0)
 
 const filters = reactive<ProductQuery>({ search: '', category_id: undefined, status: undefined })
-const generalCategories = computed(() => categoryDescendants(dicts.categories, '通用商品'))
+const productCategories = computed(() => dicts.categories)
 
 async function fetchList() {
   loading.value = true
@@ -35,7 +36,6 @@ async function fetchList() {
       search: filters.search || undefined,
       category_id: filters.category_id ?? undefined,
       status: filters.status ?? undefined,
-      is_book: false,
     })
     rows.value = data.items
     total.value = data.total
@@ -46,6 +46,7 @@ async function fetchList() {
 
 // drawer control
 const productDrawer = ref(false)
+const bookDrawer = ref(false)
 const editingId = ref<number | null>(null)
 
 function openCreateProduct() {
@@ -54,6 +55,10 @@ function openCreateProduct() {
 }
 function openEdit(row: Product) {
   editingId.value = row.product_id
+  if (row.is_book) {
+    bookDrawer.value = true
+    return
+  }
   productDrawer.value = true
 }
 
@@ -68,7 +73,11 @@ async function onDelete(row: Product) {
     return
   }
   try {
-    await deleteProduct(row.product_id)
+    if (row.is_book) {
+      await deleteBook(row.product_id)
+    } else {
+      await deleteProduct(row.product_id)
+    }
     ElMessage.success('已删除')
     fetchList()
   } catch {
@@ -91,15 +100,13 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="商品中心" subtitle="通用商品维护：办公用品、文创、耗材等图书以外商品与门店库存">
+    <PageHeader title="商品中心" subtitle="所有商品一览：图书、通用商品、供货关系与门店库存">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreateProduct">
           <el-icon><Plus /></el-icon>新增商品
         </el-button>
       </template>
     </PageHeader>
-
-    <CatalogTabs />
 
     <FilterBar
       :loading="loading"
@@ -112,9 +119,9 @@ onMounted(() => {
       <el-form-item label="分类">
         <el-select v-model="filters.category_id" placeholder="全部" clearable style="width: 200px" filterable>
           <el-option
-            v-for="c in generalCategories"
+            v-for="c in productCategories"
             :key="c.category_id"
-            :label="categoryOptionLabel(c, dicts.categories, '通用商品')"
+            :label="categoryFullOptionLabel(c, dicts.categories)"
             :value="c.category_id"
           />
         </el-select>
@@ -147,7 +154,16 @@ onMounted(() => {
           <div class="text-muted" style="font-size: 12px">{{ row.barcode || '无条码' }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="category_name" label="分类" width="140" />
+      <el-table-column label="类型" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.is_book ? 'danger' : 'info'" size="small" effect="plain">
+            {{ row.is_book ? '图书' : '通用商品' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="分类" width="150">
+        <template #default="{ row }">{{ displayCategoryName(row.category_name) }}</template>
+      </el-table-column>
       <el-table-column label="售价" width="130" align="right">
         <template #default="{ row }"><span class="money">{{ formatCurrency(row.unit_price) }}</span></template>
       </el-table-column>
@@ -184,6 +200,11 @@ onMounted(() => {
 
     <ProductFormDrawer
       v-model="productDrawer"
+      :product-id="editingId"
+      @success="fetchList"
+    />
+    <BookFormDrawer
+      v-model="bookDrawer"
       :product-id="editingId"
       @success="fetchList"
     />

@@ -86,6 +86,7 @@ MAX_LENGTHS = {
 }
 
 MINIMUM_ROWS = {
+    "store": 50,
     "category": 40,
     "publisher": 10,
     "product": 10000,
@@ -181,6 +182,8 @@ def validate_seed_data() -> None:
     product_barcodes = [row["barcode"] for row in data["product"]]
     authored_product_ids = {row["product_id"] for row in data["book_author"]}
     supplier_emails = [row["email"] for row in data["supplier"]]
+    store_phones = [row["phone"] for row in data["store"]]
+    stocked_store_ids = {row["store_id"] for row in data["inventory"]}
     assert set(product_lookup) == book_product_ids, "clean seed data should contain book products only."
     assert all(row["language"] == "中文" for row in data["book"]), "book rows must use Chinese mainland seed data."
     assert all(valid_isbn13(row["isbn"]) for row in data["book"]), "book rows must contain valid ISBN-13 values."
@@ -194,6 +197,8 @@ def validate_seed_data() -> None:
     assert all(row["website"] and row["contact_name"] and row["phone"] and row["email"] for row in data["publisher"]), "publisher contact profiles must be complete."
     assert all(row["contact_name"] and row["phone"] and row["email"] for row in data["supplier"]), "supplier contact profiles must be complete."
     assert len(supplier_emails) == len(set(supplier_emails)), "supplier rows contain duplicate emails."
+    assert len(store_phones) == len(set(store_phones)), "store rows contain duplicate phones."
+    assert all(row["store_id"] in stocked_store_ids for row in data["store"]), "every store must have inventory rows."
     assert all(row["product_id"] in authored_product_ids for row in data["book"]), "book rows must have at least one author."
 
     print(f"Validated {sum(len(rows) for rows in data.values())} rows across {len(data)} CSV tables.")

@@ -1228,8 +1228,11 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
             }
         )
         # Keep inventory realistic but not explosive: each title appears in two deterministic stores.
+        # Store 1 is included for the first demo products used by backend integration tests.
         first_store = stable_int(book.isbn + "store", len(stores))
         store_indices = {first_store, (first_store + 2) % len(stores)}
+        if index <= 5:
+            store_indices.add(0)
         for store_index in sorted(store_indices):
             store = stores[store_index]
             inventory.append(
@@ -1271,11 +1274,64 @@ def build_sql_data(books: list[SourceBook]) -> dict[str, list[dict[str, Any]]]:
 
 def seed_stores() -> list[dict[str, str]]:
     return [
-        {"store_id": "1", "store_name": "上海五角场店", "city": "上海", "address": "上海市杨浦区邯郸路220号", "phone": "021-55660001", "manager_name": "陈明"},
-        {"store_id": "2", "store_name": "北京中关村店", "city": "北京", "address": "北京市海淀区中关村大街1号", "phone": "010-62550002", "manager_name": "刘洁"},
-        {"store_id": "3", "store_name": "广州天河店", "city": "广州", "address": "广州市天河区天河路208号", "phone": "020-38880003", "manager_name": "周洋"},
-        {"store_id": "4", "store_name": "南京新街口店", "city": "南京", "address": "南京市秦淮区中山南路89号", "phone": "025-84720004", "manager_name": "王宁"},
-        {"store_id": "5", "store_name": "成都春熙路店", "city": "成都", "address": "成都市锦江区春熙路18号", "phone": "028-86660005", "manager_name": "赵琳"},
+        {"store_id": "1", "store_name": "上海五角场店", "city": "上海", "address": "上海市杨浦区翔殷路1099号上海合生汇", "phone": "021-55660001", "manager_name": "陈明"},
+        {"store_id": "2", "store_name": "北京中关村店", "city": "北京", "address": "北京市海淀区中关村大街19号新中关购物中心", "phone": "010-62550002", "manager_name": "刘洁"},
+        {"store_id": "3", "store_name": "广州天河太古汇店", "city": "广州", "address": "广州市天河区天河路383号太古汇", "phone": "020-38880003", "manager_name": "周洋"},
+        {"store_id": "4", "store_name": "南京新街口店", "city": "南京", "address": "南京市秦淮区中山南路1号南京新百", "phone": "025-84720004", "manager_name": "王宁"},
+        {"store_id": "5", "store_name": "成都春熙路店", "city": "成都", "address": "成都市锦江区红星路三段1号成都IFS", "phone": "028-86660005", "manager_name": "赵琳"},
+        {"store_id": "6", "store_name": "深圳万象天地店", "city": "深圳", "address": "深圳市南山区深南大道9668号万象天地", "phone": "0755-86660006", "manager_name": "林浩"},
+        {"store_id": "7", "store_name": "武汉恒隆广场店", "city": "武汉", "address": "武汉市硚口区京汉大道668号武汉恒隆广场", "phone": "027-85580007", "manager_name": "胡婧"},
+        {"store_id": "8", "store_name": "杭州湖滨银泰店", "city": "杭州", "address": "杭州市上城区延安路258号湖滨银泰in77", "phone": "0571-87010008", "manager_name": "许晨"},
+        {"store_id": "9", "store_name": "大连恒隆广场店", "city": "大连", "address": "大连市西岗区五四路66号大连恒隆广场", "phone": "0411-83690009", "manager_name": "马远"},
+        {"store_id": "10", "store_name": "青岛万象城店", "city": "青岛", "address": "青岛市市南区山东路6号青岛万象城", "phone": "0532-55770010", "manager_name": "孙乔"},
+        {"store_id": "11", "store_name": "重庆来福士店", "city": "重庆", "address": "重庆市渝中区接圣街8号重庆来福士", "phone": "023-63880011", "manager_name": "邓珂"},
+        {"store_id": "12", "store_name": "上海静安嘉里店", "city": "上海", "address": "上海市静安区南京西路1515号静安嘉里中心", "phone": "021-55660012", "manager_name": "顾瑶"},
+        {"store_id": "13", "store_name": "上海港汇恒隆店", "city": "上海", "address": "上海市徐汇区虹桥路1号港汇恒隆广场", "phone": "021-55660013", "manager_name": "陆骁"},
+        {"store_id": "14", "store_name": "上海环球港店", "city": "上海", "address": "上海市普陀区中山北路3300号环球港", "phone": "021-55660014", "manager_name": "沈宁"},
+        {"store_id": "15", "store_name": "北京王府井APM店", "city": "北京", "address": "北京市东城区王府井大街138号北京apm", "phone": "010-62550015", "manager_name": "何茜"},
+        {"store_id": "16", "store_name": "北京朝阳大悦城店", "city": "北京", "address": "北京市朝阳区朝阳北路101号朝阳大悦城", "phone": "010-62550016", "manager_name": "宋扬"},
+        {"store_id": "17", "store_name": "北京西单大悦城店", "city": "北京", "address": "北京市西城区西单北大街131号西单大悦城", "phone": "010-62550017", "manager_name": "魏琪"},
+        {"store_id": "18", "store_name": "北京国贸商城店", "city": "北京", "address": "北京市朝阳区建国门外大街1号国贸商城", "phone": "010-62550018", "manager_name": "袁航"},
+        {"store_id": "19", "store_name": "广州正佳广场店", "city": "广州", "address": "广州市天河区天河路228号正佳广场", "phone": "020-38880019", "manager_name": "梁悦"},
+        {"store_id": "20", "store_name": "广州K11店", "city": "广州", "address": "广州市天河区珠江东路6号广州K11", "phone": "020-38880020", "manager_name": "罗安"},
+        {"store_id": "21", "store_name": "深圳卓悦中心店", "city": "深圳", "address": "深圳市福田区福华一路348号卓悦中心", "phone": "0755-86660021", "manager_name": "曾岚"},
+        {"store_id": "22", "store_name": "深圳壹方城店", "city": "深圳", "address": "深圳市宝安区新湖路99号壹方城", "phone": "0755-86660022", "manager_name": "叶凡"},
+        {"store_id": "23", "store_name": "杭州嘉里中心店", "city": "杭州", "address": "杭州市拱墅区延安路385号杭州嘉里中心", "phone": "0571-87010023", "manager_name": "蒋思"},
+        {"store_id": "24", "store_name": "杭州城西银泰店", "city": "杭州", "address": "杭州市拱墅区丰潭路380号城西银泰城", "phone": "0571-87010024", "manager_name": "钱舟"},
+        {"store_id": "25", "store_name": "南京德基广场店", "city": "南京", "address": "南京市玄武区中山路18号德基广场", "phone": "025-84720025", "manager_name": "徐岚"},
+        {"store_id": "26", "store_name": "苏州中心店", "city": "苏州", "address": "苏州市苏州工业园区苏州大道西1号苏州中心", "phone": "0512-62880026", "manager_name": "曹越"},
+        {"store_id": "27", "store_name": "苏州诚品生活店", "city": "苏州", "address": "苏州市苏州工业园区月廊街8号诚品生活", "phone": "0512-62880027", "manager_name": "唐沐"},
+        {"store_id": "28", "store_name": "宁波阪急店", "city": "宁波", "address": "宁波市鄞州区海晏北路189号宁波阪急", "phone": "0574-87260028", "manager_name": "方璐"},
+        {"store_id": "29", "store_name": "无锡恒隆广场店", "city": "无锡", "address": "无锡市梁溪区人民中路139号无锡恒隆广场", "phone": "0510-82770029", "manager_name": "薛扬"},
+        {"store_id": "30", "store_name": "厦门万象城店", "city": "厦门", "address": "厦门市思明区湖滨东路99号厦门万象城", "phone": "0592-5880030", "manager_name": "郑舒"},
+        {"store_id": "31", "store_name": "福州东百中心店", "city": "福州", "address": "福州市鼓楼区八一七北路84号东百中心", "phone": "0591-87550031", "manager_name": "林澈"},
+        {"store_id": "32", "store_name": "天津恒隆广场店", "city": "天津", "address": "天津市和平区兴安路166号天津恒隆广场", "phone": "022-27180032", "manager_name": "杜若"},
+        {"store_id": "33", "store_name": "武汉K11店", "city": "武汉", "address": "武汉市硚口区解放大道628号武汉K11", "phone": "027-85580033", "manager_name": "陶然"},
+        {"store_id": "34", "store_name": "成都太古里店", "city": "成都", "address": "成都市锦江区中纱帽街8号成都远洋太古里", "phone": "028-86660034", "manager_name": "邹雨"},
+        {"store_id": "35", "store_name": "西安赛格国际店", "city": "西安", "address": "西安市雁塔区长安中路123号赛格国际购物中心", "phone": "029-85260035", "manager_name": "韩清"},
+        {"store_id": "36", "store_name": "济南恒隆广场店", "city": "济南", "address": "济南市历下区泉城路188号济南恒隆广场", "phone": "0531-86080036", "manager_name": "孟欣"},
+        {"store_id": "37", "store_name": "郑州正弘城店", "city": "郑州", "address": "郑州市金水区花园路126号正弘城", "phone": "0371-65980037", "manager_name": "贺川"},
+        {"store_id": "38", "store_name": "长沙IFS店", "city": "长沙", "address": "长沙市芙蓉区解放西路188号长沙IFS", "phone": "0731-82280038", "manager_name": "易真"},
+        {"store_id": "39", "store_name": "合肥万象城店", "city": "合肥", "address": "合肥市蜀山区潜山路111号合肥万象城", "phone": "0551-65550039", "manager_name": "潘舟"},
+        {"store_id": "40", "store_name": "南昌万象城店", "city": "南昌", "address": "南昌市红谷滩区学府大道388号南昌万象城", "phone": "0791-86770040", "manager_name": "万宁"},
+        {"store_id": "41", "store_name": "昆明恒隆广场店", "city": "昆明", "address": "昆明市盘龙区东风东路21号昆明恒隆广场", "phone": "0871-63110041", "manager_name": "段晴"},
+        {"store_id": "42", "store_name": "贵阳国贸玖福城店", "city": "贵阳", "address": "贵阳市云岩区中华中路1号国贸玖福城", "phone": "0851-85880042", "manager_name": "莫然"},
+        {"store_id": "43", "store_name": "南宁万象城店", "city": "南宁", "address": "南宁市青秀区民族大道136号南宁万象城", "phone": "0771-5550043", "manager_name": "覃宇"},
+        {"store_id": "44", "store_name": "海口万象城店", "city": "海口", "address": "海口市龙华区金贸东路4号海口万象城", "phone": "0898-68550044", "manager_name": "符宁"},
+        {"store_id": "45", "store_name": "石家庄万象城店", "city": "石家庄", "address": "石家庄市桥西区中山西路108号石家庄万象城", "phone": "0311-87880045", "manager_name": "冯珺"},
+        {"store_id": "46", "store_name": "太原万象城店", "city": "太原", "address": "太原市万柏林区长兴路5号太原万象城", "phone": "0351-7630046", "manager_name": "乔木"},
+        {"store_id": "47", "store_name": "沈阳万象城店", "city": "沈阳", "address": "沈阳市和平区青年大街288号沈阳万象城", "phone": "024-23980047", "manager_name": "许越"},
+        {"store_id": "48", "store_name": "哈尔滨远大购物中心店", "city": "哈尔滨", "address": "哈尔滨市南岗区果戈里大街378号远大购物中心", "phone": "0451-53670048", "manager_name": "高原"},
+        {"store_id": "49", "store_name": "长春欧亚卖场店", "city": "长春", "address": "长春市朝阳区开运街5178号欧亚卖场", "phone": "0431-85550049", "manager_name": "尹乐"},
+        {"store_id": "50", "store_name": "呼和浩特维多利店", "city": "呼和浩特", "address": "呼和浩特市回民区中山西路1号维多利购物中心", "phone": "0471-6290050", "manager_name": "任川"},
+        {"store_id": "51", "store_name": "乌鲁木齐友好商场店", "city": "乌鲁木齐", "address": "乌鲁木齐市沙依巴克区友好北路689号友好商场", "phone": "0991-4810051", "manager_name": "阿依娜"},
+        {"store_id": "52", "store_name": "兰州中心店", "city": "兰州", "address": "兰州市七里河区西津西路16号兰州中心", "phone": "0931-2350052", "manager_name": "祁远"},
+        {"store_id": "53", "store_name": "银川建发大阅城店", "city": "银川", "address": "银川市金凤区正源北街建发大阅城", "phone": "0951-5980053", "manager_name": "梁宁"},
+        {"store_id": "54", "store_name": "西宁王府井店", "city": "西宁", "address": "西宁市城中区西大街40号王府井百货", "phone": "0971-8240054", "manager_name": "马岚"},
+        {"store_id": "55", "store_name": "东莞民盈国贸城店", "city": "东莞", "address": "东莞市东城街道鸿福东路1号民盈国贸中心", "phone": "0769-22880055", "manager_name": "温宜"},
+        {"store_id": "56", "store_name": "佛山岭南天地店", "city": "佛山", "address": "佛山市禅城区祖庙路29号岭南天地", "phone": "0757-83380056", "manager_name": "黎旭"},
+        {"store_id": "57", "store_name": "珠海华发商都店", "city": "珠海", "address": "珠海市香洲区珠海大道8号华发商都", "phone": "0756-8890057", "manager_name": "贺晴"},
+        {"store_id": "58", "store_name": "南通中南城店", "city": "南通", "address": "南通市崇川区桃园路12号中南城", "phone": "0513-81180058", "manager_name": "江澄"},
     ]
 
 

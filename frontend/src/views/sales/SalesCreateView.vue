@@ -30,7 +30,10 @@ const dicts = useDictsStore()
 
 const productSearch = ref('')
 const productLoading = ref(false)
+const productLoadingMore = ref(false)
 const productResults = ref<Product[]>([])
+const productTotalCount = ref(0)
+let productSearchToken = 0
 const customerSearch = ref('')
 const customerOptions = ref<Customer[]>([])
 const customerLoading = ref(false)
@@ -88,17 +91,58 @@ async function onSearchProducts() {
     ElMessage.warning('请先选择销售门店')
     return
   }
+  const storeId = form.store_id
+  const search = productSearch.value || undefined
+  const searchToken = ++productSearchToken
+  productResults.value = []
+  productTotalCount.value = 0
   productLoading.value = true
+  productLoadingMore.value = false
   try {
-    const data = await listProducts({
+    const pageSize = 100
+    const first = await listProducts({
       page: 1,
-      page_size: 16,
-      search: productSearch.value || undefined,
+      page_size: pageSize,
+      search,
       status: 'onsale',
+      store_id: storeId,
+      in_stock: true,
     })
-    productResults.value = data.items
-  } finally {
+    if (searchToken !== productSearchToken || storeId !== form.store_id) return
+    productTotalCount.value = first.total
+    productResults.value = first.items.filter((product) => productStoreStockAt(product, storeId) > 0)
     productLoading.value = false
+
+    const totalPages = Math.ceil(first.total / first.page_size)
+    if (totalPages <= 1) return
+    productLoadingMore.value = true
+    const pages = Array.from({ length: totalPages - 1 }, (_, index) => index + 2)
+    const batchSize = 6
+    for (let index = 0; index < pages.length; index += batchSize) {
+      const batch = pages.slice(index, index + batchSize)
+      const responses = await Promise.all(
+        batch.map((page) =>
+          listProducts({
+            page,
+            page_size: pageSize,
+            search,
+            status: 'onsale',
+            store_id: storeId,
+            in_stock: true,
+          }),
+        ),
+      )
+      if (searchToken !== productSearchToken || storeId !== form.store_id) return
+      productResults.value = [
+        ...productResults.value,
+        ...responses.flatMap((data) => data.items.filter((product) => productStoreStockAt(product, storeId) > 0)),
+      ]
+    }
+  } finally {
+    if (searchToken === productSearchToken) {
+      productLoading.value = false
+      productLoadingMore.value = false
+    }
   }
 }
 
@@ -117,10 +161,14 @@ async function onSearchCustomers(query: string) {
   }
 }
 
-function productStoreStock(product: Product): number {
-  if (!form.store_id) return 0
-  const row = product.inventory?.find((item) => item.store_id === form.store_id)
+function productStoreStockAt(product: Product, storeId: number | null): number {
+  if (!storeId) return 0
+  const row = product.inventory?.find((item) => item.store_id === storeId)
   return row?.stock_qty ?? 0
+}
+
+function productStoreStock(product: Product): number {
+  return productStoreStockAt(product, form.store_id)
 }
 
 function isProductLowStock(product: Product): boolean {
@@ -169,6 +217,11 @@ watch(
     if (prev && next !== prev && cart.value.length) {
       clearCart()
       ElMessage.info('已切换门店，购物车已清空')
+    }
+    if (next) {
+      onSearchProducts()
+    } else {
+      productResults.value = []
     }
   },
 )
@@ -280,8 +333,9 @@ onMounted(() => {
   dicts.ensureStores().then(() => {
     if (dicts.stores.length && !form.store_id) {
       form.store_id = dicts.stores[0].store_id
+    } else if (form.store_id) {
+      onSearchProducts()
     }
-    onSearchProducts()
   })
 })
 </script>
@@ -315,6 +369,9 @@ onMounted(() => {
           />
           <el-button type="primary" size="large" :loading="productLoading" @click="onSearchProducts">搜索</el-button>
         </div>
+        <div v-if="productLoadingMore" class="pos-products__hint text-muted">
+          正在加载更多库存商品（{{ productResults.length }} / {{ productTotalCount }}）
+        </div>
         <div v-loading="productLoading" class="pos-products__grid">
           <button
             v-for="p in productResults"
@@ -335,10 +392,10 @@ onMounted(() => {
             <div class="product-card__price money">{{ formatCurrency(p.unit_price) }}</div>
           </button>
           <EmptyState
-            v-if="!productLoading && !productResults.length"
+            v-if="!productLoading && !productLoadingMore && !productResults.length"
             icon="Search"
             title="无匹配商品"
-            description="请更换关键词搜索"
+            description="当前门店暂无库存大于 0 的匹配商品"
           />
         </div>
       </section>
@@ -536,6 +593,12 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.pos-products__hint {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .pos-products__grid {

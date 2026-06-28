@@ -8,6 +8,8 @@ export interface ProductQuery {
   category_id?: number
   status?: ProductStatus
   is_book?: boolean
+  store_id?: number
+  in_stock?: boolean
 }
 
 export interface ProductWritePayload {

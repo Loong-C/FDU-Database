@@ -47,3 +47,16 @@ export function categoryOptionLabel(category: Category, categories: Category[], 
 
   return path.join(' / ') || displayCategoryName(category.category_name)
 }
+
+export function categoryFullOptionLabel(category: Category, categories: Category[]): string {
+  const byId = new Map(categories.map((item) => [item.category_id, item]))
+  const path: string[] = []
+  let current: Category | undefined = category
+
+  while (current) {
+    path.unshift(displayCategoryName(current.category_name))
+    current = current.parent_category_id === null ? undefined : byId.get(current.parent_category_id)
+  }
+
+  return path.join(' / ') || displayCategoryName(category.category_name)
+}

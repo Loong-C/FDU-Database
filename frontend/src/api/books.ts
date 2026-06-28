@@ -5,6 +5,10 @@ export interface BookQuery {
   page?: number
   page_size?: number
   search?: string
+  title?: string
+  author?: string
+  translator?: string
+  isbn?: string
   publisher_id?: number
   category_id?: number
 }

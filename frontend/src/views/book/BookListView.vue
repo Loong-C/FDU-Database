@@ -4,7 +4,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
-import CatalogTabs from '@/components/common/CatalogTabs.vue'
 import BookFormDrawer from './BookFormDrawer.vue'
 import { deleteBook, listBooks, type BookQuery } from '@/api/books'
 import type { Book, ProductStatus } from '@/api/types'
@@ -22,7 +21,14 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
-const filters = reactive<BookQuery>({ search: '', publisher_id: undefined, category_id: undefined })
+const filters = reactive<BookQuery>({
+  title: '',
+  author: '',
+  translator: '',
+  isbn: '',
+  publisher_id: undefined,
+  category_id: undefined,
+})
 const bookCategories = computed(() => categoryDescendants(dicts.categories, '图书'))
 
 async function fetchList() {
@@ -31,7 +37,10 @@ async function fetchList() {
     const data = await listBooks({
       page: page.value,
       page_size: pageSize.value,
-      search: filters.search || undefined,
+      title: filters.title || undefined,
+      author: filters.author || undefined,
+      translator: filters.translator || undefined,
+      isbn: filters.isbn || undefined,
       publisher_id: filters.publisher_id ?? undefined,
       category_id: filters.category_id ?? undefined,
     })
@@ -89,7 +98,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="商品中心" subtitle="图书档案维护：ISBN、出版社、作者、译者与门店库存">
+    <PageHeader title="图书档案" subtitle="维护 ISBN、出版社、作者、译者与门店库存">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增图书
@@ -97,15 +106,22 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <CatalogTabs />
-
     <FilterBar
       :loading="loading"
       @submit="() => { page = 1; fetchList() }"
-      @reset="() => { filters.search=''; filters.publisher_id=undefined; filters.category_id=undefined; page=1; fetchList() }"
+      @reset="() => { filters.title=''; filters.author=''; filters.translator=''; filters.isbn=''; filters.publisher_id=undefined; filters.category_id=undefined; page=1; fetchList() }"
     >
-      <el-form-item label="名称">
-        <el-input v-model="filters.search" placeholder="按图书名称/ISBN" clearable style="width: 200px" />
+      <el-form-item label="标题">
+        <el-input v-model="filters.title" placeholder="输入书名关键词" clearable style="width: 200px" />
+      </el-form-item>
+      <el-form-item label="作者">
+        <el-input v-model="filters.author" placeholder="输入作者姓名" clearable style="width: 160px" />
+      </el-form-item>
+      <el-form-item label="译者">
+        <el-input v-model="filters.translator" placeholder="输入译者姓名" clearable style="width: 160px" />
+      </el-form-item>
+      <el-form-item label="ISBN">
+        <el-input v-model="filters.isbn" placeholder="输入 ISBN" clearable style="width: 170px" />
       </el-form-item>
       <el-form-item label="出版社">
         <el-select v-model="filters.publisher_id" placeholder="全部" clearable filterable style="width: 200px">

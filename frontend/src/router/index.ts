@@ -77,13 +77,13 @@ const routes: RouteRecordRaw[] = [
         path: 'products',
         name: 'Products',
         component: () => import('@/views/product/ProductListView.vue'),
-        meta: { title: '通用商品', icon: 'Goods', roles: ['admin'], menuGroup: '商品中心', order: 21, hidden: true },
+        meta: { title: '商品中心', icon: 'Goods', roles: ['admin'], menuGroup: '商品中心', order: 20 },
       },
       {
         path: 'books',
         name: 'Books',
         component: () => import('@/views/book/BookListView.vue'),
-        meta: { title: '商品中心', icon: 'Goods', roles: ['admin'], menuGroup: '商品中心', order: 20 },
+        meta: { title: '图书档案', icon: 'Reading', roles: ['admin'], menuGroup: '商品中心', order: 21 },
       },
       {
         path: 'categories',
@@ -101,13 +101,13 @@ const routes: RouteRecordRaw[] = [
         path: 'authors',
         name: 'Authors',
         component: () => import('@/views/author/AuthorListView.vue'),
-        meta: { title: '作者', icon: 'User', roles: ['admin'], menuGroup: '商品中心', order: 24 },
+        meta: { title: '作者', icon: 'User', roles: ['admin'], menuGroup: '商品中心', order: 24, hidden: true },
       },
       {
         path: 'translators',
         name: 'Translators',
         component: () => import('@/views/translator/TranslatorListView.vue'),
-        meta: { title: '译者', icon: 'Avatar', roles: ['admin'], menuGroup: '商品中心', order: 25 },
+        meta: { title: '译者', icon: 'Avatar', roles: ['admin'], menuGroup: '商品中心', order: 25, hidden: true },
       },
       {
         path: 'inventory',

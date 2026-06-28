@@ -32,7 +32,7 @@ const actionsByRole: Record<Role, WelcomeAction[]> = {
   admin: [
     { index: '01', title: '处理库存预警', desc: '从预警商品直接发起采购补货', to: '/inventory?warning=1', icon: 'WarningFilled' },
     { index: '02', title: '采购与入库审核', desc: '推进采购单状态并审核入库增加库存', to: '/purchase-orders', icon: 'Van' },
-    { index: '03', title: '维护商品中心', desc: '维护图书档案、供货关系与门店库存', to: '/books', icon: 'Goods' },
+    { index: '03', title: '维护商品中心', desc: '查看全部商品、供货关系与门店库存', to: '/products', icon: 'Goods' },
     { index: '04', title: '查看统计分析', desc: '导出门店、商品、会员、分类报表', to: '/analytics', icon: 'TrendCharts' },
   ],
 }

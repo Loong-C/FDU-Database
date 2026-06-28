@@ -149,7 +149,10 @@ class ProductReadSerializer(serializers.ModelSerializer):
         return product_stock_total(instance)
 
     def get_inventory(self, instance):
-        rows = instance.inventories.select_related("store").all()
+        if "inventories" in getattr(instance, "_prefetched_objects_cache", {}):
+            rows = instance.inventories.all()
+        else:
+            rows = instance.inventories.select_related("store").all()
         return InventoryReadSerializer(rows, many=True).data
 
 
@@ -236,7 +239,10 @@ class BookReadSerializer(serializers.ModelSerializer):
         return product_stock_total(instance.product)
 
     def get_inventory(self, instance):
-        rows = instance.product.inventories.select_related("store").all()
+        if "inventories" in getattr(instance.product, "_prefetched_objects_cache", {}):
+            rows = instance.product.inventories.all()
+        else:
+            rows = instance.product.inventories.select_related("store").all()
         return InventoryReadSerializer(rows, many=True).data
 
     def get_authors(self, instance):
