@@ -21,7 +21,7 @@ const option = computed<EChartsCoreOption | null>(() => {
   const gridColor = ui.isDark ? 'rgba(244, 244, 242, 0.14)' : 'rgba(17, 17, 17, 0.12)'
   const labelInterval = Math.max(Math.ceil(props.categories.length / 12) - 1, 0)
   return {
-    grid: { left: 72, right: 72, top: 22, bottom: 76 },
+    grid: { left: 72, right: 72, top: 48, bottom: 90 },
     legend: {
       bottom: 8,
       itemGap: 22,
@@ -45,6 +45,7 @@ const option = computed<EChartsCoreOption | null>(() => {
       {
         type: 'value',
         name: '销售额 / 元',
+        nameGap: 18,
         axisLine: { show: false },
         axisLabel: { color: axisColor },
         nameTextStyle: { color: axisColor },
@@ -54,6 +55,7 @@ const option = computed<EChartsCoreOption | null>(() => {
       {
         type: 'value',
         name: '订单数',
+        nameGap: 18,
         axisLine: { show: false },
         axisLabel: { color: axisColor },
         nameTextStyle: { color: axisColor },

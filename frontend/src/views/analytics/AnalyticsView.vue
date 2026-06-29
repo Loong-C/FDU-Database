@@ -470,14 +470,13 @@ onMounted(() => {
           </h3>
           <div class="trend-summary">
             <span>峰值 {{ saleDateKey(storeTrendSummary.maxDate) }} {{ formatCurrency(storeTrendSummary.max) }}</span>
-            <span>销售额柱状展示，订单数与 7 日移动平均使用折线展示</span>
           </div>
           <SalesTrendCombo
             :categories="storeTrend.categories.map((d) => dayjs(d).format('MM-DD'))"
             :sales="storeTrend.sales"
             :orders="storeTrend.orders"
             :moving-average="storeTrend.movingAverage"
-            :height="330"
+            :height="390"
             :loading="loading"
           />
         </article>
