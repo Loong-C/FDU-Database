@@ -26,8 +26,6 @@ const actionsByRole: Record<Role, WelcomeAction[]> = {
   viewer: [
     { index: '01', title: '查看经营总览', desc: '关注销售趋势、热销商品与库存预警', to: '/dashboard', icon: 'Odometer' },
     { index: '02', title: '打开统计分析', desc: '按门店、商品、会员、分类钻取销售数据', to: '/analytics', icon: 'TrendCharts' },
-    { index: '03', title: '查看商品排行', desc: '查看销售额 Top N 与订单明细入口', to: '/analytics', icon: 'Trophy' },
-    { index: '04', title: '查看分类汇总', desc: '对照分类销量和销售额结构变化', to: '/analytics', icon: 'PieChart' },
   ],
   admin: [
     { index: '01', title: '处理库存预警', desc: '从预警商品直接发起采购补货', to: '/inventory?warning=1', icon: 'WarningFilled' },
