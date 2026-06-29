@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from rest_framework import status
 
 from catalog.models import Author, Book, Category, Product, Publisher, Supplier, Translator
@@ -24,6 +24,7 @@ from common.exceptions import ConflictError
 from common.permissions import CatalogPermission
 from common.response import success_response
 from common.viewsets import StandardizedModelViewSet
+from inventory.models import Inventory
 
 
 def _is_truthy_param(value):
@@ -118,7 +119,7 @@ class TranslatorViewSet(BaseCatalogViewSet):
 class ProductViewSet(BaseCatalogViewSet):
     queryset = (
         Product.objects.select_related("category")
-        .prefetch_related("supplier_links__supplier", "inventories__store")
+        .prefetch_related("supplier_links__supplier")
         .all()
         .order_by("product_id")
     )
@@ -156,7 +157,18 @@ class ProductViewSet(BaseCatalogViewSet):
                 | Q(book__author_links__author__author_name__icontains=search)
                 | Q(book__translator_links__translator__translator_name__icontains=search)
             )
-        return queryset.distinct()
+        queryset = queryset.distinct()
+        if store_id:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "inventories",
+                    queryset=Inventory.objects.select_related("store").filter(store_id=store_id),
+                    to_attr="filtered_inventories",
+                )
+            )
+        else:
+            queryset = queryset.prefetch_related("inventories__store")
+        return queryset
 
     def get_serializer_class(self):
         if self.action in {"list", "retrieve"}:

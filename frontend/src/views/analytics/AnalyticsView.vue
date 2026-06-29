@@ -3,10 +3,12 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
-import LineTrend from '@/components/charts/LineTrend.vue'
+import StatCard from '@/components/common/StatCard.vue'
 import BarRank from '@/components/charts/BarRank.vue'
 import PieCategory from '@/components/charts/PieCategory.vue'
+import SalesTrendCombo from '@/components/charts/SalesTrendCombo.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import { listInventory } from '@/api/inventory'
 import {
   analyticsCategoriesSummary,
   analyticsMembersRank,
@@ -48,23 +50,55 @@ const filters = reactive<{
 
 const loading = ref(false)
 const storeRows = ref<StoreDailyRow[]>([])
+const previousStoreRows = ref<StoreDailyRow[]>([])
+const storeProductRows = ref<ProductRankRow[]>([])
+const storeWarningCount = ref(0)
 const productRows = ref<ProductRankRow[]>([])
 const memberRows = ref<MemberRankRow[]>([])
 const categoryRows = ref<CategorySummaryRow[]>([])
+
+const selectedStoreName = computed(() => {
+  if (!filters.store_id) return '全部门店'
+  return dicts.stores.find((store) => store.store_id === filters.store_id)?.store_name || '当前门店'
+})
 
 function params() {
   const [date_from, date_to] = filters.date_range
   return { date_from, date_to }
 }
 
+function previousParams() {
+  const start = dayjs(filters.date_range[0])
+  const end = dayjs(filters.date_range[1])
+  const days = Math.max(end.diff(start, 'day') + 1, 1)
+  return {
+    date_from: start.subtract(days, 'day').format('YYYY-MM-DD'),
+    date_to: start.subtract(1, 'day').format('YYYY-MM-DD'),
+  }
+}
+
 async function loadActive() {
   loading.value = true
   try {
     if (activeTab.value === 'store') {
-      storeRows.value = await analyticsStoresDaily({
-        ...params(),
-        store_id: filters.store_id ?? undefined,
-      })
+      const storeId = filters.store_id ?? undefined
+      const [currentRows, previousRows] = await Promise.all([
+        analyticsStoresDaily({ ...params(), store_id: storeId }),
+        analyticsStoresDaily({ ...previousParams(), store_id: storeId }),
+      ])
+      storeRows.value = currentRows
+      previousStoreRows.value = previousRows
+      if (storeId) {
+        const [hotProducts, warnings] = await Promise.all([
+          analyticsProductsRank({ ...params(), store_id: storeId, limit: 10 }),
+          listInventory({ page: 1, page_size: 1, store_id: storeId, warning: true }),
+        ])
+        storeProductRows.value = hotProducts
+        storeWarningCount.value = warnings.total
+      } else {
+        storeProductRows.value = []
+        storeWarningCount.value = 0
+      }
     } else if (activeTab.value === 'product') {
       productRows.value = await analyticsProductsRank({
         ...params(),
@@ -79,7 +113,10 @@ async function loadActive() {
         limit: filters.limit,
       })
     } else if (activeTab.value === 'category') {
-      categoryRows.value = await analyticsCategoriesSummary(params())
+      categoryRows.value = await analyticsCategoriesSummary({
+        ...params(),
+        store_id: filters.store_id ?? undefined,
+      })
     }
   } finally {
     loading.value = false
@@ -109,30 +146,150 @@ function salesQuery(extra: Record<string, string | number | undefined> = {}) {
   }
 }
 
+function saleDateKey(value: string | null | undefined) {
+  const parsed = dayjs(value)
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : filters.date_range[0]
+}
+
+function dateRangeKeys() {
+  const start = dayjs(filters.date_range[0])
+  const end = dayjs(filters.date_range[1])
+  if (!start.isValid() || !end.isValid() || end.isBefore(start)) return []
+  const days = Math.min(end.diff(start, 'day'), 366)
+  return Array.from({ length: days + 1 }, (_, index) => start.add(index, 'day').format('YYYY-MM-DD'))
+}
+
+function sumStoreRows(rows: StoreDailyRow[]) {
+  const totalSales = rows.reduce((sum, row) => sum + Number(row.actual_amount_sum || 0), 0)
+  const orderCount = rows.reduce((sum, row) => sum + Number(row.order_count || 0), 0)
+  const soldQty = rows.reduce((sum, row) => sum + Number(row.sold_qty_sum || 0), 0)
+  return {
+    totalSales,
+    orderCount,
+    soldQty,
+    avgOrder: orderCount ? totalSales / orderCount : 0,
+  }
+}
+
+function percentChange(current: number, previous: number) {
+  if (!previous) return current ? null : 0
+  return ((current - previous) / previous) * 100
+}
+
+function formatDelta(value: number | null) {
+  if (value === null) return '无上期基准'
+  const prefix = value > 0 ? '+' : ''
+  return `较前期 ${prefix}${value.toFixed(1)}%`
+}
+
+function formatQty(value: number) {
+  return Math.round(value).toLocaleString('zh-CN')
+}
+
+function avgOrder(row: StoreDailyRow) {
+  return row.order_count ? Number(row.actual_amount_sum || 0) / row.order_count : 0
+}
+
+function movingAverage(values: number[], windowSize = 7) {
+  return values.map((_, index) => {
+    const start = Math.max(0, index - windowSize + 1)
+    const slice = values.slice(start, index + 1)
+    return Number((slice.reduce((sum, value) => sum + value, 0) / slice.length).toFixed(2))
+  })
+}
+
 // Chart data per tab
 const storeTrend = computed(() => {
-  const dates = new Set<string>()
-  const series = new Map<string, Map<string, number>>() // store -> date -> value
+  const dateKeys = dateRangeKeys()
+  const sales = new Map<string, number>()
+  const orders = new Map<string, number>()
+  dateKeys.forEach((date) => {
+    sales.set(date, 0)
+    orders.set(date, 0)
+  })
   storeRows.value.forEach((row) => {
-    // 防御性过滤：后端 TruncDate 理论上始终返回有效日期，但任何 null/解析失败都
-    // 会让 dayjs().format() 吐出 "Invalid Date"，进而污染 ECharts 的类目轴。
     if (!row.sale_date) return
     const parsed = dayjs(row.sale_date)
     if (!parsed.isValid()) return
     const key = parsed.format('YYYY-MM-DD')
-    dates.add(key)
-    if (!series.has(row.store_name)) series.set(row.store_name, new Map())
-    series.get(row.store_name)!.set(key, Number(row.actual_amount_sum || 0))
+    if (sales.has(key)) {
+      sales.set(key, (sales.get(key) || 0) + Number(row.actual_amount_sum || 0))
+      orders.set(key, (orders.get(key) || 0) + Number(row.order_count || 0))
+    }
   })
-  const sorted = Array.from(dates).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf())
+  const salesData = dateKeys.map((date) => Number((sales.get(date) || 0).toFixed(2)))
   return {
-    categories: sorted,
-    series: Array.from(series.entries()).map(([name, values]) => ({
-      name,
-      data: sorted.map((d) => Number((values.get(d) ?? 0).toFixed(2))),
-    })),
+    categories: dateKeys,
+    sales: salesData,
+    orders: dateKeys.map((date) => orders.get(date) || 0),
+    movingAverage: movingAverage(salesData),
   }
 })
+
+const currentStoreMetrics = computed(() => sumStoreRows(storeRows.value))
+const previousStoreMetrics = computed(() => sumStoreRows(previousStoreRows.value))
+
+const storeMetricDeltas = computed(() => ({
+  sales: percentChange(currentStoreMetrics.value.totalSales, previousStoreMetrics.value.totalSales),
+  orders: percentChange(currentStoreMetrics.value.orderCount, previousStoreMetrics.value.orderCount),
+  avgOrder: percentChange(currentStoreMetrics.value.avgOrder, previousStoreMetrics.value.avgOrder),
+  soldQty: percentChange(currentStoreMetrics.value.soldQty, previousStoreMetrics.value.soldQty),
+}))
+
+const storeTrendSummary = computed(() => {
+  const values = storeTrend.value.sales
+  const max = values.length ? Math.max(...values) : 0
+  const maxIndex = values.indexOf(max)
+  return {
+    max,
+    maxDate: maxIndex >= 0 ? storeTrend.value.categories[maxIndex] : '',
+  }
+})
+
+const storeRankRows = computed(() => {
+  const grouped = new Map<number, { store_name: string; totalSales: number; orderCount: number; soldQty: number }>()
+  storeRows.value.forEach((row) => {
+    const current = grouped.get(row.store_id) || {
+      store_name: row.store_name,
+      totalSales: 0,
+      orderCount: 0,
+      soldQty: 0,
+    }
+    current.totalSales += Number(row.actual_amount_sum || 0)
+    current.orderCount += Number(row.order_count || 0)
+    current.soldQty += Number(row.sold_qty_sum || 0)
+    grouped.set(row.store_id, current)
+  })
+  return Array.from(grouped.values())
+    .map((row) => ({ ...row, avgOrder: row.orderCount ? row.totalSales / row.orderCount : 0 }))
+    .sort((a, b) => b.totalSales - a.totalSales)
+    .slice(0, 10)
+})
+
+const storeRankBar = computed(() => ({
+  categories: storeRankRows.value.map((row) => row.store_name),
+  values: storeRankRows.value.map((row) => Number(row.totalSales.toFixed(2))),
+}))
+
+const storeProductBar = computed(() => ({
+  categories: storeProductRows.value.map((row) => row.product_name),
+  values: storeProductRows.value.map((row) => Number(row.total_sales_amount || 0)),
+}))
+
+const storeDailyCompareMap = computed(() => {
+  const map = new Map<string, number>()
+  ;[...previousStoreRows.value, ...storeRows.value].forEach((row) => {
+    const date = saleDateKey(row.sale_date)
+    map.set(`${row.store_id}:${date}`, Number(row.actual_amount_sum || 0))
+  })
+  return map
+})
+
+function rowDayDelta(row: StoreDailyRow) {
+  const previousDate = dayjs(row.sale_date).subtract(1, 'day').format('YYYY-MM-DD')
+  const previous = storeDailyCompareMap.value.get(`${row.store_id}:${previousDate}`) || 0
+  return percentChange(Number(row.actual_amount_sum || 0), previous)
+}
 
 const productBar = computed(() => ({
   categories: productRows.value.map((r) => r.product_name),
@@ -147,14 +304,19 @@ const categoryPie = computed(() =>
 function exportCurrent() {
   if (activeTab.value === 'store') {
     downloadCsv(
-      storeRows.value as unknown as Array<Record<string, unknown>>,
+      storeRows.value.map((row) => ({
+        ...row,
+        avg_order: avgOrder(row).toFixed(2),
+        day_delta: formatDelta(rowDayDelta(row)).replace('较前期 ', ''),
+      })) as unknown as Array<Record<string, unknown>>,
       [
         { key: 'sale_date', label: '日期' },
         { key: 'store_name', label: '门店' },
         { key: 'order_count', label: '订单数' },
-        { key: 'total_amount_sum', label: '原始总额' },
-        { key: 'discount_amount_sum', label: '折扣合计' },
+        { key: 'sold_qty_sum', label: '销售商品数' },
         { key: 'actual_amount_sum', label: '实付总额' },
+        { key: 'avg_order', label: '客单价' },
+        { key: 'day_delta', label: '环比' },
       ],
       `门店日销_${filters.date_range[0]}_${filters.date_range[1]}`,
     )
@@ -227,7 +389,7 @@ onMounted(() => {
           style="width: 260px"
         />
       </el-form-item>
-      <el-form-item v-if="activeTab === 'store' || activeTab === 'product'" label="门店">
+      <el-form-item v-if="activeTab === 'store' || activeTab === 'product' || activeTab === 'category'" label="门店">
         <el-select v-model="filters.store_id" clearable placeholder="全部门店" style="width: 180px">
           <el-option v-for="s in dicts.stores" :key="s.store_id" :label="s.store_name" :value="s.store_id" />
         </el-select>
@@ -257,15 +419,91 @@ onMounted(() => {
 
     <el-tabs v-model="activeTab" class="analytics-tabs" type="card">
       <el-tab-pane label="门店日报" name="store">
-        <article v-if="storeTrend.series.length" class="app-card">
-          <h3 class="section-title"><el-icon><TrendCharts /></el-icon>门店实付趋势</h3>
-          <LineTrend
+        <section class="stat-grid analytics-stat-grid">
+          <StatCard
+            :label="filters.store_id ? '该门店销售额' : '总销售额'"
+            :value="formatCurrency(currentStoreMetrics.totalSales)"
+            :hint="formatDelta(storeMetricDeltas.sales)"
+            icon="Money"
+            tone="brand"
+            :loading="loading"
+          />
+          <StatCard
+            :label="filters.store_id ? '该门店订单数' : '订单数'"
+            :value="formatQty(currentStoreMetrics.orderCount)"
+            :hint="formatDelta(storeMetricDeltas.orders)"
+            icon="Tickets"
+            tone="accent"
+            :loading="loading"
+          />
+          <StatCard
+            label="客单价"
+            :value="formatCurrency(currentStoreMetrics.avgOrder)"
+            :hint="formatDelta(storeMetricDeltas.avgOrder)"
+            icon="TrendCharts"
+            tone="warning"
+            :loading="loading"
+          />
+          <StatCard
+            v-if="filters.store_id"
+            label="库存预警商品数"
+            :value="storeWarningCount"
+            hint="当前门店库存小于等于安全库存"
+            icon="WarningFilled"
+            tone="danger"
+            :loading="loading"
+          />
+          <StatCard
+            v-else
+            label="销售商品数"
+            :value="formatQty(currentStoreMetrics.soldQty)"
+            :hint="formatDelta(storeMetricDeltas.soldQty)"
+            icon="Goods"
+            tone="success"
+            :loading="loading"
+          />
+        </section>
+
+        <article v-if="storeTrend.categories.length" class="app-card">
+          <h3 class="section-title">
+            <el-icon><TrendCharts /></el-icon>{{ selectedStoreName }}每日销售额与订单数
+          </h3>
+          <div class="trend-summary">
+            <span>峰值 {{ saleDateKey(storeTrendSummary.maxDate) }} {{ formatCurrency(storeTrendSummary.max) }}</span>
+            <span>销售额柱状展示，订单数与 7 日移动平均使用折线展示</span>
+          </div>
+          <SalesTrendCombo
             :categories="storeTrend.categories.map((d) => dayjs(d).format('MM-DD'))"
-            :series="storeTrend.series"
-            y-axis-name="金额(元)"
+            :sales="storeTrend.sales"
+            :orders="storeTrend.orders"
+            :moving-average="storeTrend.movingAverage"
+            :height="330"
             :loading="loading"
           />
         </article>
+
+        <article v-if="!filters.store_id && storeRankBar.categories.length" class="app-card analytics-section">
+          <h3 class="section-title"><el-icon><Trophy /></el-icon>门店销售额 Top 10</h3>
+          <BarRank
+            :categories="storeRankBar.categories"
+            :values="storeRankBar.values"
+            :height="Math.max(300, storeRankBar.categories.length * 30 + 90)"
+            :value-formatter="(v) => formatCurrency(v)"
+            :loading="loading"
+          />
+        </article>
+
+        <article v-if="filters.store_id && storeProductBar.categories.length" class="app-card analytics-section">
+          <h3 class="section-title"><el-icon><Trophy /></el-icon>{{ selectedStoreName }}热销商品 Top 10</h3>
+          <BarRank
+            :categories="storeProductBar.categories"
+            :values="storeProductBar.values"
+            :height="Math.max(300, storeProductBar.categories.length * 30 + 90)"
+            :value-formatter="(v) => formatCurrency(v)"
+            :loading="loading"
+          />
+        </article>
+
         <article class="app-card" style="margin-top: 12px">
           <h3 class="section-title"><el-icon><Tickets /></el-icon>明细</h3>
           <el-table :data="storeRows" border stripe v-loading="loading">
@@ -274,18 +512,21 @@ onMounted(() => {
             </el-table-column>
             <el-table-column prop="store_name" label="门店" min-width="160" />
             <el-table-column prop="order_count" label="订单数" width="100" align="right" />
-            <el-table-column label="原始总额" width="140" align="right">
-              <template #default="{ row }"><span class="money">{{ formatCurrency(row.total_amount_sum) }}</span></template>
-            </el-table-column>
-            <el-table-column label="折扣" width="120" align="right">
-              <template #default="{ row }"><span class="money" style="color: var(--warning)">-{{ formatCurrency(row.discount_amount_sum) }}</span></template>
+            <el-table-column label="销售商品数" width="120" align="right">
+              <template #default="{ row }">{{ formatQty(row.sold_qty_sum) }}</template>
             </el-table-column>
             <el-table-column label="实付" width="140" align="right">
               <template #default="{ row }"><strong class="money" style="color: var(--brand)">{{ formatCurrency(row.actual_amount_sum) }}</strong></template>
             </el-table-column>
+            <el-table-column label="客单价" width="130" align="right">
+              <template #default="{ row }"><span class="money">{{ formatCurrency(avgOrder(row)) }}</span></template>
+            </el-table-column>
+            <el-table-column label="环比" width="110" align="right">
+              <template #default="{ row }">{{ formatDelta(rowDayDelta(row)).replace('较前期 ', '') }}</template>
+            </el-table-column>
             <el-table-column label="明细" width="90" align="right">
               <template #default="{ row }">
-                <router-link :to="salesQuery({ store_id: row.store_id, date_from: dayjs(row.sale_date).format('YYYY-MM-DD'), date_to: dayjs(row.sale_date).format('YYYY-MM-DD') })">查看</router-link>
+                <router-link :to="salesQuery({ store_id: row.store_id, date_from: saleDateKey(row.sale_date), date_to: saleDateKey(row.sale_date) })">查看</router-link>
               </template>
             </el-table-column>
           </el-table>
@@ -362,7 +603,7 @@ onMounted(() => {
             </el-table-column>
             <el-table-column label="明细" width="90" align="right">
               <template #default>
-                <router-link :to="salesQuery()">时段</router-link>
+                <router-link :to="salesQuery({ store_id: filters.store_id ?? undefined })">时段</router-link>
               </template>
             </el-table-column>
           </el-table>
@@ -377,5 +618,22 @@ onMounted(() => {
 .analytics-tabs :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
   background: var(--app-border);
+}
+
+.analytics-stat-grid {
+  margin: 0 0 12px;
+}
+
+.analytics-section {
+  margin-top: 12px;
+}
+
+.trend-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: -2px 0 10px;
+  color: var(--app-text-muted);
+  font-size: 13px;
 }
 </style>

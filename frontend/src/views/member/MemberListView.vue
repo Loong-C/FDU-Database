@@ -26,13 +26,10 @@ const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 const filters = reactive<MemberQuery>({ search: '', level: undefined })
+const memberLevels: MemberLevel[] = ['bronze', 'silver', 'gold', 'platinum']
 
 // Stats
-const levelCounts = computed(() => {
-  const base: Record<MemberLevel, number> = { bronze: 0, silver: 0, gold: 0, platinum: 0 }
-  rows.value.forEach((m) => (base[m.level] = (base[m.level] ?? 0) + 1))
-  return base
-})
+const levelCounts = ref<Record<MemberLevel, number>>({ bronze: 0, silver: 0, gold: 0, platinum: 0 })
 
 const pointsSum = computed(() => rows.value.reduce((acc, m) => acc + (m.points || 0), 0))
 
@@ -50,6 +47,16 @@ async function fetchList() {
   } finally {
     loading.value = false
   }
+}
+
+async function fetchLevelCounts() {
+  const responses = await Promise.all(
+    memberLevels.map(async (level) => {
+      const data = await listMembers({ page: 1, page_size: 1, level })
+      return [level, data.total] as const
+    }),
+  )
+  levelCounts.value = Object.fromEntries(responses) as Record<MemberLevel, number>
 }
 
 const dialogVisible = ref(false)
@@ -93,7 +100,7 @@ async function onSubmit() {
     })
     ElMessage.success('会员信息已更新')
     dialogVisible.value = false
-    fetchList()
+    await Promise.all([fetchList(), fetchLevelCounts()])
   } catch (error) {
     if (error instanceof ApiError && error.isValidation) applyServerErrors(formRef.value, error)
   } finally {
@@ -114,7 +121,7 @@ async function onDelete(row: Member) {
   try {
     await deleteMember(row.customer_id)
     ElMessage.success('已取消会员身份')
-    fetchList()
+    await Promise.all([fetchList(), fetchLevelCounts()])
   } catch {
     /* 409 */
   }
@@ -123,21 +130,24 @@ async function onDelete(row: Member) {
 const levelTag = (l: MemberLevel) =>
   l === 'platinum' ? 'success' : l === 'gold' ? 'warning' : l === 'silver' ? 'info' : 'danger'
 
-onMounted(fetchList)
+onMounted(() => {
+  fetchList()
+  fetchLevelCounts()
+})
 </script>
 
 <template>
   <div class="page-wrapper">
     <PageHeader title="会员管理" subtitle="会员等级、积分与消费追踪">
       <template #extra>
-        <el-button @click="fetchList">
+        <el-button @click="() => { fetchList(); fetchLevelCounts() }">
           <el-icon><Refresh /></el-icon>刷新
         </el-button>
       </template>
     </PageHeader>
 
     <div class="member-stats stat-grid">
-      <article class="app-card member-stat-card" v-for="level in (['bronze','silver','gold','platinum'] as MemberLevel[])" :key="level">
+      <article class="app-card member-stat-card" v-for="level in memberLevels" :key="level">
         <div class="member-stat-card__head">
           <div class="member-stat-card__badge" :data-level="level">
             <el-icon :size="18"><Medal /></el-icon>

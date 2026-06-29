@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from django.db.models import Count, DecimalField, Q, Sum, Value
-from django.db.models.functions import Coalesce, TruncDate
+from django.db.models import Count, DateField, DecimalField, Q, Sum, Value
+from django.db.models.functions import Cast, Coalesce
 from rest_framework.views import APIView
 
 from analytics.serializers import (
@@ -36,7 +36,7 @@ class StoreDailyAnalyticsView(APIView):
         )
 
         data = list(
-            queryset.annotate(sale_date=TruncDate("sale_time"))
+            queryset.annotate(sale_date=Cast("sale_time", output_field=DateField()))
             .values("store_id", "store__store_name", "sale_date")
             .annotate(
                 order_count=Count("sale_id"),
@@ -46,8 +46,26 @@ class StoreDailyAnalyticsView(APIView):
             )
             .order_by("sale_date", "store_id")
         )
+        item_queryset = SaleItem.objects.select_related("sale").all()
+        if params.get("store_id"):
+            item_queryset = item_queryset.filter(sale__store_id=params["store_id"])
+        item_queryset = apply_local_date_range(
+            item_queryset,
+            "sale__sale_time",
+            params.get("date_from"),
+            params.get("date_to"),
+        )
+        sold_qty_by_key = {
+            (row["sale__store_id"], row["sale_date"]): row["sold_qty_sum"]
+            for row in (
+                item_queryset.annotate(sale_date=Cast("sale__sale_time", output_field=DateField()))
+                .values("sale__store_id", "sale_date")
+                .annotate(sold_qty_sum=Coalesce(Sum("quantity"), 0))
+            )
+        }
         for row in data:
             row["store_name"] = row.pop("store__store_name")
+            row["sold_qty_sum"] = sold_qty_by_key.get((row["store_id"], row["sale_date"]), 0)
         return success_response(data)
 
 
@@ -142,6 +160,8 @@ class CategorySummaryAnalyticsView(APIView):
         serializer.is_valid(raise_exception=True)
         params = serializer.validated_data
         queryset = SaleItem.objects.select_related("sale", "product__category").all()
+        if params.get("store_id"):
+            queryset = queryset.filter(sale__store_id=params["store_id"])
         queryset = apply_local_date_range(
             queryset,
             "sale__sale_time",

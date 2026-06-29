@@ -277,6 +277,7 @@ export interface StoreDailyRow {
   store_name: string
   sale_date: string
   order_count: number
+  sold_qty_sum: number
   total_amount_sum: string
   discount_amount_sum: string
   actual_amount_sum: string

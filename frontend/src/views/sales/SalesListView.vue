@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
@@ -10,6 +10,7 @@ import type { Sale } from '@/api/types'
 import { formatCurrency, formatDateTime, paymentLabel } from '@/utils/format'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
+import { defaultStoreId } from '@/utils/defaults'
 
 const router = useRouter()
 const route = useRoute()
@@ -29,6 +30,21 @@ const filters = reactive<SaleQuery & { date_range: [string, string] | null }>({
   payment_method: undefined,
   date_range: null,
 })
+
+function numericQueryValue(value: unknown): number | undefined {
+  const raw = Array.isArray(value) ? value[0] : value
+  const numeric = Number(raw || 0)
+  return numeric || undefined
+}
+
+function applyRouteFilters() {
+  const dateFrom = typeof route.query.date_from === 'string' ? route.query.date_from : undefined
+  const dateTo = typeof route.query.date_to === 'string' ? route.query.date_to : undefined
+  filters.store_id = numericQueryValue(route.query.store_id) ?? defaultStoreId(dicts.stores)
+  filters.customer_id = numericQueryValue(route.query.customer_id)
+  filters.payment_method = undefined
+  filters.date_range = dateFrom && dateTo ? [dateFrom, dateTo] : null
+}
 
 async function fetchList() {
   loading.value = true
@@ -69,13 +85,18 @@ async function onDelete(row: Sale) {
   }
 }
 
-onMounted(() => {
-  const dateFrom = typeof route.query.date_from === 'string' ? route.query.date_from : undefined
-  const dateTo = typeof route.query.date_to === 'string' ? route.query.date_to : undefined
-  filters.store_id = Number(route.query.store_id || 0) || undefined
-  filters.customer_id = Number(route.query.customer_id || 0) || undefined
-  if (dateFrom && dateTo) filters.date_range = [dateFrom, dateTo]
-  dicts.ensureStores()
+watch(
+  () => route.query,
+  () => {
+    applyRouteFilters()
+    page.value = 1
+    fetchList()
+  },
+)
+
+onMounted(async () => {
+  await dicts.ensureStores()
+  applyRouteFilters()
   fetchList()
 })
 </script>
@@ -93,7 +114,7 @@ onMounted(() => {
     <FilterBar
       :loading="loading"
       @submit="() => { page = 1; fetchList() }"
-      @reset="() => { filters.store_id=undefined; filters.customer_id=undefined; filters.payment_method=undefined; filters.date_range=null; page=1; fetchList() }"
+      @reset="() => { filters.store_id=defaultStoreId(dicts.stores); filters.customer_id=undefined; filters.payment_method=undefined; filters.date_range=null; page=1; fetchList() }"
     >
       <el-form-item label="门店">
         <el-select v-model="filters.store_id" placeholder="全部" clearable style="width: 180px">

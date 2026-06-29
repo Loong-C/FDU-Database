@@ -13,6 +13,7 @@ import { ApiError } from '@/api/http'
 import { applyServerErrors } from '@/utils/errors'
 import { useAuthStore } from '@/stores/auth'
 import { useDictsStore } from '@/stores/dicts'
+import { defaultStoreId } from '@/utils/defaults'
 
 const auth = useAuthStore()
 const dicts = useDictsStore()
@@ -64,7 +65,7 @@ function onSearch() {
 }
 
 function onReset() {
-  filters.store_id = undefined
+  filters.store_id = defaultStoreId(dicts.stores)
   filters.product_id = undefined
   filters.warning = false
   onSearch()
@@ -136,9 +137,10 @@ function openReplenish(row: InventoryRow) {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   filters.warning = route.query.warning === '1' || route.query.warning === 'true'
-  dicts.ensureStores()
+  await dicts.ensureStores()
+  filters.store_id = Number(route.query.store_id || 0) || defaultStoreId(dicts.stores)
   searchProducts()
   fetchList()
 })

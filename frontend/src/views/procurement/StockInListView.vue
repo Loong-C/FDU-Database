@@ -117,9 +117,11 @@ async function loadPurchaseOrders() {
 }
 
 const dialogVisible = ref(false)
+const viewDialogVisible = ref(false)
 const submitting = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const editingId = ref<number | null>(null)
+const viewing = ref<StockIn | null>(null)
 const form = reactive<{
   purchase_order_id: number | null
   store_id: number | null
@@ -182,6 +184,11 @@ async function openEdit(row: StockIn) {
   })
   ensureProductOptionsFromItems(row.items)
   dialogVisible.value = true
+}
+
+function openView(row: StockIn) {
+  viewing.value = row
+  viewDialogVisible.value = true
 }
 
 function onPurchaseOrderChange(id: number | string | null) {
@@ -435,15 +442,47 @@ onMounted(async () => {
       <el-table-column label="操作" width="240" fixed="right" align="right">
         <template #default="{ row }">
           <div class="table-actions">
+            <el-button text type="primary" @click="openView(row)">查看</el-button>
             <el-button v-if="canWrite() && row.status === 'pending'" text type="primary" @click="approveStockIn(row)">审核入库</el-button>
             <el-button v-if="canWrite() && row.status === 'pending'" text type="danger" @click="rejectStockIn(row)">驳回</el-button>
             <el-button v-if="canWrite() && row.status !== 'approved'" text type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-if="canWrite() && row.status !== 'approved'" text type="danger" @click="onDelete(row)">删除</el-button>
-            <span v-if="!canWrite()" class="text-muted">—</span>
           </div>
         </template>
       </el-table-column>
     </CrudTable>
+
+    <el-dialog
+      v-model="viewDialogVisible"
+      :title="viewing ? `入库单 #${viewing.stock_in_id}` : '入库单详情'"
+      width="760"
+      destroy-on-close
+    >
+      <template v-if="viewing">
+        <div class="detail-grid">
+          <div><span class="text-muted">采购单</span><strong>#{{ viewing.purchase_order_id }}</strong></div>
+          <div><span class="text-muted">门店</span><strong>{{ viewing.store_name }}</strong></div>
+          <div><span class="text-muted">状态</span><el-tag :type="statusTagType(viewing.status)" size="small">{{ statusLabel(viewing.status) }}</el-tag></div>
+          <div><span class="text-muted">操作人</span><strong>{{ viewing.operator_name }}</strong></div>
+          <div><span class="text-muted">入库时间</span><strong>{{ formatDateTime(viewing.inbound_time) }}</strong></div>
+          <div><span class="text-muted">入库金额</span><strong class="money">{{ formatCurrency(stockInAmount(viewing)) }}</strong></div>
+        </div>
+        <el-table :data="viewing.items" border size="small" style="margin-top: 12px">
+          <el-table-column prop="line_no" label="#" width="60" />
+          <el-table-column prop="product_name" label="商品" min-width="240" />
+          <el-table-column prop="quantity" label="数量" width="100" align="right" />
+          <el-table-column label="入库成本" width="120" align="right">
+            <template #default="{ row }">{{ formatCurrency(row.unit_cost) }}</template>
+          </el-table-column>
+          <el-table-column label="行金额" width="120" align="right">
+            <template #default="{ row }"><span class="money">{{ formatCurrency(row.line_amount) }}</span></template>
+          </el-table-column>
+        </el-table>
+      </template>
+      <template #footer>
+        <el-button type="primary" @click="viewDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
 
     <el-dialog
       v-model="dialogVisible"
@@ -586,8 +625,25 @@ onMounted(async () => {
   margin-top: 12px;
 }
 
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.detail-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 @media (max-width: 720px) {
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 }

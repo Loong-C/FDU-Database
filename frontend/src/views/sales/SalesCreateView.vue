@@ -15,6 +15,7 @@ import { formatCurrency } from '@/utils/format'
 import { ApiError } from '@/api/http'
 import { firstErrorMessage } from '@/utils/errors'
 import { useDictsStore } from '@/stores/dicts'
+import { defaultStoreId } from '@/utils/defaults'
 
 interface CartLine {
   product_id: number
@@ -34,6 +35,8 @@ const productLoadingMore = ref(false)
 const productResults = ref<Product[]>([])
 const productTotalCount = ref(0)
 let productSearchToken = 0
+const productDisplayLimit = 1000
+const productPageSize = 100
 const customerSearch = ref('')
 const customerOptions = ref<Customer[]>([])
 const customerLoading = ref(false)
@@ -99,21 +102,20 @@ async function onSearchProducts() {
   productLoading.value = true
   productLoadingMore.value = false
   try {
-    const pageSize = 100
     const first = await listProducts({
       page: 1,
-      page_size: pageSize,
+      page_size: productPageSize,
       search,
       status: 'onsale',
       store_id: storeId,
-      in_stock: true,
     })
     if (searchToken !== productSearchToken || storeId !== form.store_id) return
     productTotalCount.value = first.total
-    productResults.value = first.items.filter((product) => productStoreStockAt(product, storeId) > 0)
+    productResults.value = first.items
     productLoading.value = false
 
-    const totalPages = Math.ceil(first.total / first.page_size)
+    const visibleTotal = Math.min(first.total, productDisplayLimit)
+    const totalPages = Math.ceil(visibleTotal / first.page_size)
     if (totalPages <= 1) return
     productLoadingMore.value = true
     const pages = Array.from({ length: totalPages - 1 }, (_, index) => index + 2)
@@ -124,19 +126,18 @@ async function onSearchProducts() {
         batch.map((page) =>
           listProducts({
             page,
-            page_size: pageSize,
+            page_size: productPageSize,
             search,
             status: 'onsale',
             store_id: storeId,
-            in_stock: true,
           }),
         ),
       )
       if (searchToken !== productSearchToken || storeId !== form.store_id) return
       productResults.value = [
         ...productResults.value,
-        ...responses.flatMap((data) => data.items.filter((product) => productStoreStockAt(product, storeId) > 0)),
-      ]
+        ...responses.flatMap((data) => data.items),
+      ].slice(0, productDisplayLimit)
     }
   } finally {
     if (searchToken === productSearchToken) {
@@ -332,7 +333,7 @@ async function onSubmit() {
 onMounted(() => {
   dicts.ensureStores().then(() => {
     if (dicts.stores.length && !form.store_id) {
-      form.store_id = dicts.stores[0].store_id
+      form.store_id = defaultStoreId(dicts.stores)
     } else if (form.store_id) {
       onSearchProducts()
     }
@@ -370,7 +371,10 @@ onMounted(() => {
           <el-button type="primary" size="large" :loading="productLoading" @click="onSearchProducts">搜索</el-button>
         </div>
         <div v-if="productLoadingMore" class="pos-products__hint text-muted">
-          正在加载更多库存商品（{{ productResults.length }} / {{ productTotalCount }}）
+          正在加载商品（{{ productResults.length }} / {{ Math.min(productTotalCount, productDisplayLimit) }}）
+        </div>
+        <div v-else-if="productTotalCount > productDisplayLimit" class="pos-products__hint text-muted">
+          当前仅显示前 {{ productDisplayLimit }} 个匹配商品，可输入名称、条码或作者继续精确搜索。
         </div>
         <div v-loading="productLoading" class="pos-products__grid">
           <button
@@ -395,7 +399,7 @@ onMounted(() => {
             v-if="!productLoading && !productLoadingMore && !productResults.length"
             icon="Search"
             title="无匹配商品"
-            description="当前门店暂无库存大于 0 的匹配商品"
+            description="没有匹配商品，请调整搜索词"
           />
         </div>
       </section>

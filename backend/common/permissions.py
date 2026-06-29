@@ -27,6 +27,11 @@ class CatalogPermission(RolePermission):
     write_roles = {"admin"}
 
 
+class InventoryPermission(RolePermission):
+    read_roles = {"admin", "operator", "viewer"}
+    write_roles = {"admin"}
+
+
 class CustomerSalesPermission(RolePermission):
     read_roles = {"admin", "operator"}
     write_roles = {"admin", "operator"}

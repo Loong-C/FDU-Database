@@ -131,6 +131,9 @@ CREATE TABLE sale (
   total_amount DECIMAL(12,2) NOT NULL,
   discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
   actual_amount DECIMAL(12,2) NOT NULL,
+  INDEX idx_sale_store_time (store_id, sale_time),
+  INDEX idx_sale_time (sale_time),
+  INDEX idx_sale_customer_time (customer_id, sale_time),
   CONSTRAINT fk_sale_store
     FOREIGN KEY (store_id) REFERENCES store(store_id)
     ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -153,6 +156,7 @@ CREATE TABLE sale_item (
   unit_price DECIMAL(10,2) NOT NULL,
   line_amount DECIMAL(12,2) NOT NULL,
   PRIMARY KEY (sale_id, line_no),
+  INDEX idx_sale_item_product (product_id),
   CONSTRAINT fk_sale_item_sale
     FOREIGN KEY (sale_id) REFERENCES sale(sale_id)
     ON UPDATE CASCADE ON DELETE CASCADE,
@@ -276,6 +280,9 @@ CREATE TABLE purchase_order (
   order_time DATETIME NOT NULL,
   status VARCHAR(20) NOT NULL,
   total_amount DECIMAL(12,2) NOT NULL,
+  INDEX idx_purchase_order_store_time (store_id, order_time),
+  INDEX idx_purchase_order_supplier_time (supplier_id, order_time),
+  INDEX idx_purchase_order_status (status),
   CONSTRAINT fk_purchase_order_supplier
     FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
     ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -318,6 +325,8 @@ CREATE TABLE stock_in (
   operator_id BIGINT NOT NULL,
   inbound_time DATETIME NOT NULL,
   status VARCHAR(20) NOT NULL,
+  INDEX idx_stock_in_store_time (store_id, inbound_time),
+  INDEX idx_stock_in_status (status),
   CONSTRAINT fk_stock_in_purchase_order
     FOREIGN KEY (purchase_order_id) REFERENCES purchase_order(purchase_order_id)
     ON UPDATE CASCADE ON DELETE RESTRICT,

@@ -4,14 +4,14 @@ from rest_framework import status
 from rest_framework.views import APIView
 
 from common.pagination import StandardPagination
-from common.permissions import CatalogPermission
+from common.permissions import InventoryPermission
 from common.response import success_response
 from inventory.models import Inventory
 from inventory.serializers import InventoryReadSerializer, InventoryUpdateSerializer
 
 
 class InventoryListView(APIView):
-    permission_classes = [CatalogPermission]
+    permission_classes = [InventoryPermission]
     pagination_class = StandardPagination
 
     def get(self, request):
@@ -33,7 +33,7 @@ class InventoryListView(APIView):
 
 
 class InventoryWarningView(APIView):
-    permission_classes = [CatalogPermission]
+    permission_classes = [InventoryPermission]
 
     def get(self, request):
         queryset = (
@@ -46,7 +46,7 @@ class InventoryWarningView(APIView):
 
 
 class InventoryDetailView(APIView):
-    permission_classes = [CatalogPermission]
+    permission_classes = [InventoryPermission]
 
     def get_object(self, store_id, product_id):
         return get_object_or_404(

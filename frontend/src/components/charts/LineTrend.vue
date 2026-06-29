@@ -21,9 +21,9 @@ const option = computed<EChartsCoreOption | null>(() => {
   const gridColor = ui.isDark ? 'rgba(244, 244, 242, 0.14)' : 'rgba(17, 17, 17, 0.12)'
   return {
     title: props.title ? { text: props.title, left: 8, top: 4, textStyle: { fontSize: 14 } } : undefined,
-    grid: { left: 48, right: 24, top: props.title ? 40 : 16, bottom: 36 },
+    grid: { left: 48, right: 24, top: props.title ? 40 : 16, bottom: 64 },
     tooltip: { trigger: 'axis', valueFormatter: (v: unknown) => (typeof v === 'number' ? v.toLocaleString('zh-CN') : String(v)) },
-    legend: { bottom: 0, itemGap: 16, textStyle: { color: axisColor } },
+    legend: { bottom: 4, itemGap: 18, textStyle: { color: axisColor } },
     xAxis: {
       type: 'category',
       data: props.categories,
