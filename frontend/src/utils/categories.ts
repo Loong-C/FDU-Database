@@ -1,20 +1,20 @@
 import type { Category } from '@/api/types'
 
-const GENERAL_ROOT_ALIASES = new Set(['通用商品', '非书商品'])
+const GENERAL_ROOT_ALIASES = new Set(['办公文具', '非书商品'])
 
 export function displayCategoryName(name: string | null | undefined): string {
-  return name && GENERAL_ROOT_ALIASES.has(name) ? '通用商品' : name || ''
+  return name && GENERAL_ROOT_ALIASES.has(name) ? '办公文具' : name || ''
 }
 
 function isRootName(category: Category, rootName: string): boolean {
   return displayCategoryName(category.category_name) === rootName
 }
 
-export function categoryRootId(categories: Category[], rootName: '图书' | '通用商品'): number | null {
+export function categoryRootId(categories: Category[], rootName: '图书' | '办公文具'): number | null {
   return categories.find((item) => item.parent_category_id === null && isRootName(item, rootName))?.category_id ?? null
 }
 
-export function categoryDescendants(categories: Category[], rootName: '图书' | '通用商品'): Category[] {
+export function categoryDescendants(categories: Category[], rootName: '图书' | '办公文具'): Category[] {
   const rootId = categoryRootId(categories, rootName)
   if (rootId === null) return []
   const children = new Map<number | null, Category[]>()
@@ -34,7 +34,7 @@ export function categoryDescendants(categories: Category[], rootName: '图书' |
   return result
 }
 
-export function categoryOptionLabel(category: Category, categories: Category[], rootName: '图书' | '通用商品'): string {
+export function categoryOptionLabel(category: Category, categories: Category[], rootName: '图书' | '办公文具'): string {
   const rootId = categoryRootId(categories, rootName)
   const byId = new Map(categories.map((item) => [item.category_id, item]))
   const path: string[] = []

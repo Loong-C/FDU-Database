@@ -50,7 +50,7 @@ const form = reactive<{
   supplier_links: [],
 })
 const inventoryRows = ref<InventoryRow[]>([])
-const generalCategories = computed(() => categoryDescendants(dicts.categories, '通用商品'))
+const generalCategories = computed(() => categoryDescendants(dicts.categories, '办公文具'))
 
 const rules: FormRules = {
   product_name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
@@ -199,7 +199,7 @@ async function onSubmit() {
           <el-option
             v-for="c in generalCategories"
             :key="c.category_id"
-            :label="categoryOptionLabel(c, dicts.categories, '通用商品')"
+            :label="categoryOptionLabel(c, dicts.categories, '办公文具')"
             :value="c.category_id"
           />
         </el-select>
