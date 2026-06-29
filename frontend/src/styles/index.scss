@@ -16,7 +16,7 @@ body,
   padding: 0;
   background: var(--app-bg);
   color: var(--app-text);
-  // GitHub / Primer 官方字栈
+  // Swiss 风格优先保证数字、表格和中文后台文本清晰
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial,
     'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji';
@@ -40,17 +40,19 @@ a:hover {
   text-decoration: underline;
 }
 
-// 扁平卡片：白底 / 1px 边框，不加阴影、不加模糊
+// Swiss 网格卡片：白底 / 明确边框 / 无阴影
 .app-card {
   background: var(--app-surface-solid);
   border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   padding: 16px;
-  transition: border-color 0.15s ease;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .app-card--hover:hover {
-  border-color: var(--brand);
+  border-color: var(--app-border-strong);
+  background: var(--app-surface-alt);
 }
 
 .page-wrapper {
@@ -74,11 +76,12 @@ a:hover {
 .section-title {
   margin: 0 0 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--app-text);
   display: flex;
   align-items: center;
   gap: 6px;
+  letter-spacing: 0;
 }
 
 .text-muted {
@@ -131,20 +134,155 @@ a:hover {
   gap: 16px;
   flex-wrap: wrap;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--app-border-muted);
+  border-bottom: 2px solid var(--app-border-strong);
 }
 
 .page-header__title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
 }
 
 .page-header__subtitle {
-  margin: 4px 0 0;
+  margin: 8px 0 0;
   color: var(--app-text-muted);
   font-size: 13px;
+}
+
+.swiss-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.workflow-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  padding: 14px;
+  color: var(--app-text);
+  text-decoration: none;
+}
+
+.workflow-card:hover {
+  text-decoration: none;
+  border-color: var(--app-border-strong);
+  background: var(--app-surface-alt);
+}
+
+.workflow-card__index {
+  color: var(--brand);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.workflow-card__title {
+  display: block;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.workflow-card__desc {
+  display: block;
+  margin-top: 3px;
+  color: var(--app-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.process-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-solid);
+}
+
+.process-rail__step {
+  min-height: 86px;
+  padding: 14px;
+  border-right: 1px solid var(--app-border);
+}
+
+.process-rail__step:last-child {
+  border-right: 0;
+}
+
+.process-rail__number {
+  color: var(--brand);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.process-rail__title {
+  margin-top: 8px;
+  font-weight: 800;
+}
+
+.process-rail__body {
+  margin-top: 4px;
+  color: var(--app-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.status-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-stepper__dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--app-border-strong);
+  background: transparent;
+}
+
+.status-stepper__dot.is-done {
+  background: var(--app-border-strong);
+}
+
+.status-stepper__dot.is-current {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.catalog-tabs {
+  margin-bottom: -4px;
+}
+
+@media (max-width: 900px) {
+  .process-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .process-rail__step {
+    border-right: 0;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  .process-rail__step:last-child {
+    border-bottom: 0;
+  }
 }
 
 // 密度档位

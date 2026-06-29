@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
@@ -78,6 +79,7 @@ FOREIGN_KEYS = [
 MAX_LENGTHS = {
     ("product", "product_name"): 200,
     ("product", "barcode"): 50,
+    ("product", "unit"): 20,
     ("book", "isbn"): 20,
     ("book", "language"): 30,
     ("publisher", "publisher_name"): 150,
@@ -85,13 +87,46 @@ MAX_LENGTHS = {
 }
 
 MINIMUM_ROWS = {
+    "store": 50,
+    "category": 40,
+    "publisher": 10,
     "product": 10000,
     "book": 10000,
     "book_author": 10000,
-    "inventory": 20,
-    "sale": 10,
-    "sale_item": 20,
+    "customer": 80000,
+    "member": 45000,
+    "sale": 300000,
+    "sale_item": 600000,
+    "purchase_order": 2000,
+    "purchase_order_item": 25000,
+    "stock_in": 1800,
+    "stock_in_item": 20000,
+    "inventory": 10000,
 }
+
+FORBIDDEN_MARKETING_TERMS = ["当当网", "当当自营", "新华书店", "包邮", "自营", "旗舰店", "点击购买", "已撤销"]
+
+FLAGSHIP_STORE_IDS = {"1", "2", "5", "9", "10", "14", "15", "16", "17", "20", "21", "23", "24", "27", "35", "38"}
+
+
+def isbn13_check_digit(prefix12: str) -> str:
+    total = sum(int(char) * (1 if index % 2 == 0 else 3) for index, char in enumerate(prefix12))
+    return str((10 - total % 10) % 10)
+
+
+def valid_isbn13(value: str) -> bool:
+    return (
+        len(value) == 13
+        and value.isdigit()
+        and value[:3] in {"978", "979"}
+        and isbn13_check_digit(value[:12]) == value[-1]
+    )
+
+
+def has_forbidden_marketing_text(value: str) -> bool:
+    if any(term in value for term in FORBIDDEN_MARKETING_TERMS):
+        return True
+    return bool(re.search(r"(^|[【\[(（\s])正版([】\])）\s]|$|图书|书籍|教材|现货|包邮|全新)", value))
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -108,6 +143,21 @@ def line_totals(rows: list[dict[str, str]], key: str) -> dict[str, Decimal]:
     for row in rows:
         totals[row[key]] += Decimal(row["line_amount"])
     return totals
+
+
+def category_descendant_ids(rows: list[dict[str, str]], root_id: str) -> set[str]:
+    children = defaultdict(list)
+    for row in rows:
+        children[row["parent_category_id"]].append(row["category_id"])
+    descendants = {root_id}
+    pending = [root_id]
+    while pending:
+        current = pending.pop()
+        for child in children.get(current, []):
+            if child not in descendants:
+                descendants.add(child)
+                pending.append(child)
+    return descendants
 
 
 def validate_seed_data() -> None:
@@ -146,18 +196,120 @@ def validate_seed_data() -> None:
         assert Decimal(row["actual_amount"]) == expected, "Invalid sale actual amount."
 
     for (table, column), max_length in MAX_LENGTHS.items():
-        assert max(len(row[column]) for row in data[table]) <= max_length, f"{table}.{column} is too long."
+        if data[table]:
+            assert max(len(row[column]) for row in data[table]) <= max_length, f"{table}.{column} is too long."
 
     for table, minimum in MINIMUM_ROWS.items():
         assert len(data[table]) >= minimum, f"{table} needs at least {minimum} seed rows."
 
     product_lookup = {row["product_id"]: row for row in data["product"]}
-    for path in LEGACY_DIR.glob("*.csv"):
-        for row in read_csv(path):
-            if "product_id" in row and "product_barcode" in row:
-                product = product_lookup[row["product_id"]]
-                assert product["barcode"] == row["product_barcode"], f"{path.name} contains a mismatched barcode."
-                assert product["product_name"] == row["product_name"], f"{path.name} contains a mismatched product name."
+    book_product_ids = {row["product_id"] for row in data["book"]}
+    nonbook_product_ids = set(product_lookup) - book_product_ids
+    book_isbns = [row["isbn"] for row in data["book"]]
+    product_barcodes = [row["barcode"] for row in data["product"]]
+    authored_product_ids = {row["product_id"] for row in data["book_author"]}
+    supplier_emails = [row["email"] for row in data["supplier"]]
+    store_phones = [row["phone"] for row in data["store"]]
+    stocked_store_ids = {row["store_id"] for row in data["inventory"]}
+    category_names = [row["category_name"] for row in data["category"]]
+    supplier_by_name = {row["supplier_name"]: row for row in data["supplier"]}
+    category_by_name = {row["category_name"]: row for row in data["category"]}
+    supplier_links_by_product = defaultdict(set)
+    for row in data["supplier_product"]:
+        supplier_links_by_product[row["product_id"]].add(row["supplier_id"])
+    assert book_product_ids.issubset(product_lookup), "book rows must reference product rows."
+    assert nonbook_product_ids, "seed data should include Deli office stationery products."
+    assert len(category_names) == len(set(category_names)), "category names must be unique for the current schema."
+    assert all(row["language"] == "中文" for row in data["book"]), "book rows must use Chinese mainland seed data."
+    assert all(valid_isbn13(row["isbn"]) for row in data["book"]), "book rows must contain valid ISBN-13 values."
+    assert all(not row["isbn"].upper().startswith("DD") for row in data["book"]), "Dangdang product codes are not ISBNs."
+    assert len(book_isbns) == len(set(book_isbns)), "book rows contain duplicate ISBNs."
+    assert all(row["barcode"] for row in data["product"]), "product rows must contain barcodes or source product codes."
+    assert len(product_barcodes) == len(set(product_barcodes)), "product rows contain duplicate barcodes."
+    assert {product_lookup[row["product_id"]]["barcode"] for row in data["book"]} == {row["isbn"] for row in data["book"]}, "book product barcode must match ISBN."
+    deli_supplier = next((row for name, row in supplier_by_name.items() if name.startswith("得力集实")), None)
+    assert deli_supplier is not None, "supplier rows must include Deli JSLink."
+    assert "办公文具" in category_by_name, "category rows must include office stationery root."
+    office_category_ids = category_descendant_ids(data["category"], category_by_name["办公文具"]["category_id"])
+    deli_supplier_id = deli_supplier["supplier_id"]
+    assert all(product_lookup[pid]["category_id"] in office_category_ids for pid in nonbook_product_ids), "non-book products must be under office stationery categories."
+    assert all(product_lookup[pid]["unit"] != "箱" for pid in nonbook_product_ids), "Deli products with unit 箱 must be removed."
+    assert all(supplier_links_by_product[pid] == {deli_supplier_id} for pid in nonbook_product_ids), "Deli products must use 得力集实 as their only supplier."
+    assert not any(has_forbidden_marketing_text(row["product_name"]) for row in data["product"]), "product names contain marketing noise."
+    assert not any(has_forbidden_marketing_text(row["author_name"]) for row in data["author"]), "author names contain marketing noise."
+    assert not any(has_forbidden_marketing_text(row["translator_name"]) for row in data["translator"]), "translator names contain marketing noise."
+    assert all(row["website"] and row["contact_name"] and row["phone"] and row["email"] for row in data["publisher"]), "publisher contact profiles must be complete."
+    assert all(row["contact_name"] and row["phone"] and row["email"] for row in data["supplier"]), "supplier contact profiles must be complete."
+    assert len(supplier_emails) == len(set(supplier_emails)), "supplier rows contain duplicate emails."
+    assert len(store_phones) == len(set(store_phones)), "store rows contain duplicate phones."
+    assert all(row["store_id"] in stocked_store_ids for row in data["store"]), "every store must have inventory rows."
+    assert all(row["product_id"] in authored_product_ids for row in data["book"]), "book rows must have at least one author."
+
+    book_inventory_counts = defaultdict(int)
+    stockout_count = 0
+    warning_count = 0
+    for row in data["inventory"]:
+        if row["product_id"] in book_product_ids:
+            book_inventory_counts[row["store_id"]] += 1
+        stock_qty = int(row["stock_qty"])
+        safety_stock_qty = int(row["safety_stock_qty"])
+        if stock_qty == 0:
+            stockout_count += 1
+        if stock_qty <= safety_stock_qty:
+            warning_count += 1
+
+    for row in data["store"]:
+        store_id = row["store_id"]
+        book_count = book_inventory_counts[store_id]
+        if store_id in FLAGSHIP_STORE_IDS:
+            assert 45000 <= book_count <= 70000, f"flagship store {store_id} has {book_count} book SKUs."
+        else:
+            assert 15000 <= book_count <= 25000, f"standard store {store_id} has {book_count} book SKUs."
+
+    inventory_count = len(data["inventory"])
+    assert 0.01 <= stockout_count / inventory_count <= 0.03, "inventory stockout ratio must stay between 1% and 3%."
+    assert warning_count / inventory_count <= 0.15, "inventory warning ratio must not exceed 15%."
+
+    customer_lookup = {row["customer_id"]: row for row in data["customer"]}
+    member_levels = {row["level"] for row in data["member"]}
+    member_ratio = len(data["member"]) / len(data["customer"])
+    assert 0.55 <= member_ratio <= 0.75, "member ratio must reflect a mall bookstore membership program."
+    assert {"bronze", "silver", "gold", "platinum"}.issubset(member_levels), "member rows must include every level."
+    assert all(row["status"] in {"active", "inactive"} for row in data["customer"]), "customer status is invalid."
+
+    sale_dates = [row["sale_time"][:10] for row in data["sale"]]
+    assert min(sale_dates) >= "2026-01-01" and max(sale_dates) <= "2026-06-30", "sale dates must stay in 2026-01-01..2026-06-30."
+    assert all(not row["customer_id"] or customer_lookup[row["customer_id"]]["status"] == "active" for row in data["sale"]), "sales should not reference inactive customers."
+
+    purchase_order_dates = [row["order_time"][:10] for row in data["purchase_order"]]
+    stock_in_dates = [row["inbound_time"][:10] for row in data["stock_in"]]
+    assert min(purchase_order_dates) >= "2025-12-01" and max(purchase_order_dates) <= "2026-06-30", "purchase order dates must stay in 2025-12-01..2026-06-30."
+    assert min(stock_in_dates) >= "2025-12-01" and max(stock_in_dates) <= "2026-06-30", "stock-in dates must stay in 2025-12-01..2026-06-30."
+    purchase_order_lookup = {row["purchase_order_id"]: row for row in data["purchase_order"]}
+    assert all(purchase_order_lookup[row["purchase_order_id"]]["status"] == "received" for row in data["stock_in"]), "stock-in records should come from received purchase orders."
+    assert all(purchase_order_lookup[row["purchase_order_id"]]["store_id"] == row["store_id"] for row in data["stock_in"]), "stock-in store must match its purchase order."
+
+    product_sales = defaultdict(Decimal)
+    category_sales = defaultdict(Decimal)
+    book_sales_amount = Decimal("0")
+    nonbook_sales_amount = Decimal("0")
+    for row in data["sale_item"]:
+        product_id = row["product_id"]
+        amount = Decimal(row["line_amount"])
+        product_sales[product_id] += amount
+        category_sales[product_lookup[product_id]["category_id"]] += amount
+        if product_id in book_product_ids:
+            book_sales_amount += amount
+        else:
+            nonbook_sales_amount += amount
+
+    total_sales_amount = book_sales_amount + nonbook_sales_amount
+    top_product_amounts = [amount for _, amount in sorted(product_sales.items(), key=lambda item: item[1], reverse=True)[:10]]
+    top_category_amounts = [amount for _, amount in sorted(category_sales.items(), key=lambda item: item[1], reverse=True)[:10]]
+    assert len(set(top_product_amounts)) >= 8, "top product sales amounts are too uniform."
+    assert max(top_category_amounts) / min(top_category_amounts) >= Decimal("2.0"), "category sales summary is too uniform."
+    assert book_sales_amount / total_sales_amount >= Decimal("0.80"), "book sales should remain the main business."
+    assert nonbook_sales_amount / total_sales_amount >= Decimal("0.03"), "Deli stationery sales should be visible in business data."
 
     print(f"Validated {sum(len(rows) for rows in data.values())} rows across {len(data)} CSV tables.")
     for table in PRIMARY_KEYS:

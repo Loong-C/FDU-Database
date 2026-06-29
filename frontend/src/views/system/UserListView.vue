@@ -162,7 +162,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="账号管理" subtitle="维护系统用户及其角色权限（仅管理员可见）">
+    <PageHeader title="账号管理">
       <template #extra>
         <el-button type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增用户

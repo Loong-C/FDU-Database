@@ -5,7 +5,7 @@ from common.response import success_response
 from common.viewsets import StandardizedModelViewSet
 from common.datetime_filters import apply_local_date_range
 from sales.models import Sale
-from sales.serializers import SaleReadSerializer, SaleWriteSerializer
+from sales.serializers import SaleQuerySerializer, SaleReadSerializer, SaleWriteSerializer
 from sales.services import create_sale, delete_sale, update_sale
 
 
@@ -15,18 +15,16 @@ class SaleViewSet(StandardizedModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        store_id = self.request.query_params.get("store_id")
-        customer_id = self.request.query_params.get("customer_id")
-        payment_method = self.request.query_params.get("payment_method")
-        date_from = self.request.query_params.get("date_from")
-        date_to = self.request.query_params.get("date_to")
-        if store_id:
-            queryset = queryset.filter(store_id=store_id)
-        if customer_id:
-            queryset = queryset.filter(customer_id=customer_id)
-        if payment_method:
-            queryset = queryset.filter(payment_method=payment_method)
-        queryset = apply_local_date_range(queryset, "sale_time", date_from, date_to)
+        serializer = SaleQuerySerializer(data=self.request.query_params)
+        serializer.is_valid(raise_exception=True)
+        params = serializer.validated_data
+        if params.get("store_id"):
+            queryset = queryset.filter(store_id=params["store_id"])
+        if params.get("customer_id"):
+            queryset = queryset.filter(customer_id=params["customer_id"])
+        if params.get("payment_method"):
+            queryset = queryset.filter(payment_method=params["payment_method"])
+        queryset = apply_local_date_range(queryset, "sale_time", params.get("date_from"), params.get("date_to"))
         return queryset
 
     def get_serializer_class(self):

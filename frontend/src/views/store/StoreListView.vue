@@ -134,7 +134,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="门店管理" subtitle="维护全国门店基础信息，供销售开单与报表分析使用">
+    <PageHeader title="门店管理">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增门店

@@ -128,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "zh-hans"
 TIME_ZONE = "Asia/Shanghai"
 USE_I18N = True
-USE_TZ = True
+USE_TZ = env_bool("USE_TZ", False)
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"

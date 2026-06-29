@@ -1,4 +1,4 @@
-user_id,username,password_hash,real_name,phone,email,status
-1,admin,pbkdf2_sha256$demo$admin,系统管理员,13900000001,admin@example.com,active
-2,operator,pbkdf2_sha256$demo$operator,门店操作员,13900000002,operator@example.com,active
-3,viewer,pbkdf2_sha256$demo$viewer,查询用户,13900000003,viewer@example.com,active
+﻿user_id,username,password_hash,real_name,phone,email,status
+1,admin,demo-only-hash-admin,管理员,13900000001,admin@example.local,active
+2,operator,demo-only-hash-operator,门店操作员,13900000002,operator@example.local,active
+3,viewer,demo-only-hash-viewer,查询用户,13900000003,viewer@example.local,active

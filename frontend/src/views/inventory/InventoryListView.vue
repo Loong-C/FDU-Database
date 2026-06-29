@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
@@ -12,10 +13,14 @@ import { ApiError } from '@/api/http'
 import { applyServerErrors } from '@/utils/errors'
 import { useAuthStore } from '@/stores/auth'
 import { useDictsStore } from '@/stores/dicts'
+import { defaultStoreId } from '@/utils/defaults'
 
 const auth = useAuthStore()
 const dicts = useDictsStore()
 const canWrite = () => auth.role === 'admin'
+const canProcure = () => auth.role === 'admin' || auth.role === 'operator'
+const route = useRoute()
+const router = useRouter()
 
 const rows = ref<InventoryRow[]>([])
 const tableRows = computed(() =>
@@ -60,7 +65,7 @@ function onSearch() {
 }
 
 function onReset() {
-  filters.store_id = undefined
+  filters.store_id = defaultStoreId(dicts.stores)
   filters.product_id = undefined
   filters.warning = false
   onSearch()
@@ -120,8 +125,22 @@ async function onSubmit() {
 const statusTagType = (s: ProductStatus) =>
   s === 'onsale' ? 'success' : s === 'offsale' ? 'info' : 'danger'
 
-onMounted(() => {
-  dicts.ensureStores()
+function openReplenish(row: InventoryRow) {
+  const suggestQty = Math.max(row.safety_stock_qty - row.stock_qty + 1, 1)
+  router.push({
+    path: '/purchase-orders',
+    query: {
+      replenish_product_id: String(row.product_id),
+      store_id: String(row.store_id),
+      qty: String(suggestQty),
+    },
+  })
+}
+
+onMounted(async () => {
+  filters.warning = route.query.warning === '1' || route.query.warning === 'true'
+  await dicts.ensureStores()
+  filters.store_id = Number(route.query.store_id || 0) || defaultStoreId(dicts.stores)
   searchProducts()
   fetchList()
 })
@@ -129,7 +148,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="门店库存" subtitle="按门店和商品维护当前库存、安全库存，并查看低库存预警">
+    <PageHeader title="门店库存">
       <template #extra>
         <el-button @click="fetchList">
           <el-icon><Refresh /></el-icon>刷新
@@ -205,10 +224,13 @@ onMounted(() => {
       <el-table-column label="更新时间" width="170">
         <template #default="{ row }">{{ formatDateTime(row.updated_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="120" fixed="right" align="right">
+      <el-table-column label="操作" width="180" fixed="right" align="right">
         <template #default="{ row }">
-          <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">调整</el-button>
-          <span v-else class="text-muted">—</span>
+          <div class="table-actions">
+            <el-button v-if="canProcure()" text type="primary" @click="openReplenish(row)">补货采购</el-button>
+            <el-button v-if="canWrite()" text type="primary" @click="openEdit(row)">调整</el-button>
+            <span v-if="!canProcure() && !canWrite()" class="text-muted">—</span>
+          </div>
         </template>
       </el-table-column>
     </CrudTable>

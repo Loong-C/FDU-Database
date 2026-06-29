@@ -1,5 +1,6 @@
 from datetime import datetime, time
 
+from django.conf import settings
 from django.utils import timezone
 
 
@@ -8,9 +9,13 @@ def build_local_date_bounds(date_from=None, date_to=None):
     start = None
     end = None
     if date_from:
-        start = timezone.make_aware(datetime.combine(date_from, time.min), current_tz)
+        start = datetime.combine(date_from, time.min)
+        if settings.USE_TZ:
+            start = timezone.make_aware(start, current_tz)
     if date_to:
-        end = timezone.make_aware(datetime.combine(date_to, time.max), current_tz)
+        end = datetime.combine(date_to, time.max)
+        if settings.USE_TZ:
+            end = timezone.make_aware(end, current_tz)
     return start, end
 
 

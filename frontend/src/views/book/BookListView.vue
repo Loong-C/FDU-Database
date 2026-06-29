@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
@@ -8,6 +8,7 @@ import BookFormDrawer from './BookFormDrawer.vue'
 import { deleteBook, listBooks, type BookQuery } from '@/api/books'
 import type { Book, ProductStatus } from '@/api/types'
 import { formatCurrency, formatDate, statusLabel } from '@/utils/format'
+import { categoryDescendants, categoryOptionLabel } from '@/utils/categories'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
 
@@ -20,7 +21,15 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
-const filters = reactive<BookQuery>({ search: '', publisher_id: undefined, category_id: undefined })
+const filters = reactive<BookQuery>({
+  title: '',
+  author: '',
+  translator: '',
+  isbn: '',
+  publisher_id: undefined,
+  category_id: undefined,
+})
+const bookCategories = computed(() => categoryDescendants(dicts.categories, '图书'))
 
 async function fetchList() {
   loading.value = true
@@ -28,7 +37,10 @@ async function fetchList() {
     const data = await listBooks({
       page: page.value,
       page_size: pageSize.value,
-      search: filters.search || undefined,
+      title: filters.title || undefined,
+      author: filters.author || undefined,
+      translator: filters.translator || undefined,
+      isbn: filters.isbn || undefined,
       publisher_id: filters.publisher_id ?? undefined,
       category_id: filters.category_id ?? undefined,
     })
@@ -86,7 +98,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="图书管理" subtitle="维护图书独有字段：ISBN、出版社、作者、译者">
+    <PageHeader title="图书档案">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增图书
@@ -97,10 +109,19 @@ onMounted(() => {
     <FilterBar
       :loading="loading"
       @submit="() => { page = 1; fetchList() }"
-      @reset="() => { filters.search=''; filters.publisher_id=undefined; filters.category_id=undefined; page=1; fetchList() }"
+      @reset="() => { filters.title=''; filters.author=''; filters.translator=''; filters.isbn=''; filters.publisher_id=undefined; filters.category_id=undefined; page=1; fetchList() }"
     >
-      <el-form-item label="名称">
-        <el-input v-model="filters.search" placeholder="按图书名称/ISBN" clearable style="width: 200px" />
+      <el-form-item label="标题">
+        <el-input v-model="filters.title" placeholder="输入书名关键词" clearable style="width: 200px" />
+      </el-form-item>
+      <el-form-item label="作者">
+        <el-input v-model="filters.author" placeholder="输入作者姓名" clearable style="width: 160px" />
+      </el-form-item>
+      <el-form-item label="译者">
+        <el-input v-model="filters.translator" placeholder="输入译者姓名" clearable style="width: 160px" />
+      </el-form-item>
+      <el-form-item label="ISBN">
+        <el-input v-model="filters.isbn" placeholder="输入 ISBN" clearable style="width: 170px" />
       </el-form-item>
       <el-form-item label="出版社">
         <el-select v-model="filters.publisher_id" placeholder="全部" clearable filterable style="width: 200px">
@@ -115,9 +136,9 @@ onMounted(() => {
       <el-form-item label="分类">
         <el-select v-model="filters.category_id" placeholder="全部" clearable filterable style="width: 200px">
           <el-option
-            v-for="c in dicts.categories"
+            v-for="c in bookCategories"
             :key="c.category_id"
-            :label="c.parent_category_name ? `${c.parent_category_name} / ${c.category_name}` : c.category_name"
+            :label="categoryOptionLabel(c, dicts.categories, '图书')"
             :value="c.category_id"
           />
         </el-select>
@@ -143,27 +164,30 @@ onMounted(() => {
       </el-table-column>
       <el-table-column label="作者" min-width="180">
         <template #default="{ row }">
+          <span v-if="row.authors?.length" class="person-tags">
           <el-tag
             v-for="a in row.authors"
             :key="a.author_id"
             size="small"
-            type="info"
-            style="margin-right: 4px"
+            effect="plain"
+            class="person-tag"
           >
             {{ a.author_name }}
           </el-tag>
+          </span>
           <span v-if="!row.authors?.length" class="text-muted">-</span>
         </template>
       </el-table-column>
       <el-table-column label="译者" min-width="140">
         <template #default="{ row }">
-          <span v-if="row.translators?.length">
+          <span v-if="row.translators?.length" class="person-tags">
             <el-tag
               v-for="t in row.translators"
               :key="t.translator_id"
               size="small"
+              type="info"
               effect="plain"
-              style="margin-right: 4px"
+              class="person-tag person-tag--muted"
             >
               {{ t.translator_name }}
             </el-tag>
@@ -212,6 +236,26 @@ onMounted(() => {
 <style scoped>
 .book-title {
   font-weight: 500;
+}
+
+.person-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.person-tag {
+  max-width: 132px;
+}
+
+.person-tag :deep(.el-tag__content) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-tag--muted {
+  --el-tag-text-color: var(--app-text-muted);
 }
 
 .stock-summary {

@@ -1,6 +1,6 @@
 @use 'element-plus/theme-chalk/dark/css-vars.css';
 
-// 让 Element Plus 的 CSS 变量向 GitHub/Primer 语义对齐。
+// 让 Element Plus 的 CSS 变量向 Swiss Style 语义对齐。
 :root,
 html.dark {
   --el-color-primary: var(--brand);
@@ -35,7 +35,7 @@ html.dark {
   --el-menu-active-color: var(--brand);
 }
 
-// 卡片：无阴影、细边、6px 圆角，与 Primer 一致
+// 卡片：无阴影、硬朗边框
 .el-card {
   --el-card-border-radius: var(--app-radius);
   --el-card-padding: 16px;
@@ -44,9 +44,9 @@ html.dark {
   background: var(--app-surface-solid);
 }
 
-// 按钮：中性边框 + 轻微的底色，默认按钮像 GitHub 二级按钮
+// 按钮：中性边框 + 明确动作色
 .el-button {
-  font-weight: 500;
+  font-weight: 800;
   border-radius: var(--app-radius);
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
@@ -66,6 +66,7 @@ html.dark {
 .el-button--primary {
   background: var(--brand);
   border-color: var(--brand);
+  color: var(--brand-on);
 }
 
 .el-button--primary:hover,
@@ -84,11 +85,11 @@ html.dark {
   border-color: var(--success);
 }
 
-// 表格：无圆角、极淡分割线，GitHub 风表格
+// 表格：报表式表头和清晰网格
 .el-table {
   --el-table-border-color: var(--app-border-muted);
   --el-table-header-bg-color: var(--app-surface-alt);
-  --el-table-header-text-color: var(--app-text-muted);
+  --el-table-header-text-color: var(--app-text);
   --el-table-row-hover-bg-color: var(--app-surface-alt);
   --el-table-bg-color: var(--app-surface-solid);
   border-radius: var(--app-radius);
@@ -96,16 +97,16 @@ html.dark {
 }
 
 .el-table thead th {
-  font-weight: 600;
+  font-weight: 900;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 // Tag：方形偏小圆角
 .el-tag {
-  border-radius: 2em;
-  font-weight: 500;
+  border-radius: var(--app-radius-sm);
+  font-weight: 800;
   font-size: 12px;
 }
 
@@ -113,6 +114,7 @@ html.dark {
 .el-dialog,
 .el-drawer {
   --el-dialog-border-radius: var(--app-radius-lg);
+  border: 1px solid var(--app-border-strong);
 }
 
 .el-drawer {
@@ -120,10 +122,10 @@ html.dark {
 }
 
 .el-overlay {
-  background-color: rgba(27, 31, 36, 0.5);
+  background-color: rgba(17, 17, 17, 0.55);
 }
 
-// 菜单：GitHub 侧栏风格，hover 只有淡灰，active 才上主色
+// 菜单：Swiss 侧栏，选中态使用强黑/白对比
 .el-menu {
   --el-menu-bg-color: transparent;
   border-right: none !important;
@@ -134,8 +136,8 @@ html.dark {
   border-radius: var(--app-radius);
   margin: 1px 8px;
   padding-left: 12px !important;
-  height: 34px;
-  line-height: 34px;
+  height: 35px;
+  line-height: 35px;
   font-size: 13.5px;
   transition: background 0.1s ease, color 0.1s ease;
 }
@@ -154,7 +156,7 @@ html.dark {
 .el-menu--vertical .el-menu-item.is-active {
   background: var(--menu-active-bg) !important;
   color: var(--menu-active-text) !important;
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .el-menu--vertical .el-menu-item.is-active .el-icon {
@@ -166,7 +168,7 @@ html.dark {
   justify-content: center;
 }
 
-// 输入框/下拉：细边 + 6px 圆角
+// 输入框/下拉：细边 + 极小圆角
 .el-input__wrapper,
 .el-textarea__inner,
 .el-select__wrapper {

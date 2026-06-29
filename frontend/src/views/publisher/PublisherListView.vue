@@ -130,7 +130,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="出版社管理" subtitle="图书出版来源信息">
+    <PageHeader title="出版社管理">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增出版社

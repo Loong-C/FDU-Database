@@ -1,3 +1,4 @@
+from django.db.models import Prefetch, Q
 from rest_framework import status
 
 from catalog.models import Author, Book, Category, Product, Publisher, Supplier, Translator
@@ -23,6 +24,11 @@ from common.exceptions import ConflictError
 from common.permissions import CatalogPermission
 from common.response import success_response
 from common.viewsets import StandardizedModelViewSet
+from inventory.models import Inventory
+
+
+def _is_truthy_param(value):
+    return value is not None and value.lower() in {"true", "1", "yes", "on"}
 
 
 class BaseCatalogViewSet(StandardizedModelViewSet):
@@ -113,7 +119,7 @@ class TranslatorViewSet(BaseCatalogViewSet):
 class ProductViewSet(BaseCatalogViewSet):
     queryset = (
         Product.objects.select_related("category")
-        .prefetch_related("supplier_links__supplier", "inventories__store")
+        .prefetch_related("supplier_links__supplier")
         .all()
         .order_by("product_id")
     )
@@ -123,13 +129,45 @@ class ProductViewSet(BaseCatalogViewSet):
         category_id = self.request.query_params.get("category_id")
         status_value = self.request.query_params.get("status")
         search = self.request.query_params.get("search")
+        is_book = self.request.query_params.get("is_book")
+        store_id = self.request.query_params.get("store_id")
+        in_stock = self.request.query_params.get("in_stock")
+        if is_book is not None:
+            normalized = is_book.lower()
+            if normalized in {"false", "0", "no"}:
+                queryset = queryset.filter(book__isnull=True)
+            elif normalized in {"true", "1", "yes"}:
+                queryset = queryset.filter(book__isnull=False)
+        if store_id:
+            queryset = queryset.filter(inventories__store_id=store_id)
+            if _is_truthy_param(in_stock):
+                queryset = queryset.filter(inventories__stock_qty__gt=0)
+        elif _is_truthy_param(in_stock):
+            queryset = queryset.filter(inventories__stock_qty__gt=0)
         if category_id:
             # 选父分类时一并匹配其下所有子分类，避免商品挂在叶子分类时父分类筛选返回空。
             queryset = queryset.filter(category_id__in=category_descendant_ids(category_id))
         if status_value:
             queryset = queryset.filter(status=status_value)
         if search:
-            queryset = queryset.filter(product_name__icontains=search)
+            queryset = queryset.filter(
+                Q(product_name__icontains=search)
+                | Q(barcode__icontains=search)
+                | Q(book__isbn__icontains=search)
+                | Q(book__author_links__author__author_name__icontains=search)
+                | Q(book__translator_links__translator__translator_name__icontains=search)
+            )
+        queryset = queryset.distinct()
+        if store_id:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "inventories",
+                    queryset=Inventory.objects.select_related("store").filter(store_id=store_id),
+                    to_attr="filtered_inventories",
+                )
+            )
+        else:
+            queryset = queryset.prefetch_related("inventories__store")
         return queryset
 
     def get_serializer_class(self):
@@ -172,13 +210,30 @@ class BookViewSet(BaseCatalogViewSet):
         publisher_id = self.request.query_params.get("publisher_id")
         category_id = self.request.query_params.get("category_id")
         search = self.request.query_params.get("search")
+        title = self.request.query_params.get("title")
+        author = self.request.query_params.get("author")
+        translator = self.request.query_params.get("translator")
+        isbn = self.request.query_params.get("isbn")
         if publisher_id:
             queryset = queryset.filter(publisher_id=publisher_id)
         if category_id:
             queryset = queryset.filter(product__category_id__in=category_descendant_ids(category_id))
+        if title:
+            queryset = queryset.filter(product__product_name__icontains=title)
+        if author:
+            queryset = queryset.filter(author_links__author__author_name__icontains=author)
+        if translator:
+            queryset = queryset.filter(translator_links__translator__translator_name__icontains=translator)
+        if isbn:
+            queryset = queryset.filter(isbn__icontains=isbn)
         if search:
-            queryset = queryset.filter(product__product_name__icontains=search)
-        return queryset
+            queryset = queryset.filter(
+                Q(product__product_name__icontains=search)
+                | Q(isbn__icontains=search)
+                | Q(author_links__author__author_name__icontains=search)
+                | Q(translator_links__translator__translator_name__icontains=search)
+            )
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action in {"list", "retrieve"}:

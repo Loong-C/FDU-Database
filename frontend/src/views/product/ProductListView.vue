@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import FilterBar from '@/components/common/FilterBar.vue'
 import CrudTable from '@/components/common/CrudTable.vue'
 import ProductFormDrawer from './ProductFormDrawer.vue'
-import BookFormDrawer from '../book/BookFormDrawer.vue'
+import BookFormDrawer from '@/views/book/BookFormDrawer.vue'
 import { deleteProduct, listProducts, type ProductQuery } from '@/api/products'
 import { deleteBook } from '@/api/books'
 import type { Product, ProductStatus } from '@/api/types'
 import { formatCurrency, statusLabel } from '@/utils/format'
+import { categoryFullOptionLabel, displayCategoryName } from '@/utils/categories'
 import { useDictsStore } from '@/stores/dicts'
 import { useAuthStore } from '@/stores/auth'
 
@@ -24,6 +25,24 @@ const pageSize = ref(20)
 const total = ref(0)
 
 const filters = reactive<ProductQuery>({ search: '', category_id: undefined, status: undefined })
+const productCategories = computed(() => {
+  const officeRoot = dicts.categories.find((category) => category.category_name === '办公文具')
+  if (!officeRoot) {
+    return []
+  }
+  const allowed = new Set<number>([officeRoot.category_id])
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const category of dicts.categories) {
+      if (category.parent_category_id && allowed.has(category.parent_category_id) && !allowed.has(category.category_id)) {
+        allowed.add(category.category_id)
+        changed = true
+      }
+    }
+  }
+  return dicts.categories.filter((category) => allowed.has(category.category_id))
+})
 
 async function fetchList() {
   loading.value = true
@@ -31,6 +50,7 @@ async function fetchList() {
     const data = await listProducts({
       page: page.value,
       page_size: pageSize.value,
+      is_book: false,
       search: filters.search || undefined,
       category_id: filters.category_id ?? undefined,
       status: filters.status ?? undefined,
@@ -51,22 +71,19 @@ function openCreateProduct() {
   editingId.value = null
   productDrawer.value = true
 }
-function openCreateBook() {
-  editingId.value = null
-  bookDrawer.value = true
-}
 function openEdit(row: Product) {
   editingId.value = row.product_id
-  if (row.is_book) bookDrawer.value = true
-  else productDrawer.value = true
+  if (row.is_book) {
+    bookDrawer.value = true
+    return
+  }
+  productDrawer.value = true
 }
 
 async function onDelete(row: Product) {
   try {
     await ElMessageBox.confirm(
-      row.is_book
-        ? `删除图书「${row.product_name}」？若存在销售记录将返回冲突。`
-        : `删除商品「${row.product_name}」？若存在销售记录将返回冲突。`,
+      `删除商品「${row.product_name}」？若存在销售记录将返回冲突。`,
       '删除确认',
       { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' },
     )
@@ -74,8 +91,11 @@ async function onDelete(row: Product) {
     return
   }
   try {
-    if (row.is_book) await deleteBook(row.product_id)
-    else await deleteProduct(row.product_id)
+    if (row.is_book) {
+      await deleteBook(row.product_id)
+    } else {
+      await deleteProduct(row.product_id)
+    }
     ElMessage.success('已删除')
     fetchList()
   } catch {
@@ -98,23 +118,11 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="商品管理" subtitle="管理全部商品，图书类商品用图书抽屉编辑">
+    <PageHeader title="得力办公文具专区">
       <template #extra>
-        <el-dropdown v-if="canWrite()" trigger="click">
-          <el-button type="primary">
-            <el-icon><Plus /></el-icon>新增商品<el-icon style="margin-left: 4px"><ArrowDown /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="openCreateProduct">
-                <el-icon><Goods /></el-icon>普通商品
-              </el-dropdown-item>
-              <el-dropdown-item @click="openCreateBook">
-                <el-icon><Reading /></el-icon>图书商品
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <el-button v-if="canWrite()" type="primary" @click="openCreateProduct">
+          <el-icon><Plus /></el-icon>新增商品
+        </el-button>
       </template>
     </PageHeader>
 
@@ -129,9 +137,9 @@ onMounted(() => {
       <el-form-item label="分类">
         <el-select v-model="filters.category_id" placeholder="全部" clearable style="width: 200px" filterable>
           <el-option
-            v-for="c in dicts.categories"
+            v-for="c in productCategories"
             :key="c.category_id"
-            :label="c.parent_category_name ? `${c.parent_category_name} / ${c.category_name}` : c.category_name"
+            :label="categoryFullOptionLabel(c, dicts.categories)"
             :value="c.category_id"
           />
         </el-select>
@@ -159,13 +167,21 @@ onMounted(() => {
       <el-table-column label="名称" min-width="220">
         <template #default="{ row }">
           <div class="product-name">
-            <el-tag v-if="row.is_book" type="primary" size="small" effect="light" round>图书</el-tag>
             <span>{{ row.product_name }}</span>
           </div>
           <div class="text-muted" style="font-size: 12px">{{ row.barcode || '无条码' }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="category_name" label="分类" width="140" />
+      <el-table-column label="类型" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.is_book ? 'danger' : 'info'" size="small" effect="plain">
+            {{ row.is_book ? '图书' : '得力文具' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="分类" width="150">
+        <template #default="{ row }">{{ displayCategoryName(row.category_name) }}</template>
+      </el-table-column>
       <el-table-column label="售价" width="130" align="right">
         <template #default="{ row }"><span class="money">{{ formatCurrency(row.unit_price) }}</span></template>
       </el-table-column>

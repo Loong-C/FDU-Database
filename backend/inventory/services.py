@@ -12,6 +12,8 @@ def get_default_store():
 
 
 def product_stock_total(product) -> int:
+    if "inventories" in getattr(product, "_prefetched_objects_cache", {}):
+        return int(sum(row.stock_qty for row in product.inventories.all()))
     total = product.inventories.aggregate(total=Sum("stock_qty"))["total"]
     return int(total or 0)
 

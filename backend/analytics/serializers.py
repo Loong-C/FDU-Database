@@ -22,5 +22,6 @@ class MemberRankQuerySerializer(serializers.Serializer):
 
 
 class CategorySummaryQuerySerializer(serializers.Serializer):
+    store_id = serializers.IntegerField(required=False)
     date_from = serializers.DateField(required=False)
     date_to = serializers.DateField(required=False)

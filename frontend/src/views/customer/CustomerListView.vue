@@ -186,7 +186,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="客户管理" subtitle="维护顾客基础信息，并可一键升级为会员">
+    <PageHeader title="客户管理">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增客户

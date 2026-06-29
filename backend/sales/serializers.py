@@ -48,6 +48,14 @@ class SaleWriteSerializer(serializers.Serializer):
         return attrs
 
 
+class SaleQuerySerializer(serializers.Serializer):
+    store_id = serializers.IntegerField(required=False)
+    customer_id = serializers.IntegerField(required=False)
+    payment_method = serializers.ChoiceField(choices=Sale.PAYMENT_CHOICES, required=False)
+    date_from = serializers.DateField(required=False)
+    date_to = serializers.DateField(required=False)
+
+
 class SaleItemReadSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="product.product_id", read_only=True)
     product_name = serializers.CharField(source="product.product_name", read_only=True)
