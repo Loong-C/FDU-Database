@@ -68,9 +68,7 @@ function useDemoAccount(account: { name: string; password: string }) {
         <span>网上综合书店</span>
         <span>销售数据库</span>
       </h1>
-      <p class="login__copy">
-          
-      </p>
+      <p class="login__copy"></p>
     </section>
 
     <main class="login__panel">
