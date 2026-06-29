@@ -148,7 +148,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="门店库存" subtitle="按门店和商品维护当前库存、安全库存，并查看低库存预警">
+    <PageHeader title="门店库存">
       <template #extra>
         <el-button @click="fetchList">
           <el-icon><Refresh /></el-icon>刷新

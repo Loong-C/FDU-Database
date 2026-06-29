@@ -138,7 +138,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="会员管理" subtitle="会员等级、积分与消费追踪">
+    <PageHeader title="会员管理">
       <template #extra>
         <el-button @click="() => { fetchList(); fetchLevelCounts() }">
           <el-icon><Refresh /></el-icon>刷新

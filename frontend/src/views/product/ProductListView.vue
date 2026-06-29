@@ -118,7 +118,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="得力办公文具专区" subtitle="品牌专柜商品、独家供货关系与门店库存">
+    <PageHeader title="得力办公文具专区">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreateProduct">
           <el-icon><Plus /></el-icon>新增商品

@@ -333,7 +333,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="入库单" subtitle="记录采购到货验收；审核通过后自动增加对应门店库存">
+    <PageHeader title="入库单">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate()">
           <el-icon><Plus /></el-icon>新增入库单

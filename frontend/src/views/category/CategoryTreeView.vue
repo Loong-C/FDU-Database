@@ -195,7 +195,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="分类管理" subtitle="支持多级分类，拖拽即可调整父子关系">
+    <PageHeader title="分类管理">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreateRoot">
           <el-icon><Plus /></el-icon>新增一级分类

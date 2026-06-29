@@ -45,7 +45,7 @@ const workflowActions = computed(() => {
 
 <template>
   <div class="page-wrapper welcome-page">
-    <PageHeader :title="`你好， ${displayName}`" subtitle="今日业务概况与近 7 天趋势一览" />
+    <PageHeader :title="`你好， ${displayName}`" />
     <div class="welcome-page__rule" />
 
     <section class="workflow-grid welcome-page__actions">

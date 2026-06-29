@@ -338,7 +338,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="采购单" subtitle="记录向供应商采购商品的下单过程，入库单可基于采购单生成">
+    <PageHeader title="采购单">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate()">
           <el-icon><Plus /></el-icon>新增采购单

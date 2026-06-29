@@ -154,7 +154,7 @@ onMounted(initialize)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="经营总览" subtitle="今日销售、库存与会员概况">
+    <PageHeader title="经营总览">
       <template #extra>
         <div class="dashboard-actions">
           <el-select v-model="selectedStoreId" placeholder="选择门店" style="width: 190px" @change="fetchAll">

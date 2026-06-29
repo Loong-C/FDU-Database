@@ -343,7 +343,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="新开销售单" subtitle="POS 风格下单：搜索商品 → 加入购物车 → 选择门店与支付方式 → 提交">
+    <PageHeader title="新开销售单">
       <template #extra>
         <el-button @click="router.push('/sales')">
           <el-icon><ArrowLeft /></el-icon>返回列表

@@ -98,7 +98,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="图书档案" subtitle="维护 ISBN、出版社、作者、译者与门店库存">
+    <PageHeader title="图书档案">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增图书

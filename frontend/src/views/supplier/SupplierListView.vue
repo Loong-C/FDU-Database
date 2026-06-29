@@ -133,7 +133,7 @@ onMounted(fetchList)
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="供应商管理" subtitle="管理合作供应商及供货关系">
+    <PageHeader title="供应商管理">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>新增供应商

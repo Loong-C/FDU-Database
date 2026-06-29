@@ -369,7 +369,7 @@ onMounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="销售分析" subtitle="按门店、商品、会员、分类四个维度钻取销售数据">
+    <PageHeader title="销售分析">
       <template #extra>
         <el-button @click="exportCurrent">
           <el-icon><Download /></el-icon>导出当前视图

@@ -103,7 +103,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-wrapper">
-    <PageHeader title="销售订单" subtitle="查询并管理销售记录，支持按门店、支付方式、日期范围筛选">
+    <PageHeader title="销售订单">
       <template #extra>
         <el-button v-if="canWrite()" type="primary" @click="router.push('/sales/new')">
           <el-icon><Plus /></el-icon>新开销售单
