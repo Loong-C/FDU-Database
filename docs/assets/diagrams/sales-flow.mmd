@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant U as 用户
+    participant F as 前端销售页
+    participant A as 后端 Sales API
+    participant I as Inventory Service
+    participant DB as MySQL
+
+    U->>F: 选择门店、搜索商品、加入购物车
+    F->>A: POST /api/v1/sales
+    A->>DB: 查询商品当前售价
+    A->>A: 计算明细金额、总额、实付金额
+    A->>I: 按门店和商品扣减库存
+    I->>DB: SELECT FOR UPDATE 锁定 inventory
+    I->>DB: 校验库存并保存新库存
+    A->>DB: 创建 sale 与 sale_item
+    A-->>F: 返回销售单详情

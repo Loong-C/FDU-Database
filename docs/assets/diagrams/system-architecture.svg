@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-labelledby="title desc">
+  <title id="title">系统总体架构图</title>
+  <desc id="desc">浏览器用户访问 Vue 前端，前端通过 Axios 调用 Django REST API，后端通过 PyMySQL 访问 MySQL，SQL 脚本和 CSV 数据用于初始化数据库。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .title { font: 700 24px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+      .box-title { font: 700 18px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+      .box-sub { font: 14px Consolas, "Microsoft YaHei", monospace; fill: #374151; }
+      .label { font: 13px Consolas, "Microsoft YaHei", monospace; fill: #1d4ed8; }
+      .box { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.6; rx: 10; }
+      .data { fill: #ecfeff; stroke: #0891b2; }
+      .line { stroke: #2563eb; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="960" height="360" fill="#ffffff"/>
+  <text x="480" y="38" text-anchor="middle" class="title">网上综合书店销售数据库系统总体架构</text>
+
+  <rect x="42" y="115" width="150" height="90" class="box"/>
+  <text x="117" y="150" text-anchor="middle" class="box-title">浏览器 / 用户</text>
+  <text x="117" y="178" text-anchor="middle" class="box-sub">Browser</text>
+
+  <rect x="260" y="104" width="180" height="112" class="box"/>
+  <text x="350" y="142" text-anchor="middle" class="box-title">Vue 3 前端</text>
+  <text x="350" y="170" text-anchor="middle" class="box-sub">Vite + Element Plus</text>
+  <text x="350" y="194" text-anchor="middle" class="box-sub">Pinia + ECharts</text>
+
+  <rect x="508" y="104" width="180" height="112" class="box"/>
+  <text x="598" y="142" text-anchor="middle" class="box-title">Django REST API</text>
+  <text x="598" y="170" text-anchor="middle" class="box-sub">JWT + DRF</text>
+  <text x="598" y="194" text-anchor="middle" class="box-sub">业务服务层</text>
+
+  <rect x="756" y="104" width="160" height="112" class="box data"/>
+  <text x="836" y="142" text-anchor="middle" class="box-title">MySQL 8</text>
+  <text x="836" y="170" text-anchor="middle" class="box-sub">业务表</text>
+  <text x="836" y="194" text-anchor="middle" class="box-sub">Django 表</text>
+
+  <rect x="490" y="268" width="280" height="58" class="box data"/>
+  <text x="630" y="292" text-anchor="middle" class="box-title">SQL 脚本 + CSV 数据</text>
+  <text x="630" y="315" text-anchor="middle" class="box-sub">create_tables.sql / sql/data/*.csv</text>
+
+  <path d="M 192 160 L 250 160" class="line"/>
+  <text x="221" y="145" text-anchor="middle" class="label">访问</text>
+  <path d="M 440 160 L 498 160" class="line"/>
+  <text x="469" y="145" text-anchor="middle" class="label">Axios /api/v1</text>
+  <path d="M 688 160 L 746 160" class="line"/>
+  <text x="717" y="145" text-anchor="middle" class="label">PyMySQL</text>
+  <path d="M 630 268 C 650 240, 735 232, 804 216" class="line"/>
+  <text x="704" y="250" text-anchor="middle" class="label">bootstrap_business_db --seed --views</text>
+</svg>

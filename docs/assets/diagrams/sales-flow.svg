@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="520" viewBox="0 0 1080 520" role="img" aria-labelledby="title desc">
+  <title id="title">销售功能流程图</title>
+  <desc id="desc">用户在前端销售页创建销售单，后端查询价格、计算金额、扣减库存、写入销售单和销售明细并返回结果。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .title { font: 700 25px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+      .head { font: 700 15px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+      .step { font: 13px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #0f172a; }
+      .code { font: 12px Consolas, "Microsoft YaHei", monospace; fill: #1e3a8a; }
+      .box { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.4; rx: 8; }
+      .life { stroke: #cbd5e1; stroke-width: 1.4; stroke-dasharray: 6 6; }
+      .line { stroke: #2563eb; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .return { stroke: #64748b; stroke-width: 1.8; fill: none; stroke-dasharray: 5 5; marker-end: url(#arrow-gray); }
+    </style>
+  </defs>
+  <rect width="1080" height="520" fill="#ffffff"/>
+  <text x="540" y="38" text-anchor="middle" class="title">销售功能流程</text>
+
+  <g>
+    <rect x="45" y="70" width="130" height="44" class="box"/><text x="110" y="98" text-anchor="middle" class="head">用户</text>
+    <rect x="245" y="70" width="140" height="44" class="box"/><text x="315" y="98" text-anchor="middle" class="head">前端销售页</text>
+    <rect x="455" y="70" width="145" height="44" class="box"/><text x="528" y="98" text-anchor="middle" class="head">Sales API</text>
+    <rect x="670" y="70" width="160" height="44" class="box"/><text x="750" y="98" text-anchor="middle" class="head">Inventory Service</text>
+    <rect x="910" y="70" width="120" height="44" class="box"/><text x="970" y="98" text-anchor="middle" class="head">MySQL</text>
+  </g>
+
+  <line x1="110" y1="114" x2="110" y2="485" class="life"/>
+  <line x1="315" y1="114" x2="315" y2="485" class="life"/>
+  <line x1="528" y1="114" x2="528" y2="485" class="life"/>
+  <line x1="750" y1="114" x2="750" y2="485" class="life"/>
+  <line x1="970" y1="114" x2="970" y2="485" class="life"/>
+
+  <path d="M 110 145 L 305 145" class="line"/><text x="124" y="136" class="step">选择门店、搜索商品、加入购物车</text>
+  <path d="M 315 190 L 518 190" class="line"/><text x="340" y="181" class="code">POST /api/v1/sales</text>
+  <path d="M 528 235 L 960 235" class="line"/><text x="560" y="226" class="step">查询商品当前售价</text>
+  <path d="M 528 280 C 590 260, 590 300, 528 280" class="line"/><text x="552" y="306" class="step">计算明细金额、总额、实付金额</text>
+  <path d="M 528 330 L 740 330" class="line"/><text x="548" y="321" class="step">按门店和商品扣减库存</text>
+  <path d="M 750 370 L 960 370" class="line"/><text x="774" y="361" class="code">SELECT FOR UPDATE inventory</text>
+  <path d="M 750 410 L 960 410" class="line"/><text x="774" y="401" class="step">校验库存并保存新库存</text>
+  <path d="M 528 450 L 960 450" class="line"/><text x="560" y="441" class="step">创建 sale 与 sale_item</text>
+  <path d="M 518 480 L 325 480" class="return"/><text x="350" y="471" class="step">返回销售单详情</text>
+</svg>

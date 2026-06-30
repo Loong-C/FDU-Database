@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc">
+  <title id="title">核心实体关系图</title>
+  <desc id="desc">图书商品、销售库存、采购入库和权限设计四组核心实体关系。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 26px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+      .panel-title { font: 700 18px "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #0f172a; }
+      .entity { font: 700 14px Consolas, "Microsoft YaHei", monospace; fill: #111827; }
+      .rel { font: 12px Consolas, "Microsoft YaHei", monospace; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; rx: 12; }
+      .node { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.3; rx: 7; }
+      .join { fill: #eef2ff; stroke: #6366f1; }
+      .line { stroke: #334155; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+  <rect width="1180" height="760" fill="#ffffff"/>
+  <text x="590" y="38" text-anchor="middle" class="title">核心实体关系图</text>
+
+  <rect x="30" y="70" width="540" height="300" class="panel"/>
+  <text x="52" y="102" class="panel-title">商品与图书</text>
+  <rect x="70" y="130" width="120" height="42" class="node"/><text x="130" y="156" text-anchor="middle" class="entity">CATEGORY</text>
+  <rect x="250" y="130" width="120" height="42" class="node"/><text x="310" y="156" text-anchor="middle" class="entity">PRODUCT</text>
+  <rect x="430" y="130" width="100" height="42" class="node"/><text x="480" y="156" text-anchor="middle" class="entity">BOOK</text>
+  <rect x="70" y="222" width="120" height="42" class="node"/><text x="130" y="248" text-anchor="middle" class="entity">SUPPLIER</text>
+  <rect x="250" y="222" width="150" height="42" class="join"/><text x="325" y="248" text-anchor="middle" class="entity">SUPPLIER_PRODUCT</text>
+  <rect x="430" y="222" width="100" height="42" class="node"/><text x="480" y="248" text-anchor="middle" class="entity">PUBLISHER</text>
+  <rect x="70" y="300" width="120" height="42" class="node"/><text x="130" y="326" text-anchor="middle" class="entity">AUTHOR</text>
+  <rect x="250" y="300" width="120" height="42" class="join"/><text x="310" y="326" text-anchor="middle" class="entity">BOOK_AUTHOR</text>
+  <rect x="410" y="300" width="120" height="42" class="join"/><text x="470" y="326" text-anchor="middle" class="entity">BOOK_TRANSLATOR</text>
+  <path d="M 190 151 L 240 151" class="line"/><text x="215" y="139" text-anchor="middle" class="rel">1:N</text>
+  <path d="M 370 151 L 420 151" class="line"/><text x="395" y="139" text-anchor="middle" class="rel">1:0..1</text>
+  <path d="M 190 243 L 240 243" class="line"/><text x="215" y="231" text-anchor="middle" class="rel">N:M</text>
+  <path d="M 325 222 C 330 196, 310 182, 310 172" class="line"/>
+  <path d="M 480 222 L 480 172" class="line"/><text x="505" y="199" class="rel">publishes</text>
+  <path d="M 190 321 L 240 321" class="line"/><text x="215" y="309" text-anchor="middle" class="rel">N:M</text>
+  <path d="M 370 321 L 400 321" class="line"/>
+  <path d="M 470 300 C 490 262, 500 198, 490 172" class="line"/>
+
+  <rect x="610" y="70" width="540" height="300" class="panel"/>
+  <text x="632" y="102" class="panel-title">销售与库存</text>
+  <rect x="650" y="130" width="110" height="42" class="node"/><text x="705" y="156" text-anchor="middle" class="entity">STORE</text>
+  <rect x="820" y="130" width="110" height="42" class="node"/><text x="875" y="156" text-anchor="middle" class="entity">SALE</text>
+  <rect x="1000" y="130" width="110" height="42" class="node"/><text x="1055" y="156" text-anchor="middle" class="entity">SALE_ITEM</text>
+  <rect x="650" y="235" width="110" height="42" class="node"/><text x="705" y="261" text-anchor="middle" class="entity">CUSTOMER</text>
+  <rect x="820" y="235" width="110" height="42" class="node"/><text x="875" y="261" text-anchor="middle" class="entity">MEMBER</text>
+  <rect x="1000" y="235" width="110" height="42" class="node"/><text x="1055" y="261" text-anchor="middle" class="entity">PRODUCT</text>
+  <rect x="820" y="305" width="140" height="42" class="node"/><text x="890" y="331" text-anchor="middle" class="entity">INVENTORY</text>
+  <path d="M 760 151 L 810 151" class="line"/><text x="785" y="139" class="rel">1:N</text>
+  <path d="M 930 151 L 990 151" class="line"/><text x="960" y="139" class="rel">1:N</text>
+  <path d="M 760 256 C 790 230, 800 188, 820 162" class="line"/><text x="785" y="224" class="rel">places</text>
+  <path d="M 760 256 L 810 256" class="line"/><text x="785" y="244" class="rel">0..1</text>
+  <path d="M 1055 235 L 1055 172" class="line"/><text x="1072" y="205" class="rel">sold_as</text>
+  <path d="M 705 172 C 715 250, 770 315, 820 326" class="line"/>
+  <path d="M 1055 277 C 1030 322, 1000 330, 960 326" class="line"/><text x="1005" y="316" class="rel">store + product</text>
+
+  <rect x="30" y="405" width="540" height="300" class="panel"/>
+  <text x="52" y="437" class="panel-title">采购与入库</text>
+  <rect x="70" y="470" width="120" height="42" class="node"/><text x="130" y="496" text-anchor="middle" class="entity">SUPPLIER</text>
+  <rect x="250" y="470" width="160" height="42" class="node"/><text x="330" y="496" text-anchor="middle" class="entity">PURCHASE_ORDER</text>
+  <rect x="440" y="470" width="90" height="42" class="node"/><text x="485" y="496" text-anchor="middle" class="entity">STORE</text>
+  <rect x="250" y="555" width="175" height="42" class="node"/><text x="338" y="581" text-anchor="middle" class="entity">PURCHASE_ORDER_ITEM</text>
+  <rect x="70" y="630" width="120" height="42" class="node"/><text x="130" y="656" text-anchor="middle" class="entity">PRODUCT</text>
+  <rect x="250" y="630" width="120" height="42" class="node"/><text x="310" y="656" text-anchor="middle" class="entity">STOCK_IN</text>
+  <rect x="410" y="630" width="120" height="42" class="node"/><text x="470" y="656" text-anchor="middle" class="entity">STOCK_IN_ITEM</text>
+  <path d="M 190 491 L 240 491" class="line"/><text x="215" y="479" class="rel">receives</text>
+  <path d="M 440 491 L 420 491" class="line"/><text x="432" y="479" class="rel">orders_for</text>
+  <path d="M 330 512 L 338 545" class="line"/><text x="350" y="534" class="rel">contains</text>
+  <path d="M 330 512 C 315 555, 310 585, 310 620" class="line"/><text x="270" y="565" class="rel">inbound_source</text>
+  <path d="M 190 651 L 240 585" class="line"/>
+  <path d="M 190 660 C 250 705, 355 705, 410 672" class="line dash"/>
+  <path d="M 370 651 L 400 651" class="line"/><text x="382" y="639" class="rel">contains</text>
+
+  <rect x="610" y="405" width="540" height="300" class="panel"/>
+  <text x="632" y="437" class="panel-title">权限设计层</text>
+  <rect x="650" y="500" width="130" height="42" class="node"/><text x="715" y="526" text-anchor="middle" class="entity">SYSTEM_USER</text>
+  <rect x="835" y="500" width="110" height="42" class="join"/><text x="890" y="526" text-anchor="middle" class="entity">USER_ROLE</text>
+  <rect x="1010" y="500" width="90" height="42" class="node"/><text x="1055" y="526" text-anchor="middle" class="entity">ROLE</text>
+  <rect x="835" y="600" width="140" height="42" class="join"/><text x="905" y="626" text-anchor="middle" class="entity">ROLE_PERMISSION</text>
+  <rect x="1010" y="600" width="120" height="42" class="node"/><text x="1070" y="626" text-anchor="middle" class="entity">PERMISSION</text>
+  <path d="M 780 521 L 825 521" class="line"/><text x="803" y="509" class="rel">has</text>
+  <path d="M 945 521 L 1000 521" class="line"/><text x="973" y="509" class="rel">assigned</text>
+  <path d="M 1055 542 C 1040 585, 1012 612, 985 621" class="line"/><text x="1018" y="582" class="rel">owns</text>
+  <path d="M 975 621 L 1000 621" class="line"/><text x="988" y="609" class="rel">grants</text>
+</svg>

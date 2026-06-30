@@ -1,0 +1,11 @@
+flowchart LR
+    Browser["浏览器 / 用户"]
+    Vue["Vue 3 前端<br/>Vite + Element Plus + ECharts"]
+    API["Django REST API<br/>JWT + DRF"]
+    MySQL["MySQL 8<br/>业务表 + Django 表"]
+    SQL["sql/*.sql + sql/data/*.csv"]
+
+    Browser --> Vue
+    Vue -- "Axios /api/v1" --> API
+    API -- "PyMySQL" --> MySQL
+    SQL -- "bootstrap_business_db --seed --views" --> MySQL
